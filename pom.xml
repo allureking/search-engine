@@ -1,0 +1,156 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>SearchEngine</artifactId>
+	<groupId>edu.usfca.cs272</groupId>
+	<version>2023-08</version>
+
+	<properties>
+		<!-- properties changed via command line -->
+		<config.werror>false</config.werror>
+		<config.xlint>-Xlint:all,-path,-processing</config.xlint>
+		<config.xdoclint>-Xdoclint:all/private</config.xdoclint>
+
+		<!-- project settings -->
+		<maven.compiler.release>17</maven.compiler.release>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- plugin versions (must be exact) -->
+		<versions.maven.compiler>3.11.0</versions.maven.compiler>
+		<versions.maven.surefire>3.1.2</versions.maven.surefire>
+
+		<!-- dependency versions -->
+		<!-- https://maven.apache.org/pom.html#dependency-version-requirement-specification -->
+		<versions.junit.jupiter>[5.10,5.999999)</versions.junit.jupiter>
+		<versions.junit.launcher>[1.10,1.999999)</versions.junit.launcher>
+
+		<versions.apache.opennlp>[2.3,2.999999)</versions.apache.opennlp>
+		<versions.apache.log4j2>[2.20,2.999999)</versions.apache.log4j2>
+		<versions.commons.lang3>[3.13,3.999999)</versions.commons.lang3>
+		<versions.commons.text>[1.10,1.999999)</versions.commons.text>
+
+		<versions.jakarta.servlet>[5.0,5.999999)</versions.jakarta.servlet>
+		<versions.eclipse.jetty>[11.0.15,11.999999)</versions.eclipse.jetty>
+		<versions.mariadb.jdbc>[3.1.4,3.999999)</versions.mariadb.jdbc>
+	</properties>
+
+	<build>
+		<!-- assumes SearchEngine and SearchEngineTest are in the same directory -->
+		<sourceDirectory>src/main/java</sourceDirectory>
+		<testSourceDirectory>../project-tests/src/test/java</testSourceDirectory>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${versions.maven.compiler}</version>
+
+				<configuration>
+					<compilerArgs>
+						<arg>${config.xlint}</arg>
+						<arg>${config.xdoclint}</arg>
+					</compilerArgs>
+
+					<failOnWarning>${config.werror}</failOnWarning>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+					<fork>true</fork>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${versions.maven.surefire}</version>
+
+				<configuration>
+					<runOrder>alphabetical</runOrder>
+					<excludes>
+						<exclude />
+					</excludes>
+					<useFile>false</useFile>
+					<workingDirectory>../project-tests/</workingDirectory>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- for unit testing -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>${versions.junit.jupiter}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${versions.junit.launcher}</version>
+		</dependency>
+
+		<!-- for stemming words -->
+		<dependency>
+			<groupId>org.apache.opennlp</groupId>
+			<artifactId>opennlp-tools</artifactId>
+			<version>${versions.apache.opennlp}</version>
+		</dependency>
+
+		<!-- for logging -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${versions.apache.log4j2}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${versions.apache.log4j2}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${versions.apache.log4j2}</version>
+		</dependency>
+
+		<!-- for apache commons -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${versions.commons.lang3}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>${versions.commons.text}</version>
+		</dependency>
+
+		<!-- for jetty -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>${versions.jakarta.servlet}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${versions.eclipse.jetty}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>${versions.eclipse.jetty}</version>
+		</dependency>
+
+		<!-- for mariadb jdbc connection -->
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+			<version>${versions.mariadb.jdbc}</version>
+		</dependency>
+	</dependencies>
+</project>

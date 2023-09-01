@@ -1,0 +1,12 @@
+name: Project Review
+
+on:
+  pull_request_review:
+    types: [submitted, edited]
+
+jobs:
+  main:
+    name: 'Run'
+    uses: usf-cs272-fall2023/cs272-bot/.github/workflows/project-review.yml@main
+    secrets: inherit
+    permissions: write-all

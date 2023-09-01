@@ -1,0 +1,21 @@
+name: Project Release
+
+on:
+  release:
+    types: [created, edited]
+
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Project release version number or tag (e.g. v1.0.0)"
+        required: true
+        default: "v0.0.0"
+
+jobs:
+  main:
+    name: 'Run'
+    uses: usf-cs272-fall2023/cs272-bot/.github/workflows/project-release.yml@main
+    secrets: inherit
+    permissions: write-all
+    with:
+      release_tag: ${{ github.event.inputs.release_tag }}

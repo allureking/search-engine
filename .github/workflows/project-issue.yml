@@ -1,0 +1,12 @@
+name: Project Issue
+
+on:
+  issues:
+    types: [opened, reopened]
+
+jobs:
+  main:
+    name: 'Run'
+    uses: usf-cs272-fall2023/cs272-bot/.github/workflows/project-issue.yml@main
+    secrets: inherit
+    permissions: write-all

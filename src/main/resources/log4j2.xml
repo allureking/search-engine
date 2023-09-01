@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%m %throwable{short.message}%n">
+			</PatternLayout>
+		</Console>
+
+		<File name="Debug" fileName="debug.log" append="false" immediateFlush="true">
+			<PatternLayout
+				pattern="[%03sequenceNumber %level{lowerCase=true}] %file:%line %thread: %m %throwable%n">
+			</PatternLayout>
+		</File>
+	</Appenders>
+
+	<Loggers>
+		<Root level="ALL">
+			<AppenderRef ref="Console" level="INFO" />
+			<AppenderRef ref="Debug" level="ALL" />
+		</Root>
+	</Loggers>
+</Configuration>
