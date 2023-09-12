@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -29,50 +30,46 @@ public class Driver {
         // Store initial start time
         Instant start = Instant.now();
         
-        // Output command-line arguments (step 1)
+        // Output command-line arguments for debugging
         System.out.println(Arrays.toString(args));
         
         // Initialize variables to hold the paths for the text and counts files
         String textFilePath = null;
-        String countsFilePath = "counts.txt";  // Default output file name
+        String countsFilePath = null;  // No default file, as it depends on whether -counts is supplied
 
-        // Parse command-line arguments (part of step 3 and new for step 5)
+        // Parse command-line arguments
         for (int i = 0; i < args.length; i++) {
             if ("-text".equals(args[i])) {
-                textFilePath = args[++i];
-            } else if ("-counts".equals(args[i])) {
-                countsFilePath = args[++i];
-            }
-        }
-
-        // Initialize word count variable
-        int wordCount = 0;
-
-        // Open and read the text file, then output its contents to the console (part of step 3)
-        if (textFilePath != null) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(textFilePath))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-
-                    // Split the line into words and update word count (step 4)
-                    String[] words = line.split("\\s+");
-                    wordCount += words.length;
+                if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+                    textFilePath = args[++i];
+                } else {
+                    // Handle the case where -text is provided but no path follows
+                    System.out.println("No file or directory path provided for -text. Proceeding without text processing.");
                 }
-                
-                // Output the word count to the console (step 4)
-                System.out.println("Word Count: " + wordCount);
-
-            } catch (IOException e) {
-                System.out.println("An error occurred while reading the text file: " + e.getMessage());
+            } else if ("-counts".equals(args[i])) {
+                if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
+                    countsFilePath = args[++i];
+                } else {
+                    countsFilePath = "counts.json";  // Default output file name
+                }
             }
         }
+        
+        // Initialize a HashMap to store the word count for each file
+        HashMap<String, Integer> wordCounts = new HashMap<>();
 
-        // Write the word count to the output file in JSON format (step 6)
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(countsFilePath))) {
-            writer.write("{\n  \"WordCount\": " + wordCount + "\n}");
-        } catch (IOException e) {
-            System.out.println("An error occurred while writing to the counts file: " + e.getMessage());
+        // TODO: Implement word counting logic based on `textFilePath`
+        // This would involve reading the file or traversing the directory
+        // Update wordCounts with the filename as key and its word count as value
+
+        // Output word counts to JSON if required
+        if (countsFilePath != null) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(countsFilePath))) {
+                // TODO: Serialize wordCounts HashMap to JSON format and write to the file
+                writer.write("TODO: Implement JSON serialization");
+            } catch (IOException e) {
+                System.out.println("An error occurred while writing to the counts file: " + e.getMessage());
+            }
         }
 
         // Calculate time elapsed and output
