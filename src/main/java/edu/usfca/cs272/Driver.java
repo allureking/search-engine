@@ -29,7 +29,7 @@ public class Driver {
         // Store initial start time
         Instant start = Instant.now();
         
-        // Output command-line arguments (step 1 complete)
+        // Output command-line arguments (step 1)
         System.out.println(Arrays.toString(args));
         
         // Initialize variables to hold the paths for the text and counts files
