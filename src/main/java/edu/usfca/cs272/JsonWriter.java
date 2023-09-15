@@ -84,27 +84,24 @@ public class JsonWriter {
 	 * @see #writeIndent(String, Writer, int)
 	 */
 	public static void writeArray(Collection<? extends Number> elements, Writer writer, int indent) throws IOException {
-	    writer.write('[');
 	    
-	    if (!elements.isEmpty()) {
+		writer.write('[');
+		
+		var iterator = elements.iterator();
+	    
+	    if (iterator.hasNext()) {
 	        writer.write('\n');
+	        writeIndent(iterator.next().toString(), writer, indent + 1);
 	        
-	        var iterator = elements.iterator();
 	        while (iterator.hasNext()) {
-	            writeIndent(iterator.next().toString(), writer, indent + 1);
-	            if (iterator.hasNext()) {
 	                writer.write(",\n");
-	            } else {
-	                writer.write('\n');
-	            }
-	        }
+	                writeIndent(iterator.next().toString(), writer, indent + 1);
+            }
+        }
 	        
-	        writeIndent(writer, indent);
-	    } else {
-	        writer.write('\n');
-	        writeIndent(writer, indent);
-	    }
-	    writer.write(']');
+        writer.write('\n');
+        writeIndent("]", writer, indent);
+	    
 	}
 
 	/**
@@ -159,31 +156,28 @@ public class JsonWriter {
 	 * @see #writeIndent(String, Writer, int)
 	 */
 	public static void writeObject(Map<String, ? extends Number> elements, Writer writer, int indent) throws IOException {
-		if (elements.isEmpty()) {
-	        writer.write("{\n");
-	        writeIndent(writer, indent);
-	        writer.write("}");
-	        return;
-	    }
-
-	    writer.write("{\n");
-	    
+	    writer.write('{');
 	    var iterator = elements.entrySet().iterator();
-	    while (iterator.hasNext()) {
+
+	    if (iterator.hasNext()) {
+	        writer.write('\n');
+
 	        var entry = iterator.next();
 	        writeQuote(entry.getKey(), writer, indent + 1);
 	        writer.write(": ");
 	        writer.write(entry.getValue().toString());
-	        
-	        if (iterator.hasNext()) {
+
+	        while (iterator.hasNext()) {
 	            writer.write(",\n");
-	        } else {
-	            writer.write('\n');
+	            entry = iterator.next();
+	            writeQuote(entry.getKey(), writer, indent + 1);
+	            writer.write(": ");
+	            writer.write(entry.getValue().toString());
 	        }
 	    }
 	    
-	    writeIndent(writer, indent);
-	    writer.write('}');
+	    writer.write('\n');
+	    writeIndent("}", writer, indent);
 	}
 
 	/**
@@ -241,55 +235,28 @@ public class JsonWriter {
 	 * @see #writeArray(Collection)
 	 */
 	public static void writeObjectArrays(Map<String, ? extends Collection<? extends Number>> elements, Writer writer, int indent) throws IOException {
-		writer.write('{');
-	    if (!elements.isEmpty()) {
+	    writer.write('{');
+	    var iterator = elements.entrySet().iterator();
+
+	    if (iterator.hasNext()) {
 	        writer.write('\n');
-	        
-	        var iterator = elements.entrySet().iterator();
+
+	        var entry = iterator.next();
+	        writeQuote(entry.getKey(), writer, indent + 1);
+	        writer.write(": ");
+	        writeArray(entry.getValue(), writer, indent + 1);
+
 	        while (iterator.hasNext()) {
-	            var entry = iterator.next();
+	            writer.write(",\n");
+	            entry = iterator.next();
 	            writeQuote(entry.getKey(), writer, indent + 1);
 	            writer.write(": ");
-	            
-	            if (entry.getValue().isEmpty()) {
-	                writer.write("[\n");
-	                writeIndent(writer, indent + 1);
-	                writer.write("]");
-	            } else {
-	                writeArray(entry.getValue(), writer, indent + 1);
-	            }
-	            
-	            if (iterator.hasNext()) {
-	                writer.write(",\n");
-	            } else {
-	                writer.write('\n');
-	            }
+	            writeArray(entry.getValue(), writer, indent + 1);
 	        }
-	        
-	        writeIndent(writer, indent);
-	    } else {
-	        writer.write('\n');
-	        writeIndent(writer, indent);
 	    }
-	    writer.write('}');
 
-		/*
-		 * If you choose to use iterators, use the var keyword so you do not need
-		 * to explicitly type the iterator:
-		 *
-		 * var iterator = elements.entrySet().iterator();
-		 *
-		 * Iterators are not required for this, however. If the syntax is throwing you
-		 * off, treat this as if elements had this type:
-		 *
-		 * TreeMap<String, TreeSet<Integer>> elements
-		 *
-		 * --or--
-		 *
-		 * HashMap<String, ArrayList<Integer>> elements
-		 *
-		 * (Delete this after reading!)
-		 */
+	    writer.write('\n');
+	    writeIndent("}", writer, indent);
 	}
 
 	/**
@@ -347,49 +314,23 @@ public class JsonWriter {
 	 * @see #writeObject(Map)
 	 */
 	public static void writeArrayObjects(Collection<? extends Map<String, ? extends Number>> elements, Writer writer, int indent) throws IOException {
-		writer.write('[');
+	    writer.write('[');
+	    var iterator = elements.iterator();
 
-	    if (!elements.isEmpty()) {
+	    if (iterator.hasNext()) {
 	        writer.write('\n');
+	        writeIndent(writer, indent + 1);  
+	        writeObject(iterator.next(), writer, indent + 1);
 
-	        var iterator = elements.iterator();
 	        while (iterator.hasNext()) {
-	            writeIndent(writer, indent + 1);
-	            var element = iterator.next();
-	            writeObject(element, writer, indent + 1);
-	            
-	            if (iterator.hasNext()) {
-	                writer.write(",\n");
-	            } else {
-	                writer.write('\n');
-	            }
+	            writer.write(",\n");
+	            writeIndent(writer, indent + 1); 
+	            writeObject(iterator.next(), writer, indent + 1);
 	        }
-
-	        writeIndent(writer, indent);
 	    }
-	    else {
-	        writer.write('\n');
-	        writeIndent(writer, indent);
-	    }
-	    writer.write(']');
 
-		/*
-		 * If you choose to use iterators, use the var keyword so you do not need
-		 * to explicitly type the iterator:
-		 *
-		 * var iterator = elements.iterator();
-		 *
-		 * -and-
-		 *
-		 * var element = iterator.next();
-		 *
-		 * Iterators are not required for this, however. If the syntax is throwing you
-		 * off, treat this as if elements had this type:
-		 *
-		 * TreeSet<TreeMap<String, Integer>> elements
-		 *
-		 * (Delete this after reading!)
-		 */
+	    writer.write('\n');
+	    writeIndent("]", writer, indent);
 	}
 
 	/**
