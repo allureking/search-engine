@@ -32,7 +32,8 @@ public class DirectoryScanner {
                 new SimpleFileVisitor<>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                        if (file.toString().endsWith(".txt")) {
+                        String filename = file.toString().toLowerCase();
+                        if (filename.endsWith(".txt") || filename.endsWith(".text")) {
                             textFiles.add(file);
                         }
                         return FileVisitResult.CONTINUE;
