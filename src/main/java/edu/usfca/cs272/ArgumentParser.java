@@ -1,19 +1,35 @@
 package edu.usfca.cs272;
 
 /**
- * class responsible for argument parsing
+ * Class responsible for parsing command-line arguments.
  */
 public class ArgumentParser {
+    /**
+     * Array to hold the command-line arguments passed.
+     */
     private String[] args;
+
+    /**
+     * Path to the input text file or directory.
+     */
     private String inputPath;
+
+    /**
+     * Path to save the counts.
+     */
     private String countPath;
 
+    /**
+     * Constructor to initialize the ArgumentParser.
+     *
+     * @param args Command-line arguments passed to the application.
+     */
     public ArgumentParser(String[] args) {
         this.args = args;
     }
 
     /**
-     * parse the arguments
+     * Parses the command-line arguments to populate the inputPath and countPath.
      */
     public void parse() {
         // Parse command-line arguments
@@ -38,10 +54,20 @@ public class ArgumentParser {
         }
     }
 
+    /**
+     * Gets the input path.
+     *
+     * @return the input path as a String.
+     */
     public String getInputPath() {
         return inputPath;
     }
 
+    /**
+     * Gets the count path.
+     *
+     * @return the count path as a String.
+     */
     public String getCountPath() {
         return countPath;
     }
