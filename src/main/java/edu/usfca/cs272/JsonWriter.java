@@ -264,28 +264,22 @@ public class JsonWriter {
 	 * notation used allows this method to be used for any type of map with any type
 	 * of nested collection of number objects.
 	 *
-	 * @param elements the elements to write
-	 *   inner elements are indented by one, and the last bracket is indented at the
-	 *   initial indentation level
-	 * @return A string containing the JSON object representation, or null if an IOException occurs.
-	 * @throws IOException if an IO error occurs
+	 * @param elements the elements to write.
+	 *        Inner elements are indented by one, and the last bracket is indented at the
+	 *        initial indentation level.
+	 * @return A string containing the JSON object representation.
+	 * @throws IOException if an IO error occurs while writing the JSON object.
 	 *
 	 * @see Writer#write(String)
 	 * @see #writeIndent(Writer, int)
 	 * @see #writeIndent(String, Writer, int)
 	 * @see #writeArray(Collection)
 	 */
-	public static String writeObjectObjects(Map<String, Map<String, Collection<? extends Number>>> elements) {
-		try {
-			StringWriter writer = new StringWriter();
-			writeObjectObjects(elements, writer, 0);
-			return writer.toString();
-		}
-		catch (IOException e) {
-			return null;
-		}
+	public static String writeObjectObjects(Map<String, Map<String, Collection<? extends Number>>> elements) throws IOException {
+	    StringWriter writer = new StringWriter();
+	    writeObjectObjects(elements, writer, 0);
+	    return writer.toString();
 	}
-
 
 	/**
 	 * Writes the elements as a pretty JSON object with nested arrays. The generic
