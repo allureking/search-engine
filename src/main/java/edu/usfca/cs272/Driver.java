@@ -27,51 +27,13 @@ public class Driver {
         // Output command-line arguments for debugging
         System.out.println(Arrays.toString(args));
 
-        // Initialize variables to hold the paths for the text and counts files
-        String textFilePath = null;
-        String countsFilePath = null;
-        String indexFilePath = null;
+        ArgumentParser argumentParser = new ArgumentParser(args);
 
-        // Parse command-line arguments
-        for (int i = 0; i < args.length; i++) {
-            if ("-text".equals(args[i])) {
-                if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
-                    textFilePath = args[++i];
-                } else {
-                    System.out.println("No file or directory path provided for -text. Proceeding without text processing.");
-                }
-            } else if ("-counts".equals(args[i])) {
-                if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
-                    countsFilePath = args[++i];
-                } else {
-                    countsFilePath = "counts.json";
-                }
-            } else if ("-index".equals(args[i])) {
-                if (i + 1 < args.length && !args[i + 1].startsWith("-")) {
-                    indexFilePath = args[++i];
-                } else {
-                    indexFilePath = "index.json";
-                }
-            }
-        }
-
-        textFilePath = textFilePath == null ? "./" : textFilePath;
-
-        // Process Files or Directories
-        if (textFilePath == null) {
-            throw new IllegalArgumentException("textFilePath cannot be null");
-        }
-        
         // Output word counts to JSON if required
-        if (countsFilePath != null) {
+        if (argumentParser.getCountPath() != null) {
             // Initialize WordFileCounter
-            WordCounter wordCounter = new WordCounter(textFilePath, countsFilePath);
+            WordCounter wordCounter = new WordCounter(argumentParser.getInputPath(), argumentParser.getCountPath());
             wordCounter.processPathAndSave();
-        }
-
-        if (indexFilePath != null) {
-            WordIndexer wordIndexer = new WordIndexer(textFilePath, indexFilePath);
-            wordIndexer.processPathAndSave();
         }
 
         // Calculate time elapsed and output
