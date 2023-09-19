@@ -7,24 +7,16 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Abstract class responsible for word processing.
+ * Abstract word processor
  */
 public abstract class WordProcessor {
-    /**
-     * Path to the input file.
-     */
     protected String inputFile;
-
-    /**
-     * Path to the output file.
-     */
     protected String outputFile;
 
     /**
-     * Constructor for initializing WordProcessor.
-     *
-     * @param inputFile  Path to the input file.
-     * @param outputFile Path to the output file.
+     * Constructor
+     * @param inputFile
+     * @param outputFile
      */
     public WordProcessor(String inputFile, String outputFile) {
         this.inputFile = inputFile;
@@ -32,7 +24,7 @@ public abstract class WordProcessor {
     }
 
     /**
-     * Process the input path, whether it's a directory or file, and save the result.
+     * process input path, no matter it's directory or file
      */
     public void processPathAndSave() {
         Path path = Paths.get(inputFile);
@@ -50,18 +42,16 @@ public abstract class WordProcessor {
     }
 
     /**
-     * Abstract method to process a single file.
-     *
-     * @param filePath Path to the file to process.
-     * @throws IOException If any IO error occurs while processing the file.
+     * process a single file
+     * @param filePath
+     * @throws IOException
      */
     protected abstract void processFile(Path filePath) throws IOException;
 
     /**
-     * Process a directory by traversing it and processing each path individually.
-     *
-     * @param dirPath The directory path.
-     * @throws IOException If any IO error occurs while processing the directory.
+     * process a directory, traverse the directory and process each path individually
+     * @param dirPath
+     * @throws IOException
      */
     private void processDirectory(Path dirPath) throws IOException {
         List<Path> textFiles = DirectoryScanner.listTextFiles(dirPath);
@@ -71,9 +61,8 @@ public abstract class WordProcessor {
     }
 
     /**
-     * Abstract method to save the processed data to the output path.
-     *
-     * @throws IOException If any IO error occurs while saving the data.
+     * save to output
+     * @throws IOException
      */
     protected abstract void saveToOutput() throws IOException;
 }

@@ -37,6 +37,11 @@ public class Driver {
             wordCounter.processPathAndSave();
         }
 
+        if (argumentParser.getIndexPath() != null) {
+            WordIndexer wordIndexer = new WordIndexer(argumentParser.getInputPath(), argumentParser.getIndexPath());
+            wordIndexer.processPathAndSave();
+        }
+
         // Calculate time elapsed and output
         long elapsed = Duration.between(start, Instant.now()).toMillis();
         double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();

@@ -47,5 +47,20 @@ public class DirectoryScanner {
         
         return textFiles;
     }
+    
+    /**
+     * Demonstrates this class.
+     *
+     * @param args unused
+     * @throws IOException if an I/O error occurs
+     */
+    public static void main(String[] args) throws IOException {
+        Path startDir = Path.of("src", "main", "resources");
+        ArrayList<Path> textFiles = listTextFiles(startDir);
+        
+        System.out.println("Text files found:");
+        for (Path textFile : textFiles) {
+            System.out.println(textFile);
+        }
+    }
 }
-
