@@ -267,6 +267,7 @@ public class JsonWriter {
 	 * @param elements the elements to write
 	 *   inner elements are indented by one, and the last bracket is indented at the
 	 *   initial indentation level
+	 * @return A string containing the JSON object representation, or null if an IOException occurs.
 	 * @throws IOException if an IO error occurs
 	 *
 	 * @see Writer#write(String)
@@ -284,6 +285,7 @@ public class JsonWriter {
 			return null;
 		}
 	}
+
 
 	/**
 	 * Writes the elements as a pretty JSON object with nested arrays. The generic
