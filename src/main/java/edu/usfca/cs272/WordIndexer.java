@@ -11,16 +11,23 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * An implementation of word index in each file.
+ * An implementation of a word index in each file.
+ * This class extends {@code WordProcessor} and maintains an index of words and their positions in the processed files.
  */
 public class WordIndexer extends WordProcessor {
-    protected final Map<String, Map<String, List<Integer>>> wordIndex;  // Original data structure
 
     /**
-     * Constructor
-     * 
-     * @param inputFile
-     * @param outputFile
+     * The main data structure for storing the word index. 
+     * The outer map's key is the word, and the value is another map.
+     * The inner map's key is the filename, and the value is a list of positions where the word appears.
+     */
+    protected final Map<String, Map<String, List<Integer>>> wordIndex;  
+
+    /**
+     * Constructor for initializing WordIndexer.
+     *
+     * @param inputFile  The input file to be processed.
+     * @param outputFile The output file where the word index should be saved.
      */
     public WordIndexer(String inputFile, String outputFile) {
         super(inputFile, outputFile);
@@ -28,10 +35,10 @@ public class WordIndexer extends WordProcessor {
     }
 
     /**
-     * Process a single file.
+     * Processes a single file and updates the word index.
      * 
-     * @param filePath
-     * @throws IOException
+     * @param filePath  The path of the file to be processed.
+     * @throws IOException If an I/O error occurs while reading the file.
      */
     protected void processFile(Path filePath) throws IOException {
         List<String> lines = Files.readAllLines(filePath);
@@ -55,15 +62,10 @@ public class WordIndexer extends WordProcessor {
     }
     
     /**
-     * Converts the internal {@code wordIndex} map to a format compatible with the JsonWriter class.
-     * <p>
-     * The original map uses {@code List<Integer>} as the inner value type, which is converted to
-     * {@code Collection<? extends Number>} to align with the JsonWriter's method signatures.
-     * </p>
-     *
-     * @return A new map with keys and values conforming to the types expected by JsonWriter methods.
+     * Converts the original word index map to a format that can be written by the JsonWriter class.
+     * 
+     * @return A new map in the format compatible with JsonWriter's writeObjectObjects() method.
      */
-
     private Map<String, Map<String, Collection<? extends Number>>> convertMap() {
         Map<String, Map<String, Collection<? extends Number>>> convertedMap = new TreeMap<>();
         
@@ -79,9 +81,9 @@ public class WordIndexer extends WordProcessor {
     }
 
     /**
-     * Save to output.
-     * 
-     * @throws IOException
+     * Saves the computed word index to the output file.
+     *
+     * @throws IOException If an I/O error occurs while writing to the file.
      */
     protected void saveToOutput() throws IOException {
         // Convert the original map to the required type before writing
