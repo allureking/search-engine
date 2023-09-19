@@ -28,6 +28,7 @@ public class Driver {
         System.out.println(Arrays.toString(args));
 
         ArgumentParser argumentParser = new ArgumentParser(args);
+        argumentParser.parse();
 
         // Output word counts to JSON if required
         if (argumentParser.getCountPath() != null) {
