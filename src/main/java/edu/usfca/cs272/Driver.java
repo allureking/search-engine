@@ -4,6 +4,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 
+// TODO Have some unused import warnings... configure Eclipse to automatically remove unused imports
+
+// TODO Use the @Override annotation (configure Eclipse to add for you automatically) 
+
 /**
  * Class responsible for running this project based on the provided command-line
  * arguments. See the README for details.
@@ -28,13 +32,31 @@ public class Driver {
         System.out.println(Arrays.toString(args));
 
         ArgumentParser argumentParser = new ArgumentParser(args);
-        argumentParser.parse();
+        argumentParser.parse(); // TODO Remove
 
+        /*
+         * if (argumentParser.hasFlag(-text)) {
+         *    Path path = argumentParser.getPath(-text);
+         *    
+         *    try {
+         *       1 or 2 lines of code
+         *    }
+         *    catch ( ) {
+         *       Unable to build the inverted index from path: + path
+         *    }
+         * }
+         * 
+         * if (argumentParser.hasFlag(-counts)) {
+         *    ....
+         * }
+         */
+        
+        
         // Output word counts to JSON if required
         if (argumentParser.getCountPath() != null) {
             // Initialize WordFileCounter
             WordCounter wordCounter = new WordCounter(argumentParser.getInputPath(), argumentParser.getCountPath());
-            wordCounter.processPathAndSave();
+            wordCounter.processPathAndSave(); // TODO Make these steps separate
         }
 
         // Calculate time elapsed and output
