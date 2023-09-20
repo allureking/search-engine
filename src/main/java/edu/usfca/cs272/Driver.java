@@ -28,17 +28,20 @@ public class Driver {
         System.out.println(Arrays.toString(args));
 
         ArgumentParser argumentParser = new ArgumentParser(args);
-        argumentParser.parse();
+        String inputPath = argumentParser.getString("-text", "./");
 
+        System.out.println(argumentParser);
         // Output word counts to JSON if required
-        if (argumentParser.getCountPath() != null) {
+        if (argumentParser.hasFlag("-counts")) {
             // Initialize WordFileCounter
-            WordCounter wordCounter = new WordCounter(argumentParser.getInputPath(), argumentParser.getCountPath());
+            String countPath = argumentParser.getString("-counts", "counts.json");
+            WordCounter wordCounter = new WordCounter(inputPath, countPath);
             wordCounter.processPathAndSave();
         }
 
-        if (argumentParser.getIndexPath() != null) {
-            WordIndexer wordIndexer = new WordIndexer(argumentParser.getInputPath(), argumentParser.getIndexPath());
+        if (argumentParser.hasFlag("-index")) {
+            String indexPath = argumentParser.getString("-index", "index.json");
+            WordIndexer wordIndexer = new WordIndexer(inputPath, indexPath);
             wordIndexer.processPathAndSave();
         }
 
