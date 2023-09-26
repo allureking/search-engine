@@ -48,4 +48,3 @@ public class DirectoryScanner {
         return textFiles;
     }
 }
-
