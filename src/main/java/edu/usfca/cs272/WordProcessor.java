@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+// TODO Wait until project 2 to use inheritance
+
 /**
  * Abstract class responsible for word processing.
  */
@@ -45,6 +47,9 @@ public abstract class WordProcessor {
 
             saveToOutput();
         } catch (IOException e) {
+        	/*
+        	 * TODO Wrong place for exception handling... should be in Driver.main instead
+        	 */
             System.out.println("An error occurred while processing files: " + e.getMessage());
         }
     }
