@@ -33,15 +33,6 @@ public class Driver {
 
         System.out.println(argumentParser);
 
-//        if (argumentParser.hasFlag("-text")) {
-//            Path path = argumentParser.getPath("-text");
-//            try {
-//                // TODO: Add your 1 or 2 lines of code here related to building the inverted index.
-//            } catch (IOException e) {
-//                System.out.println("Unable to build the inverted index from path: " + path);
-//            }
-//        }
-
         // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
             // Initialize WordFileCounter
