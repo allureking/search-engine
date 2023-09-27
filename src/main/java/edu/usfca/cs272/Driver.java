@@ -1,12 +1,9 @@
 package edu.usfca.cs272;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
-
-//TODO Have some unused import warnings... configure Eclipse to automatically remove unused imports
-
-//TODO Use the @Override annotation (configure Eclipse to add for you automatically) 
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -17,14 +14,14 @@ import java.util.Arrays;
  * @version Fall 2023
  */
 public class Driver {
-	/**
-	 * Initializes the classes necessary based on the provided command-line
-	 * arguments. This includes (but is not limited to) how to build or search an
-	 * inverted index.
-	 *
-	 * @param args flag/value pairs used to start this program
-	 */
-	public static void main(String[] args) {
+    /**
+     * Initializes the classes necessary based on the provided command-line
+     * arguments. This includes (but is not limited to) how to build or search an
+     * inverted index.
+     *
+     * @param args flag/value pairs used to start this program
+     */
+    public static void main(String[] args) {
         // Store initial start time
         Instant start = Instant.now();
 
@@ -35,36 +32,36 @@ public class Driver {
         String inputPath = argumentParser.getString("-text", "./");
 
         System.out.println(argumentParser);
-        // TO DO fix Parser Logic
-        /*
-         * if (argumentParser.hasFlag(-text)) {
-         *    Path path = argumentParser.getPath(-text);
-         *    
-         *    try {
-         *       1 or 2 lines of code
-         *    }
-         *    catch ( ) {
-         *       Unable to build the inverted index from path: + path
-         *    }
-         * }
-         * 
-         * if (argumentParser.hasFlag(-counts)) {
-         *    ....
-         * }
-         */
-        
+
+//        if (argumentParser.hasFlag("-text")) {
+//            Path path = argumentParser.getPath("-text");
+//            try {
+//                // TODO: Add your 1 or 2 lines of code here related to building the inverted index.
+//            } catch (IOException e) {
+//                System.out.println("Unable to build the inverted index from path: " + path);
+//            }
+//        }
+
         // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
             // Initialize WordFileCounter
             String countPath = argumentParser.getString("-counts", "counts.json");
             WordCounter wordCounter = new WordCounter(inputPath, countPath);
-            wordCounter.processPathAndSave();
+            try {
+                wordCounter.processPathAndSave();
+            } catch (IOException e) {
+                System.out.println("Unable to process word counts: " + e.getMessage());
+            }
         }
 
         if (argumentParser.hasFlag("-index")) {
             String indexPath = argumentParser.getString("-index", "index.json");
             WordIndexer wordIndexer = new WordIndexer(inputPath, indexPath);
-            wordIndexer.processPathAndSave();
+            try {
+                wordIndexer.processPathAndSave();
+            } catch (IOException e) {
+                System.out.println("Unable to process word index: " + e.getMessage());
+            }
         }
 
         // Calculate time elapsed and output

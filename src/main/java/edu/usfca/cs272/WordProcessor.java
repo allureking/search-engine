@@ -6,8 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-// TODO Wait until project 2 to use inheritance
-
 /**
  * Abstract class responsible for word processing.
  */
@@ -35,23 +33,17 @@ public abstract class WordProcessor {
 
     /**
      * Process the input path, whether it's a directory or file, and save the result.
+     * @throws IOException If any IO error occurs while processing or saving.
      */
-    public void processPathAndSave() {
+    public void processPathAndSave() throws IOException {
         Path path = Paths.get(inputFile);
-        try {
-            if (Files.isDirectory(path)) {
-                processDirectory(path);
-            } else {
-                processFile(path);
-            }
-
-            saveToOutput();
-        } catch (IOException e) {
-        	/*
-        	 * TODO Wrong place for exception handling... should be in Driver.main instead
-        	 */
-            System.out.println("An error occurred while processing files: " + e.getMessage());
+        if (Files.isDirectory(path)) {
+            processDirectory(path);
+        } else {
+            processFile(path);
         }
+
+        saveToOutput();
     }
 
     /**
