@@ -46,6 +46,8 @@ public class WordIndexer extends WordProcessor {
         for (String line : lines) {
             ArrayList<String> words = FileStemmer.listStems(line);
             for (String word : words) {
+            	// TODO Move this logic into your inverted index class as an add method
+            	// TODO add(String word, String location, int position)
                 if (!wordIndex.containsKey(word)) {
                     wordIndex.put(word, new TreeMap<>());
                 }
@@ -59,6 +61,8 @@ public class WordIndexer extends WordProcessor {
                 fileMap.get(filename).add(index++);
             }
         }
+        
+        // TODO index is the word count!
     }
     
     /**

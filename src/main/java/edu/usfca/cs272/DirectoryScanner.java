@@ -17,6 +17,11 @@ import java.util.EnumSet;
  * @version Fall 2023
  */
 public class DirectoryScanner {
+	/*
+	 * TODO Could do the FileFinder homework which shows how to do this functionally and is more generally resuable
+	 * 
+	 * Or use a DirectoryStream (more efficient) 
+	 */
 
     /**
      * Lists all text files in the given directory and its subdirectories.

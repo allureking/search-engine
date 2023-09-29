@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+// TODO Mix of tabs and spaces
+
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
  * are used to separate elements and nested elements are indented using spaces.
@@ -295,6 +297,7 @@ public class JsonWriter {
 	 * @see #writeIndent(String, Writer, int)
 	 * @see #writeArray(Collection)
 	 */
+	// TODO Use ? extends for the nested map and nested collection
 	public static void writeObjectObjects(Map<String, Map<String, Collection<? extends Number>>> elements, Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
 			writeObjectObjects(elements, writer, 0);

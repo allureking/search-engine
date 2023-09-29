@@ -19,6 +19,8 @@ import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
+// TODO Mix of tabs and spaces
+
 /**
  * Utility class for parsing, cleaning, and stemming text and text files into
  * collections of processed words.
@@ -223,6 +225,7 @@ public class FileStemmer {
             String line;
             Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
             while ((line = reader.readLine()) != null) {
+            		// TODO listOfStemSets.add(uniqueStems(line, stemmer));
                 TreeSet<String> stems = new TreeSet<>();
                 addStems(line, stemmer, stems);
                 listOfStemSets.add(stems);
