@@ -15,8 +15,6 @@ import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
-// TODO Mix of tabs and spaces
-
 /**
  * Utility class for parsing, cleaning, and stemming text and text files into
  * collections of processed words.
@@ -28,12 +26,12 @@ public class FileStemmer {
 
     /**
      * Regular expression that matches any whitespace.
-     **/
+     */
     public static final Pattern SPLIT_REGEX = Pattern.compile("(?U)\\p{Space}+");
 
     /**
      * Regular expression that matches non-alphabetic characters.
-     **/
+     */
     public static final Pattern CLEAN_REGEX = Pattern.compile("(?U)[^\\p{Alpha}\\p{Space}]+");
 
     /**
