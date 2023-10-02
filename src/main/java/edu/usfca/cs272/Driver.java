@@ -32,10 +32,13 @@ public class Driver {
         ArgumentParser argumentParser = new ArgumentParser(args);
         String inputPath = argumentParser.getString("-text", "./");
 
-        System.out.println(argumentParser);
+        System.out.println(argumentParser); // TODO Remove
 
         InvertedIndex invertedIndex = new InvertedIndex();
         WordProcessor wordProcessor = new WordProcessor();
+        
+        // TODO if (argumetnParser.hasFlag(-text) {
+        // TODO Create the inputPath inside of this if statements
         try {
             wordProcessor.process(inputPath, invertedIndex);
         } catch (IOException e) {
@@ -46,7 +49,7 @@ public class Driver {
         if (argumentParser.hasFlag("-counts")) {
             String countPath = argumentParser.getString("-counts", "counts.json");
             try {
-                invertedIndex.countFromIndex();
+                invertedIndex.countFromIndex(); // TODO Remove (counts should always be calculated if the -text flag is present as part of the build process)
                 invertedIndex.saveCount(countPath);
             } catch (IOException e) {
                 System.out.println("Unable to save word counts: " + e.getMessage());

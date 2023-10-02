@@ -21,6 +21,7 @@ public class InvertedIndex {
 	 * The outer key is the word, and the inner key is the file location.
 	 * The inner value is a list of positions where the word was found in that file.
 	 */
+	// TODO private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
 	private final TreeMap<String, TreeMap<String, List<Integer>>> wordIndex;
 
 	/**
@@ -36,6 +37,20 @@ public class InvertedIndex {
         wordIndex = new TreeMap<>();
         wordCount = new TreeMap<>();
     }
+    
+    /*
+     * TODO 
+     * toString
+     * 
+     * addAll(List<String> words, String location, int start)
+     * 
+     * has, num, and view methods...
+     * 
+     * hasCount(String location) --> wordCount.containsKey(location)
+     * hasWord(String word) --> wordIndex.containsKey(word)
+     * hasLocation(String word, String location)
+     * hasPosition(String word, String location, Integer position)
+     */
 
     /**
      * Adds a new position from a file to the word index.
@@ -58,7 +73,7 @@ public class InvertedIndex {
     /**
      * Calculates word counts from the word index and stores them in the wordCount map.
      */
-    public void countFromIndex() {
+    public void countFromIndex() { // TODO Remove
         for (Map.Entry<String, TreeMap<String, List<Integer>>> wordEntry : wordIndex.entrySet()) {
             for (Map.Entry<String, List<Integer>> fileEntry : wordEntry.getValue().entrySet()) {
                 wordCount.put(fileEntry.getKey(), wordCount.getOrDefault(fileEntry.getKey(), 0) + fileEntry.getValue().size());
@@ -66,6 +81,7 @@ public class InvertedIndex {
         }
     }
 
+    // TODO Remove
     /**
      * Converts the original word index map to a format that can be written by the JsonWriter class.
      *
@@ -88,8 +104,8 @@ public class InvertedIndex {
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
-    protected void saveIndex(String output) throws IOException {
-        Map<String, Map<String, Collection<? extends Number>>> convertedMap = convertMap();
+    protected void saveIndex(String output) throws IOException { // TODO Path output
+        Map<String, Map<String, Collection<? extends Number>>> convertedMap = convertMap(); // TODO Remove
         JsonWriter.writeObjectObjects(convertedMap, Paths.get(output));
     }
 
@@ -99,7 +115,7 @@ public class InvertedIndex {
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
-    public void saveCount(String output) throws IOException {
+    public void saveCount(String output) throws IOException { // TODO Path
         JsonWriter.writeObject(wordCount, Paths.get(output));
     }
 }

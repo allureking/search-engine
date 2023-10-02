@@ -13,7 +13,8 @@ import java.util.List;
  *
  * @author Honghuai(King) Ke
  */
-public class WordProcessor {
+public class WordProcessor { // TODO InvertedIndexProcessor or InvertedIndexTextProcessor
+	// TODO Make all of the methods in here static
 
     /**
      * Processes the input path, whether it's a directory or file, and populates
@@ -23,8 +24,9 @@ public class WordProcessor {
      * @param invertedIndex  The inverted index to populate.
      * @throws IOException   If any IO error occurs while processing or saving.
      */
+	// TODO public void process(Path inputFile, InvertedIndex invertedIndex) throws IOException {
     public void process(String inputFile, InvertedIndex invertedIndex) throws IOException {
-        Path path = Paths.get(inputFile);
+        Path path = Paths.get(inputFile); // TODO Path.of
         if (Files.isDirectory(path)) {
             processDirectory(path, invertedIndex);
         } else {
@@ -32,6 +34,7 @@ public class WordProcessor {
         }
     }
 
+    // TODO public void processFile
     /**
      * Processes a single file and populates the provided inverted index with words
      * found in the file.
@@ -41,6 +44,8 @@ public class WordProcessor {
      * @throws IOException   If any IO error occurs while processing the file.
      */
     private void processFile(Path filePath, InvertedIndex invertedIndex) throws IOException {
+    	// TODO Use a buffered reader, read line by line, immediately process the line 
+    	// TODO parse, stem, add directly to the index (never to a list)
         List<String> lines = Files.readAllLines(filePath);
         int index = 1;
         for (String line : lines) {
@@ -49,8 +54,11 @@ public class WordProcessor {
                 invertedIndex.add(word, filePath.toString(), index++);
             }
         }
+        
+        // TODO use index here as the word count, then that doesn't need to be a separate step
     }
 
+    // TODO public
     /**
      * Processes a directory by traversing it and processing each path individually.
      * Populates the provided inverted index with words found in each file.

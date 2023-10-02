@@ -32,6 +32,7 @@ public class FileFinder {
 	 * @see Files#walk(Path, FileVisitOption...)
 	 */
 	public static final Predicate<Path> IS_TEXT = path -> {
+		// TODO String lower = path.toString().toLowerCase();
 	    return Files.isRegularFile(path) &&
 	           (path.toString().toLowerCase().endsWith(".txt") ||
 	            path.toString().toLowerCase().endsWith(".text"));
