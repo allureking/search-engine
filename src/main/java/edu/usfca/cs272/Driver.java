@@ -5,8 +5,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 
-
-
 /**
  * Class responsible for running this project based on the provided command-line
  * arguments. See the README for details.
@@ -16,9 +14,10 @@ import java.util.Arrays;
  * @version Fall 2023
  */
 public class Driver {
+
     /**
      * Initializes the classes necessary based on the provided command-line
-     * arguments. This includes (but is not limited to) how to build or search an
+     * arguments. This includes (but is not limited to) building or searching an
      * inverted index.
      *
      * @param args flag/value pairs used to start this program
@@ -45,7 +44,6 @@ public class Driver {
 
         // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
-            // Initialize WordFileCounter
             String countPath = argumentParser.getString("-counts", "counts.json");
             try {
                 invertedIndex.countFromIndex();
@@ -69,20 +67,4 @@ public class Driver {
         double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
         System.out.printf("Elapsed: %f seconds%n", seconds);
     }
-    
-    /*
-     * TODO 
-     * Create separate data structure/data storage and data processing/building classes
-     * 
-     * Create an InvertedIndex class
-     * 
-     * private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
-     * private final TreeMap<String, Integer> wordCount;
-     * 
-     * other methods to add to wordIndex, and add to wordCount
-     * and safely access wordIndex, and wordCount
-     * 
-     * Create a separate WordProcessor class that does NOT have the data, but keeps the file and directory processing
-     * Keep the processFile and processDirectory methods in here
-     */
 }
