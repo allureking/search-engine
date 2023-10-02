@@ -227,7 +227,7 @@ public class JsonWriter {
         writer.write('{');
         var iterator = elements.entrySet().iterator();
 
-        if (iterator.hasNext()) {
+        if (iterator.hasNext()) { // TODO 5 lines of duplicate code in this (and similar methods)
             writer.write('\n');
 
             var entry = iterator.next();
@@ -247,6 +247,33 @@ public class JsonWriter {
         writer.write('\n');
         writeIndent("}", writer, indent);
     }
+    
+    /* TODO Optional:
+    writeEntry(...) {
+      var entry = iterator.next();
+    	writer.write('\n');
+      writeQuote(entry.getKey(), writer, indent + 1);
+      writer.write(": ");
+      writeArray(entry.getValue(), writer, indent + 1);
+    }
+    
+    public static void writeObjectArrays(...) {
+      writer.write('{');
+      var iterator = elements.entrySet().iterator();
+
+      if (iterator.hasNext()) {
+          writeEntry(...);
+          
+          while (iterator.hasNext()) {
+              writer.write(",");
+              writeEntry(...);
+          }
+      }
+
+      writer.write('\n');
+      writeIndent("}", writer, indent);
+    }
+    */
 
     /**
      * Writes the elements as a pretty JSON object with nested arrays. The generic
@@ -263,6 +290,7 @@ public class JsonWriter {
      * @see #writeIndent(String, Writer, int)
      * @see #writeArray(Collection)
      */
+    // TODO ? extends Collection
     public static String writeObjectObjects(Map<String, ? extends Map<String, Collection<? extends Number>>> elements) throws IOException {
         StringWriter writer = new StringWriter();
         writeObjectObjects(elements, writer, 0);
