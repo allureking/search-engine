@@ -4,46 +4,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Abstract class responsible for word processing.
  */
-public abstract class WordProcessor {
-    /**
-     * Path to the input file.
-     */
-    protected String inputFile;
-
-    /**
-     * Path to the output file.
-     */
-    protected String outputFile;
-
-    /**
-     * Constructor for initializing WordProcessor.
-     *
-     * @param inputFile  Path to the input file.
-     * @param outputFile Path to the output file.
-     */
-    public WordProcessor(String inputFile, String outputFile) {
-        this.inputFile = inputFile;
-        this.outputFile = outputFile;
-    }
+public class WordProcessor {
 
     /**
      * Process the input path, whether it's a directory or file, and save the result.
      * @throws IOException If any IO error occurs while processing or saving.
      */
-    public void processPathAndSave() throws IOException {
+    public void process(String inputFile, InvertedIndex invertedIndex) throws IOException {
         Path path = Paths.get(inputFile);
         if (Files.isDirectory(path)) {
-            processDirectory(path);
+            processDirectory(path, invertedIndex);
         } else {
-            processFile(path);
+            processFile(path, invertedIndex);
         }
-
-        saveToOutput();
     }
 
     /**
@@ -52,7 +33,16 @@ public abstract class WordProcessor {
      * @param filePath Path to the file to process.
      * @throws IOException If any IO error occurs while processing the file.
      */
-    protected abstract void processFile(Path filePath) throws IOException;
+    private void processFile(Path filePath, InvertedIndex invertedIndex) throws IOException {
+        List<String> lines = Files.readAllLines(filePath);
+        int index = 1;
+        for (String line : lines) {
+            ArrayList<String> words = FileStemmer.listStems(line);
+            for (String word : words) {
+                invertedIndex.add(word, filePath.toString(), index++);
+            }
+        }
+    }
 
     /**
      * Process a directory by traversing it and processing each path individually.
@@ -60,17 +50,10 @@ public abstract class WordProcessor {
      * @param dirPath The directory path.
      * @throws IOException If any IO error occurs while processing the directory.
      */
-    private void processDirectory(Path dirPath) throws IOException {
-        List<Path> textFiles = DirectoryScanner.listTextFiles(dirPath);
+    private void processDirectory(Path dirPath, InvertedIndex invertedIndex) throws IOException {
+        List<Path> textFiles = FileFinder.listText(dirPath);
         for (Path textFile : textFiles) {
-            processFile(textFile);
+            processFile(textFile, invertedIndex);
         }
     }
-
-    /**
-     * Abstract method to save the processed data to the output path.
-     *
-     * @throws IOException If any IO error occurs while saving the data.
-     */
-    protected abstract void saveToOutput() throws IOException;
 }

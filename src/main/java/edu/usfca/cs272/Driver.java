@@ -35,23 +35,30 @@ public class Driver {
 
         System.out.println(argumentParser);
 
+        InvertedIndex invertedIndex = new InvertedIndex();
+        WordProcessor wordProcessor = new WordProcessor();
+        try {
+            wordProcessor.process(inputPath, invertedIndex);
+        } catch (IOException e) {
+            System.out.println("Unable to process: " + e.getMessage());
+        }
+
         // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
             // Initialize WordFileCounter
             String countPath = argumentParser.getString("-counts", "counts.json");
-            WordCounter wordCounter = new WordCounter(inputPath, countPath);
             try {
-                wordCounter.processPathAndSave();
+                invertedIndex.countFromIndex();
+                invertedIndex.saveCount(countPath);
             } catch (IOException e) {
-                System.out.println("Unable to process word counts: " + e.getMessage());
+                System.out.println("Unable to save word counts: " + e.getMessage());
             }
         }
 
         if (argumentParser.hasFlag("-index")) {
             String indexPath = argumentParser.getString("-index", "index.json");
-            WordIndexer wordIndexer = new WordIndexer(inputPath, indexPath);
             try {
-                wordIndexer.processPathAndSave();
+                invertedIndex.saveIndex(indexPath);
             } catch (IOException e) {
                 System.out.println("Unable to process word index: " + e.getMessage());
             }
