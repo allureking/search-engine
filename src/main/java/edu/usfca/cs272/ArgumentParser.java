@@ -11,17 +11,18 @@ import java.util.HashMap;
  * @version Fall 2023
  */
 public class ArgumentParser {
-	/**
-	 * Stores command-line arguments in flag/value pairs.
-	 */
-	private final HashMap<String, String> map;
 
-	/**
-	 * Initializes this argument map.
-	 */
-	public ArgumentParser() {
-		this.map = new HashMap<>();
-	}
+    /**
+     * Stores command-line arguments in flag/value pairs.
+     */
+    private final HashMap<String, String> map;
+
+    /**
+     * Initializes this argument map.
+     */
+    public ArgumentParser() {
+        this.map = new HashMap<>();
+    }
 
 	/**
 	 * Initializes this argument map and then parsers the arguments into flag/value
