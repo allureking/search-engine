@@ -2,42 +2,60 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+/**
+ * Class responsible for maintaining an inverted index. This class will store word
+ * positions across multiple files and can also track the total word counts for each file.
+ *
+ * @author Honghuai(King) Ke
+ */
 public class InvertedIndex {
-    private final TreeMap<String, TreeMap<String, List<Integer>>> wordIndex;
-    private final TreeMap<String, Integer> wordCount;
 
+	/**
+	 * A nested TreeMap structure to store the word positions for each word in each file.
+	 * The outer key is the word, and the inner key is the file location.
+	 * The inner value is a list of positions where the word was found in that file.
+	 */
+	private final TreeMap<String, TreeMap<String, List<Integer>>> wordIndex;
+
+	/**
+	 * A TreeMap structure to store the total count of each word across all files.
+	 * The key is the word and the value is the count of that word.
+	 */
+	private final TreeMap<String, Integer> wordCount;
+
+    /**
+     * Initializes the InvertedIndex with empty index and count maps.
+     */
     public InvertedIndex() {
-        wordIndex = new TreeMap();
-        wordCount = new TreeMap();
+        wordIndex = new TreeMap<>();
+        wordCount = new TreeMap<>();
     }
 
     /**
-     * add a new position from a file to word index
-     * @param word
-     * @param location
-     * @param position
+     * Adds a new position from a file to the word index.
+     *
+     * @param word     The word to add.
+     * @param location The file location.
+     * @param position The position of the word in the file.
      */
     public void add(String word, String location, int position) {
-        if (!wordIndex.containsKey(word)) {
-            wordIndex.put(word, new TreeMap<>());
-        }
-
-        Map<String, List<Integer>> fileMap = wordIndex.get(word);
-        if (!fileMap.containsKey(location)) {
-            fileMap.put(location, new ArrayList<>());
-        }
-
-        fileMap.get(location).add(position);
+        wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
+                 .computeIfAbsent(location, k -> new ArrayList<>())
+                 .add(position);
     }
 
     /**
-     * calculate word count from word index
+     * Calculates word counts from the word index and stores them in the wordCount map.
      */
     public void countFromIndex() {
-        for (Map.Entry<String, TreeMap<String, List<Integer>>> wordEntry: wordIndex.entrySet()) {
-            for (Map.Entry<String, List<Integer>> fileEntry: wordEntry.getValue().entrySet()) {
+        for (Map.Entry<String, TreeMap<String, List<Integer>>> wordEntry : wordIndex.entrySet()) {
+            for (Map.Entry<String, List<Integer>> fileEntry : wordEntry.getValue().entrySet()) {
                 wordCount.put(fileEntry.getKey(), wordCount.getOrDefault(fileEntry.getKey(), 0) + fileEntry.getValue().size());
             }
         }
@@ -52,10 +70,7 @@ public class InvertedIndex {
         Map<String, Map<String, Collection<? extends Number>>> convertedMap = new TreeMap<>();
 
         for (Map.Entry<String, TreeMap<String, List<Integer>>> entry : wordIndex.entrySet()) {
-            Map<String, Collection<? extends Number>> innerMap = new TreeMap<>();
-            for (Map.Entry<String, List<Integer>> innerEntry : entry.getValue().entrySet()) {
-                innerMap.put(innerEntry.getKey(), innerEntry.getValue());
-            }
+            Map<String, Collection<? extends Number>> innerMap = new TreeMap<>(entry.getValue());
             convertedMap.put(entry.getKey(), innerMap);
         }
 
@@ -63,19 +78,20 @@ public class InvertedIndex {
     }
 
     /**
-     * Saves the computed word index to the output file.
+     * Saves the computed word index to the specified output file.
      *
+     * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
     protected void saveIndex(String output) throws IOException {
-        // Convert the original map to the required type before writing
         Map<String, Map<String, Collection<? extends Number>>> convertedMap = convertMap();
         JsonWriter.writeObjectObjects(convertedMap, Paths.get(output));
     }
 
     /**
-     * Saves the computed word count to the output file.
+     * Saves the computed word count to the specified output file.
      *
+     * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
     public void saveCount(String output) throws IOException {

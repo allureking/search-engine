@@ -12,7 +12,6 @@ import java.util.List;
  * directories and populates the provided inverted index with words found.
  *
  * @author Honghuai(King) Ke
- * @version Fall 2023
  */
 public class WordProcessor {
 
