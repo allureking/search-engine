@@ -12,14 +12,13 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 
-// TODO Mix of tabs and spaces
-
 /**
  * Outputs several simple data structures in "pretty" JSON format where newlines
  * are used to separate elements and nested elements are indented using spaces.
  * <p>
  * Warning: This class is not thread-safe. If multiple threads access this class
  * concurrently, access must be synchronized externally.
+ * </p>
  *
  * @author CS 272 Software Development (University of San Francisco)
  * @version Fall 2023
