@@ -48,6 +48,11 @@ public class InvertedIndex {
         wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
                  .computeIfAbsent(location, k -> new ArrayList<>())
                  .add(position);
+        	/* Better than using .containsKey, .put, .get, .add as its
+        	 * only a single operation and also it's atomic, better in
+        	 * concurrent environment where thread safety is a concern,
+        	 * and also it's easier and more efficient.
+        	 */
     }
 
     /**
