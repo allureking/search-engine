@@ -3,7 +3,6 @@ package edu.usfca.cs272;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -26,24 +25,20 @@ public class Driver {
         // Store initial start time
         Instant start = Instant.now();
 
-        // Output command-line arguments for debugging
-        System.out.println(Arrays.toString(args));
-
         ArgumentParser argumentParser = new ArgumentParser(args);
-        String inputPath = argumentParser.getString("-text", "./");
-
-        System.out.println(argumentParser); // TODO Remove
 
         InvertedIndex invertedIndex = new InvertedIndex();
         WordProcessor wordProcessor = new WordProcessor();
-        
-        // TODO if (argumetnParser.hasFlag(-text) {
-        // TODO Create the inputPath inside of this if statements
-        try {
-            wordProcessor.process(inputPath, invertedIndex);
-        } catch (IOException e) {
-            System.out.println("Unable to process: " + e.getMessage());
-        }
+
+        if (argumentParser.hasFlag("-text")) {
+          String inputPath = argumentParser.getString("-text", "./");
+
+          try {
+              wordProcessor.process(inputPath, invertedIndex);
+          } catch (IOException e) {
+              System.out.println("Unable to process: " + e.getMessage());
+          }
+      }
 
         // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
