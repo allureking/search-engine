@@ -1,6 +1,7 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -28,13 +29,12 @@ public class Driver {
         ArgumentParser argumentParser = new ArgumentParser(args);
 
         InvertedIndex invertedIndex = new InvertedIndex();
-        WordProcessor wordProcessor = new WordProcessor();
 
         if (argumentParser.hasFlag("-text")) {
-          String inputPath = argumentParser.getString("-text", "./");
+          Path inputPath = Path.of(argumentParser.getString("-text", "./"));
 
           try {
-              wordProcessor.process(inputPath, invertedIndex);
+              InvertedIndexProcessor.process(inputPath, invertedIndex);
           } catch (IOException e) {
               System.out.println("Unable to process: " + e.getMessage());
           }
