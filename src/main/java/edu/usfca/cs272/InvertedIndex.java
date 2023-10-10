@@ -35,20 +35,6 @@ public class InvertedIndex {
         wordCount = new TreeMap<>();
     }
 
-    /*
-     * TODO
-     * toString
-     *
-     * addAll(List<String> words, String location, int start)
-     *
-     * has, num, and view methods...
-     *
-     * hasCount(String location) --> wordCount.containsKey(location)
-     * hasWord(String word) --> wordIndex.containsKey(word)
-     * hasLocation(String word, String location)
-     * hasPosition(String word, String location, Integer position)
-     */
-
     @Override
     public String toString() {
         return wordIndex.toString();
