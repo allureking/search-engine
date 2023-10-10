@@ -41,7 +41,6 @@ public class InvertedIndexProcessor {
      */
     public static void processFile(Path filePath, InvertedIndex invertedIndex) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
-        			// TODO Use a buffered reader, read line by line, immediately process the line, then parse, stem, add directly to the index (never to a list)
             String line;
             int index = 1;
             while ((line = reader.readLine()) != null) {
@@ -51,7 +50,6 @@ public class InvertedIndexProcessor {
                 }
             }
         }
-        // TODO use index here as the word count, then that doesn't need to be a separate step
     }
 
     /**
