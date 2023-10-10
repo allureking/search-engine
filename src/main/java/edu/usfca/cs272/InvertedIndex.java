@@ -2,8 +2,6 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -65,42 +63,13 @@ public class InvertedIndex {
   }
 
     /**
-     * Calculates word counts from the word index and stores them in the wordCount map.
-     */
-    public void countFromIndex() { // TODO Remove
-      for (Map.Entry<String, TreeMap<String, TreeSet<Integer>>> wordEntry : wordIndex.entrySet()) {
-          for (Map.Entry<String, TreeSet<Integer>> fileEntry : wordEntry.getValue().entrySet()) {
-              wordCount.put(fileEntry.getKey(), wordCount.getOrDefault(fileEntry.getKey(), 0) + fileEntry.getValue().size());
-          }
-      }
-  }
-
-    // TODO Remove
-    /**
-     * Converts the original word index map to a format that can be written by the JsonWriter class.
-     *
-     * @return A new map in the format compatible with JsonWriter's writeObjectObjects() method.
-     */
-    private Map<String, Map<String, Collection<? extends Number>>> convertMap() {
-      Map<String, Map<String, Collection<? extends Number>>> convertedMap = new TreeMap<>();
-
-      for (Map.Entry<String, TreeMap<String, TreeSet<Integer>>> entry : wordIndex.entrySet()) {
-          Map<String, Collection<? extends Number>> innerMap = new TreeMap<>(entry.getValue());
-          convertedMap.put(entry.getKey(), innerMap);
-      }
-
-      return convertedMap;
-  }
-
-    /**
      * Saves the computed word index to the specified output file.
      *
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
     protected void saveIndex(Path output) throws IOException {
-      Map<String, Map<String, Collection<? extends Number>>> convertedMap = convertMap(); // TODO Remove
-      JsonWriter.writeObjectObjects(convertedMap, output);
+      JsonWriter.writeObjectObjects(wordIndex, output);
   }
 
     /**
