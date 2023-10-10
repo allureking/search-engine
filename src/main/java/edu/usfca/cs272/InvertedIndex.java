@@ -2,6 +2,7 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -48,6 +49,11 @@ public class InvertedIndex {
      * hasPosition(String word, String location, Integer position)
      */
 
+    @Override
+    public String toString() {
+        return wordIndex.toString();
+    }
+
     /**
      * Adds a new position from a file to the word index.
      *
@@ -61,6 +67,19 @@ public class InvertedIndex {
                .add(position);
       wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
   }
+
+    /**
+     * Adds multiple word positions from a list of words to the word index.
+     *
+     * @param words The list of words to add.
+     * @param location The file location.
+     * @param start The starting position of the words in the file.
+     */
+    public void addAll(List<String> words, String location, int start) {
+        for (String word : words) {
+            add(word, location, start++);
+        }
+    }
 
     /**
      * Saves the computed word index to the specified output file.
@@ -81,4 +100,111 @@ public class InvertedIndex {
     public void saveCount(Path output) throws IOException {
       JsonWriter.writeObject(wordCount, output);
   }
+
+    /**
+     * Determines whether the word count contains the specified location.
+     *
+     * @param location The location to check.
+     * @return true if the location exists in the word count; false otherwise.
+     */
+    public boolean hasCount(String location) {
+        return wordCount.containsKey(location);
+    }
+
+    /**
+     * Determines whether the word index contains the specified word.
+     *
+     * @param word The word to check.
+     * @return true if the word exists in the word index; false otherwise.
+     */
+    public boolean hasWord(String word) {
+        return wordIndex.containsKey(word);
+    }
+
+    /**
+     * Determines whether the word index contains the specified word and location.
+     *
+     * @param word The word to check.
+     * @param location The location to check.
+     * @return true if the word and location exist in the word index; false otherwise.
+     */
+    public boolean hasLocation(String word, String location) {
+        return wordIndex.getOrDefault(word, new TreeMap<>()).containsKey(location);
+    }
+
+    /**
+     * Determines whether the word index contains the specified word, location, and position.
+     *
+     * @param word The word to check.
+     * @param location The location to check.
+     * @param position The position to check.
+     * @return true if the word, location, and position exist in the word index; false otherwise.
+     */
+    public boolean hasPosition(String word, String location, Integer position) {
+        return wordIndex.getOrDefault(word, new TreeMap<>())
+                        .getOrDefault(location, new TreeSet<>())
+                        .contains(position);
+    }
+
+    /**
+     * Returns the number of unique words in the index.
+     *
+     * @return Number of unique words.
+     */
+    public int numWords() {
+        return wordIndex.size();
+    }
+
+    /**
+     * Returns the number of unique locations where a specific word is found.
+     *
+     * @param word The word to check.
+     * @return Number of unique locations for the word.
+     */
+    public int numLocations(String word) {
+        return wordIndex.getOrDefault(word, new TreeMap<>()).size();
+    }
+
+    /**
+     * Returns the number of times a specific word is found in a specific location.
+     *
+     * @param word     The word to check.
+     * @param location The location to check.
+     * @return Number of positions the word is found in the location.
+     */
+    public int numPositions(String word, String location) {
+        return wordIndex.getOrDefault(word, new TreeMap<>())
+                        .getOrDefault(location, new TreeSet<>())
+                        .size();
+    }
+
+    /**
+     * Returns the total count of a specific word across all files.
+     *
+     * @param location The location (typically a file) to check.
+     * @return Total count of the word.
+     */
+    public int totalCount(String location) {
+        return wordCount.getOrDefault(location, 0);
+    }
+
+    /**
+     * Provides a direct view of the inverted index.
+     *
+     * @return A reference to the internal index structure.
+     *         Changes to the returned map will affect the original index.
+     */
+    public TreeMap<String, TreeMap<String, TreeSet<Integer>>> viewIndex() {
+        return wordIndex;
+    }
+
+    /**
+     * Provides a direct view of the word count map.
+     *
+     * @return A reference to the internal word count structure.
+     *         Changes to the returned map will affect the original counts.
+     */
+    public TreeMap<String, Integer> viewCount() {
+        return wordCount;
+    }
 }
