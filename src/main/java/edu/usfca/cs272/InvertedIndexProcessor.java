@@ -44,7 +44,11 @@ public class InvertedIndexProcessor {
             String line;
             int index = 1;
             while ((line = reader.readLine()) != null) {
-                ArrayList<String> words = FileStemmer.listStems(line);
+            	/*
+            	 * TODO Call parse instead, create a stemmer and stem the words, then add
+            	 * directly to the index instead.
+            	 */
+                ArrayList<String> words = FileStemmer.listStems(line); // TODO Need to stop using listStems
                 for (String word : words) {
                     invertedIndex.add(word, filePath.toString(), index++);
                 }

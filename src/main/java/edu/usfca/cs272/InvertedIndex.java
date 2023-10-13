@@ -52,7 +52,7 @@ public class InvertedIndex {
                .computeIfAbsent(location, k -> new TreeSet<>())
                .add(position);
       wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
-  }
+    }
 
     /**
      * Adds multiple word positions from a list of words to the word index.
@@ -73,9 +73,9 @@ public class InvertedIndex {
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
-    protected void saveIndex(Path output) throws IOException {
+    protected void saveIndex(Path output) throws IOException { // TODO public
       JsonWriter.writeObjectObjects(wordIndex, output);
-  }
+    }
 
     /**
      * Saves the computed word count to the specified output file.
@@ -85,7 +85,7 @@ public class InvertedIndex {
      */
     public void saveCount(Path output) throws IOException {
       JsonWriter.writeObject(wordCount, output);
-  }
+    }
 
     /**
      * Determines whether the word count contains the specified location.
@@ -115,6 +115,7 @@ public class InvertedIndex {
      * @return true if the word and location exist in the word index; false otherwise.
      */
     public boolean hasLocation(String word, String location) {
+    	// TODO Use view method here
         return wordIndex.getOrDefault(word, new TreeMap<>()).containsKey(location);
     }
 
@@ -127,6 +128,7 @@ public class InvertedIndex {
      * @return true if the word, location, and position exist in the word index; false otherwise.
      */
     public boolean hasPosition(String word, String location, Integer position) {
+    	// TODO return viewPositions(word, location).contains(position);
         return wordIndex.getOrDefault(word, new TreeMap<>())
                         .getOrDefault(location, new TreeSet<>())
                         .contains(position);
@@ -138,7 +140,7 @@ public class InvertedIndex {
      * @return Number of unique words.
      */
     public int numWords() {
-        return wordIndex.size();
+        return wordIndex.size(); // TODO return viewWords().size();
     }
 
     /**
@@ -148,6 +150,7 @@ public class InvertedIndex {
      * @return Number of unique locations for the word.
      */
     public int numLocations(String word) {
+    	// TODO return viewLocations(word).size();
         return wordIndex.getOrDefault(word, new TreeMap<>()).size();
     }
 
@@ -180,9 +183,17 @@ public class InvertedIndex {
      * @return A reference to the internal index structure.
      *         Changes to the returned map will affect the original index.
      */
-    public TreeMap<String, TreeMap<String, TreeSet<Integer>>> viewIndex() {
+    public TreeMap<String, TreeMap<String, TreeSet<Integer>>> viewIndex() { // TODO Remove!
         return wordIndex;
     }
+    
+    /* TODO 
+    viewWords() --> unmodifiable view of the wordIndex.keySet()
+    viewLocations(String word) --> inner keyset
+    viewPositions(String word, String location) --> inner set of positions
+    
+    CONDITIONAL PASS EXCEPT CHECK WITH SOPHIE ON YOUR VIEW METHODS!
+    */
 
     /**
      * Provides a direct view of the word count map.
@@ -191,6 +202,6 @@ public class InvertedIndex {
      *         Changes to the returned map will affect the original counts.
      */
     public TreeMap<String, Integer> viewCount() {
-        return wordCount;
+        return wordCount; // TODO return Collections.unmodifiableMap(...)
     }
 }
