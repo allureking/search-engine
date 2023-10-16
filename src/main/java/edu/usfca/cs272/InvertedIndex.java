@@ -117,8 +117,7 @@ public class InvertedIndex {
      * @return true if the word and location exist in the word index; false otherwise.
      */
     public boolean hasLocation(String word, String location) {
-    	// TODO Use view method here
-        return wordIndex.getOrDefault(word, new TreeMap<>()).containsKey(location);
+      return viewLocations(word).contains(location);
     }
 
     /**
@@ -130,10 +129,7 @@ public class InvertedIndex {
      * @return true if the word, location, and position exist in the word index; false otherwise.
      */
     public boolean hasPosition(String word, String location, Integer position) {
-    	// TODO return viewPositions(word, location).contains(position);
-        return wordIndex.getOrDefault(word, new TreeMap<>())
-                        .getOrDefault(location, new TreeSet<>())
-                        .contains(position);
+      return viewPositions(word, location).contains(position);
     }
 
     /**
@@ -142,7 +138,7 @@ public class InvertedIndex {
      * @return Number of unique words.
      */
     public int numWords() {
-        return wordIndex.size(); // TODO return viewWords().size();
+      return viewWords().size();
     }
 
     /**
@@ -152,8 +148,7 @@ public class InvertedIndex {
      * @return Number of unique locations for the word.
      */
     public int numLocations(String word) {
-    	// TODO return viewLocations(word).size();
-        return wordIndex.getOrDefault(word, new TreeMap<>()).size();
+      return viewLocations(word).size();
     }
 
     /**
@@ -188,14 +183,6 @@ public class InvertedIndex {
     public TreeMap<String, TreeMap<String, TreeSet<Integer>>> viewIndex() { // TODO Remove!
         return wordIndex;
     }
-
-    /* TODO
-    viewWords() --> unmodifiable view of the wordIndex.keySet()
-    viewLocations(String word) --> inner keyset
-    viewPositions(String word, String location) --> inner set of positions
-
-    CONDITIONAL PASS EXCEPT CHECK WITH SOPHIE ON YOUR VIEW METHODS!
-    */
 
     /**
      * Provides an unmodifiable view of the words in the index.
