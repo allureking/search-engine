@@ -2,7 +2,9 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -73,7 +75,7 @@ public class InvertedIndex {
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
-    protected void saveIndex(Path output) throws IOException { // TODO public
+    public void saveIndex(Path output) throws IOException {
       JsonWriter.writeObjectObjects(wordIndex, output);
     }
 
@@ -186,14 +188,45 @@ public class InvertedIndex {
     public TreeMap<String, TreeMap<String, TreeSet<Integer>>> viewIndex() { // TODO Remove!
         return wordIndex;
     }
-    
-    /* TODO 
+
+    /* TODO
     viewWords() --> unmodifiable view of the wordIndex.keySet()
     viewLocations(String word) --> inner keyset
     viewPositions(String word, String location) --> inner set of positions
-    
+
     CONDITIONAL PASS EXCEPT CHECK WITH SOPHIE ON YOUR VIEW METHODS!
     */
+
+    /**
+     * Provides an unmodifiable view of the words in the index.
+     *
+     * @return An unmodifiable set of words.
+     */
+    public Set<String> viewWords() {
+        return Collections.unmodifiableSet(wordIndex.keySet());
+    }
+
+    /**
+     * Provides an unmodifiable view of the locations a specific word appears in.
+     *
+     * @param word The word to check.
+     * @return An unmodifiable set of locations for the given word.
+     */
+    public Set<String> viewLocations(String word) {
+        return Collections.unmodifiableSet(wordIndex.getOrDefault(word, new TreeMap<>()).keySet());
+    }
+
+    /**
+     * Provides an unmodifiable view of the positions a specific word appears at in a specific location.
+     *
+     * @param word     The word to check.
+     * @param location The location to check.
+     * @return An unmodifiable set of positions for the given word in the given location.
+     */
+    public Set<Integer> viewPositions(String word, String location) {
+        return Collections.unmodifiableSet(wordIndex.getOrDefault(word, new TreeMap<>()).getOrDefault(location, new TreeSet<>()));
+    }
+
 
     /**
      * Provides a direct view of the word count map.
