@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -214,14 +215,12 @@ public class InvertedIndex {
         return Collections.unmodifiableSet(wordIndex.getOrDefault(word, new TreeMap<>()).getOrDefault(location, new TreeSet<>()));
     }
 
-
     /**
      * Provides a direct view of the word count map.
      *
-     * @return A reference to the internal word count structure.
-     *         Changes to the returned map will affect the original counts.
+     * @return An unmodifiable view of the internal word count structure.
      */
-    public TreeMap<String, Integer> viewCount() {
-        return wordCount; // TODO return Collections.unmodifiableMap(...)
+    public Map<String, Integer> viewCount() {
+        return Collections.unmodifiableMap(wordCount);
     }
 }
