@@ -191,7 +191,10 @@ public class InvertedIndex {
      * @return An unmodifiable set of locations for the given word.
      */
     public Set<String> viewLocations(String word) {
-        return Collections.unmodifiableSet(wordIndex.getOrDefault(word, new TreeMap<>()).keySet());
+        if (wordIndex.containsKey(word)) {
+            return Collections.unmodifiableSet(wordIndex.get(word).keySet());
+        }
+        return Collections.emptySet();
     }
 
     /**
@@ -202,8 +205,12 @@ public class InvertedIndex {
      * @return An unmodifiable set of positions for the given word in the given location.
      */
     public Set<Integer> viewPositions(String word, String location) {
-        return Collections.unmodifiableSet(wordIndex.getOrDefault(word, new TreeMap<>()).getOrDefault(location, new TreeSet<>()));
+        if (wordIndex.containsKey(word) && wordIndex.get(word).containsKey(location)) {
+            return Collections.unmodifiableSet(wordIndex.get(word).get(location));
+        }
+        return Collections.emptySet();
     }
+
 
     /**
      * Provides a direct view of the word count map.
