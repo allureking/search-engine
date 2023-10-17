@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
 /**
  * Class responsible for word processing. It processes individual files or
@@ -43,14 +45,12 @@ public class InvertedIndexProcessor {
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             String line;
             int index = 1;
+            Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
             while ((line = reader.readLine()) != null) {
-            	/*
-            	 * TODO Call parse instead, create a stemmer and stem the words, then add
-            	 * directly to the index instead.
-            	 */
-                ArrayList<String> words = FileStemmer.listStems(line); // TODO Need to stop using listStems
-                for (String word : words) {
-                    invertedIndex.add(word, filePath.toString(), index++);
+            	    String[] words = FileStemmer.parse(line);
+            	    for (String word : words) {
+            	        String stemmedWord = stemmer.stem(word).toString();
+                    invertedIndex.add(stemmedWord, filePath.toString(), index++);
                 }
             }
         }
