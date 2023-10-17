@@ -176,16 +176,6 @@ public class InvertedIndex {
     }
 
     /**
-     * Provides a direct view of the inverted index.
-     *
-     * @return A reference to the internal index structure.
-     *         Changes to the returned map will affect the original index.
-     */
-    public TreeMap<String, TreeMap<String, TreeSet<Integer>>> viewIndex() { // TODO Remove!
-        return wordIndex;
-    }
-
-    /**
      * Provides an unmodifiable view of the words in the index.
      *
      * @return An unmodifiable set of words.
