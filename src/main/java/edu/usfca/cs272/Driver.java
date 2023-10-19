@@ -58,6 +58,31 @@ public class Driver {
             }
         }
 
+        SearchResult searchResult = new SearchResult();
+        String queryArg = argumentParser.getString("-query");
+        if (queryArg != null) {
+            Path queryPath = Path.of(queryArg);
+            if (queryPath.toFile().isFile()) {
+                try {
+                    boolean partial = argumentParser.hasFlag("-partial");
+                    SearchProcessor.search(queryPath, searchResult, invertedIndex, partial);
+                } catch (IOException e) {
+                    System.out.println("Unable to process word query: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Query path must be a file");
+            }
+        }
+
+        if (argumentParser.hasFlag("-results")) {
+            Path resultPath = Path.of(argumentParser.getString("-results", "results.json"));
+            try {
+                searchResult.saveToOutput(resultPath);
+            } catch (IOException e) {
+                System.out.println("Unable to save search result: " + e.getMessage());
+            }
+        }
+
         // Calculate time elapsed and output
         long elapsed = Duration.between(start, Instant.now()).toMillis();
         double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
