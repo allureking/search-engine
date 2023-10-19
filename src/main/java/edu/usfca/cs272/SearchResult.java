@@ -2,35 +2,49 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
- * class to represent search results for queries
+ * Represents search results for queries.
  */
 public class SearchResult {
+    /**
+     * Stores search results mapped by query strings.
+     */
     private final TreeMap<String, Collection<Map<String, Object>>> searchResults;
 
+    /**
+     *
+     */
     public SearchResult() {
         searchResults = new TreeMap<>();
     }
 
     /**
-     * add a new query
-     * @param query
+     * Adds a new query to the search results.
+     *
+     * @param query The query to be added.
      */
     public void addQuery(String query) {
-        searchResults.put(query, new ArrayList());
+        searchResults.put(query, new ArrayList<>());
     }
 
     /**
-     * add a key value pair to the search result
-     * @param query
-     * @param count
-     * @param score
-     * @param location
+     * Adds a key-value pair to the search result for a given query.
+     *
+     * @param query    The query string.
+     * @param count    The count of the result.
+     * @param score    The score of the result.
+     * @param location The location of the result.
      */
     public void addKeyValue(String query, int count, double score, String location) {
-        TreeMap<String, Object> map = new TreeMap();
+        TreeMap<String, Object> map = new TreeMap<>();
         map.put("count", count);
         map.put("score", String.format("%.8f", score));
         map.put("where", "\"" + location + "\"");
@@ -39,22 +53,22 @@ public class SearchResult {
     }
 
     /**
-     * sort values
-     * @param query
+     * Sorts the values of the search result for a given query.
+     *
+     * @param query The query string.
      */
     public void sortValues(String query) {
         if (searchResults.containsKey(query)) {
-            Collections.sort((List) searchResults.get(query), new Comparator<Map<String, Object>>() {
+            Collections.sort((List<Map<String, Object>>) searchResults.get(query), new Comparator<Map<String, Object>>() {
                 @Override
                 public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                    int res = ((String)o2.get("score")).compareTo((String) o1.get("score"));
+                    int res = ((String) o2.get("score")).compareTo((String) o1.get("score"));
                     if (res == 0) {
-                        res = ((Integer)o2.get("count")).compareTo((Integer)o1.get("count"));
+                        res = ((Integer) o2.get("count")).compareTo((Integer) o1.get("count"));
                         if (res == 0) {
-                            return ((String)o1.get("where")).compareTo((String) o2.get("where"));
+                            return ((String) o1.get("where")).compareTo((String) o2.get("where"));
                         }
                     }
-
                     return res;
                 }
             });
@@ -62,9 +76,10 @@ public class SearchResult {
     }
 
     /**
-     * save results
-     * @param outputPath
-     * @throws IOException
+     * Saves the search results to an output file.
+     *
+     * @param outputPath The path to the output file.
+     * @throws IOException If there's an issue writing to the output file.
      */
     public void saveToOutput(Path outputPath) throws IOException {
         JsonWriter.writeObjectArrayObject(searchResults, outputPath);
