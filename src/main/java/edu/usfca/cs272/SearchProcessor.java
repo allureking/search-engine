@@ -1,8 +1,5 @@
 package edu.usfca.cs272;
 
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,17 +9,21 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
 /**
- * processor to search words from file
+ * Processor for searching words from a file.
  */
 public class SearchProcessor {
     /**
-     * execute search
-     * @param queryFile
-     * @param searchResult
-     * @param index
-     * @param partial
-     * @throws IOException
+     * Executes a search.
+     *
+     * @param queryFile The path to the query file.
+     * @param searchResult Object to store the search result.
+     * @param index The inverted index.
+     * @param partial Flag indicating whether search is partial or not.
+     * @throws IOException If there is an error reading the query file.
      */
     public static void search(Path queryFile, SearchResult searchResult, InvertedIndex index, boolean partial) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
@@ -33,7 +34,7 @@ public class SearchProcessor {
                     continue;
                 }
 
-                TreeSet<String> wordSet = new TreeSet();
+                TreeSet<String> wordSet = new TreeSet<>();
                 wordSet.addAll(FileStemmer.listStems(line, stemmer));
                 if (wordSet.isEmpty()) {
                     continue;
@@ -45,10 +46,12 @@ public class SearchProcessor {
     }
 
     /**
-     * execute exact search
-     * @param searchResult
-     * @param index
-     * @param wordSet
+     * Executes an exact search.
+     *
+     * @param searchResult Object to store the search result.
+     * @param index The inverted index.
+     * @param wordSet The set of words to search.
+     * @param partial Flag indicating whether search is partial or not.
      */
     private static void search(SearchResult searchResult, InvertedIndex index, TreeSet<String> wordSet, boolean partial) {
         String queryWords = String.join(" ", wordSet);
@@ -74,10 +77,11 @@ public class SearchProcessor {
     }
 
     /**
-     * execute exact search for one word
-     * @param locationCountMap
-     * @param index
-     * @param word
+     * Executes an exact search for a single word.
+     *
+     * @param locationCountMap Map to keep track of locations and counts.
+     * @param index The inverted index.
+     * @param word The word to search.
      */
     private static void exactSearchOneWord(Map<String, Integer> locationCountMap, InvertedIndex index, String word) {
         Set<String> locations = index.viewLocations(word);
@@ -88,11 +92,12 @@ public class SearchProcessor {
     }
 
     /**
-     * save location search map to search results
-     * @param queryWords
-     * @param locationCountMap
-     * @param searchResult
-     * @param index
+     * Saves location search map to search results.
+     *
+     * @param queryWords The processed words of the query.
+     * @param locationCountMap Map of location and counts.
+     * @param searchResult Object to store the search result.
+     * @param index The inverted index.
      */
     private static void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap, SearchResult searchResult, InvertedIndex index) {
         for (Map.Entry<String, Integer> entry: locationCountMap.entrySet()) {
