@@ -82,7 +82,7 @@ public class JsonWriter {
         writeQuote(entry.getKey(), writer, indent + 1);
         writer.write(": ");
         writeArray(entry.getValue(), writer, indent + 1);
-  }
+    }
 
     /**
      * Writes a key-value pair for the provided entry where the value is expected
@@ -96,11 +96,11 @@ public class JsonWriter {
      * @throws IOException If an IO error occurs during writing.
      */
     private static void writeNestedEntry(Map.Entry<String, ? extends Map<String, ? extends Collection<? extends Number>>> entry, Writer writer, int indent) throws IOException {
-      writer.write('\n');
-      writeQuote(entry.getKey(), writer, indent + 1);
-      writer.write(": ");
-      writeObjectArrays(entry.getValue(), writer, indent + 1);
-  }
+        writer.write('\n');
+        writeQuote(entry.getKey(), writer, indent + 1);
+        writer.write(": ");
+        writeObjectArrays(entry.getValue(), writer, indent + 1);
+    }
 
     /**
      * Writes the elements as a pretty JSON array.
@@ -117,7 +117,7 @@ public class JsonWriter {
      */
     public static void writeArray(Collection<? extends Number> elements, Writer writer, int indent) throws IOException {
 
-      	writer.write('[');
+        writer.write('[');
 
         var iterator = elements.iterator();
 
@@ -259,21 +259,21 @@ public class JsonWriter {
      * @see #writeArray(Collection)
      */
     public static void writeObjectArrays(Map<String, ? extends Collection<? extends Number>> elements, Writer writer, int indent) throws IOException {
-      writer.write('{');
-      var iterator = elements.entrySet().iterator();
+        writer.write('{');
+        var iterator = elements.entrySet().iterator();
 
-      if (iterator.hasNext()) {
-          writeEntry(iterator.next(), writer, indent);
+        if (iterator.hasNext()) {
+            writeEntry(iterator.next(), writer, indent);
 
-          while (iterator.hasNext()) {
-              writer.write(",");
-              writeEntry(iterator.next(), writer, indent);
-          }
-      }
+            while (iterator.hasNext()) {
+                writer.write(",");
+                writeEntry(iterator.next(), writer, indent);
+            }
+        }
 
-      writer.write('\n');
-      writeIndent("}", writer, indent);
-  }
+        writer.write('\n');
+        writeIndent("}", writer, indent);
+    }
 
     /**
      * Writes the elements as a pretty JSON object with nested arrays. The generic
@@ -332,21 +332,21 @@ public class JsonWriter {
      * @see #writeArray(Collection)
      */
     public static void writeObjectObjects(Map<String, ? extends Map<String, ? extends Collection<? extends Number>>> elements, Writer writer, int indent) throws IOException {
-      writer.write('{');
-      var iterator = elements.entrySet().iterator();
+        writer.write('{');
+        var iterator = elements.entrySet().iterator();
 
-      if (iterator.hasNext()) {
-          writeNestedEntry(iterator.next(), writer, indent);
+        if (iterator.hasNext()) {
+            writeNestedEntry(iterator.next(), writer, indent);
 
-          while (iterator.hasNext()) {
-              writer.write(",");
-              writeNestedEntry(iterator.next(), writer, indent);
-          }
-      }
+            while (iterator.hasNext()) {
+                writer.write(",");
+                writeNestedEntry(iterator.next(), writer, indent);
+            }
+        }
 
-      writer.write('\n');
-      writeIndent("}", writer, indent);
-  }
+        writer.write('\n');
+        writeIndent("}", writer, indent);
+    }
 
     /**
      * Writes the elements as a pretty JSON object with nested arrays to file.
@@ -450,5 +450,107 @@ public class JsonWriter {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    /**
+     * Writes an individual entry of the given map to the provided writer in JSON format.
+     * The key is written as a JSON string, followed by a colon, and then the corresponding
+     * values are written as a JSON array.
+     *
+     * @param elements  The map entry containing a key and a collection of numbers.
+     * @param path     the file path to use
+     * @throws IOException If an I/O error occurs while writing to the writer.
+     */
+    public static void writeObjectArrayObject(Map<String, Collection<Map<String, Object>>> elements, Path path) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
+            writeObjectArrayObject(elements, writer, 0);
+        }
+    }
+
+    /**
+     * Writes an individual entry of the given map to the provided writer in JSON format.
+     * The key is written as a JSON string, followed by a colon, and then the corresponding
+     * values are written as a JSON array.
+     *
+     * @param elements  The map entry containing a key and a collection of numbers.
+     * @param writer The writer to which the JSON formatted data is written.
+     * @param indent The level of indentation to use for formatting the JSON output.
+     * @throws IOException If an I/O error occurs while writing to the writer.
+     */
+    public static void writeObjectArrayObject(Map<String, Collection<Map<String, Object>>> elements, Writer writer, int indent) throws IOException {
+        writer.write('{');
+        var iterator = elements.entrySet().iterator();
+
+        if (iterator.hasNext()) {
+            writeCollectionEntry(iterator.next(), writer, indent);
+
+            while (iterator.hasNext()) {
+                writer.write(",");
+                writeCollectionEntry(iterator.next(), writer, indent);
+            }
+        }
+
+        writer.write('\n');
+        writeIndent("}", writer, indent);
+    }
+
+    /**
+     * Writes an individual entry of the given map to the provided writer in JSON format.
+     * The key is written as a JSON string, followed by a colon, and then the corresponding
+     * values are written as a JSON array.
+     *
+     * @param entry  The map entry containing a key and a collection of numbers.
+     * @param writer The writer to which the JSON formatted data is written.
+     * @param indent The level of indentation to use for formatting the JSON output.
+     * @throws IOException If an I/O error occurs while writing to the writer.
+     */
+    private static void writeCollectionEntry(Map.Entry<String, ? extends Collection<Map<String, Object>>> entry, Writer writer, int indent) throws IOException {
+        writer.write('\n');
+        writeQuote(entry.getKey(), writer, indent + 1);
+        writer.write(": ");
+        writeMapArray(entry.getValue(), writer, indent + 1);
+    }
+
+    /**
+     * Writes the elements as a pretty JSON array.
+     *
+     * @param elements the elements to write
+     * @param writer   the writer to use
+     * @param indent   the initial indent level; the first bracket is not indented,
+     *                 inner elements are indented by one, and the last bracket is indented at the
+     *                 initial indentation level
+     * @throws IOException if an IO error occurs
+     * @see Writer#write(String)
+     */
+    public static void writeMapArray(Collection<Map<String, Object>> elements, Writer writer, int indent) throws IOException {
+        writer.write("[\n");
+
+        var iterator = elements.iterator();
+
+        while (iterator.hasNext()) {
+            Map<String, Object> map = iterator.next();
+            var entryIterator = map.entrySet().iterator();
+            if (entryIterator.hasNext()) {
+                writeIndent("{\n", writer, indent + 1);
+            }
+            while (entryIterator.hasNext()) {
+                Map.Entry<String, Object> entry = entryIterator.next();
+                writeQuote(entry.getKey(), writer, indent + 2);
+                writer.write(": ");
+                writer.write(entry.getValue().toString());
+                if (entryIterator.hasNext()) {
+                    writer.write(",");
+                }
+                writer.write("\n");
+            }
+            writeIndent("}", writer, indent + 1);
+
+            if (iterator.hasNext()) {
+                writer.write(",");
+            }
+            writer.write("\n");
+        }
+
+        writeIndent("]", writer, indent);
     }
 }
