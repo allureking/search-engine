@@ -47,9 +47,9 @@ public class InvertedIndexProcessor {
             int index = 1;
             Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
             while ((line = reader.readLine()) != null) {
-            	    String[] words = FileStemmer.parse(line);
-            	    for (String word : words) {
-            	        String stemmedWord = stemmer.stem(word).toString();
+                String[] words = FileStemmer.parse(line);
+                for (String word : words) {
+                    String stemmedWord = stemmer.stem(word).toString();
                     invertedIndex.add(stemmedWord, filePath.toString(), index++);
                 }
             }

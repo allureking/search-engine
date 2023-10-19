@@ -15,7 +15,7 @@ import java.util.TreeSet;
  *
  * @author Honghuai(King) Ke
  */
-public class InvertedIndex {
+public class  InvertedIndex {
 
 	/**
 	 * A nested TreeMap structure to store the word positions for each word in each file.
