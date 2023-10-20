@@ -15,7 +15,9 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 /**
  * Processor for searching words from a file.
  */
-public class SearchProcessor {
+public class SearchProcessor { // TODO Take a non-static approach
+	
+	
     /**
      * Executes a search.
      *
@@ -28,14 +30,16 @@ public class SearchProcessor {
     public static void search(Path queryFile, SearchResult searchResult, InvertedIndex index, boolean partial) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
-            Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+            Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // TODO Make this a member of this class so we can easily reuse it
             while ((line = reader.readLine()) != null) {
+            	// TODO Call search(...) on the line
                 if (line.isEmpty()) {
                     continue;
                 }
 
+                // TODO Move this into the other search method
                 TreeSet<String> wordSet = new TreeSet<>();
-                wordSet.addAll(FileStemmer.listStems(line, stemmer));
+                wordSet.addAll(FileStemmer.listStems(line, stemmer)); // TODO uniqueStems
                 if (wordSet.isEmpty()) {
                     continue;
                 }
@@ -53,7 +57,7 @@ public class SearchProcessor {
      * @param wordSet The set of words to search.
      * @param partial Flag indicating whether search is partial or not.
      */
-    private static void search(SearchResult searchResult, InvertedIndex index, TreeSet<String> wordSet, boolean partial) {
+    private static void search(SearchResult searchResult, InvertedIndex index, TreeSet<String> wordSet, boolean partial) { // TODO TreeSet<String> wordSet --> String queryLine
         String queryWords = String.join(" ", wordSet);
         searchResult.addQuery(queryWords);
 
@@ -68,7 +72,7 @@ public class SearchProcessor {
                 }
             }
         } else {
-            for (String word : wordSet) {
+            for (String word : wordSet) { // TODO String query : queries
                 exactSearchOneWord(locationCountMap, index, word);
             }
         }
