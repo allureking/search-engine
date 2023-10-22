@@ -17,7 +17,7 @@ public class SearchResult {
     /**
      * Stores search results mapped by query strings.
      */
-    private final TreeMap<String, Collection<Map<String, Object>>> searchResults;
+    private final TreeMap<String, Collection<Map<String, Object>>> searchResults; // TODO Combine this with the Search Processor
 
     /**
      *
@@ -44,6 +44,7 @@ public class SearchResult {
      * @param location The location of the result.
      */
     public void addKeyValue(String query, int count, double score, String location) {
+    	// TODO Create a class for this with count, score, and where members/variables
         TreeMap<String, Object> map = new TreeMap<>();
         map.put("count", count);
         map.put("score", String.format("%.8f", score));

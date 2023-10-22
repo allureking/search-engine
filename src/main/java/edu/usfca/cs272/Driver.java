@@ -62,7 +62,7 @@ public class Driver {
         String queryArg = argumentParser.getString("-query");
         if (queryArg != null) {
             Path queryPath = Path.of(queryArg);
-            if (queryPath.toFile().isFile()) {
+            if (queryPath.toFile().isFile()) { // TODO Don't use toFile, also don't need
                 try {
                     boolean partial = argumentParser.hasFlag("-partial");
                     SearchProcessor.search(queryPath, searchResult, invertedIndex, partial);
