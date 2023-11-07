@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
@@ -46,12 +47,12 @@ public class InvertedIndexProcessor {
             String line;
             int index = 1;
             Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
-            // TODO String location = filePath.toString() and reuse
+            String location = filePath.toString();
             while ((line = reader.readLine()) != null) {
                 String[] words = FileStemmer.parse(line);
                 for (String word : words) {
                     String stemmedWord = stemmer.stem(word).toString();
-                    invertedIndex.add(stemmedWord, filePath.toString(), index++);
+                    invertedIndex.add(stemmedWord, location, index++);
                 }
             }
         }
