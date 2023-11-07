@@ -123,4 +123,20 @@ public class SearchProcessor {
 
         searchResult.sortValues(queryWords);
     }
+
+    /**
+     * Saves the search results to the specified file path.
+     * This method delegates to the {@code searchResult} object's
+     * {@code saveToOutput} method to write the results in a structured format,
+     * typically JSON, to the file system.
+     *
+     * @param output The {@code Path} object representing the file path
+     *               where the search results will be saved. If the file
+     *               already exists, it will be overwritten.
+     * @throws IOException If an I/O error occurs writing to the file path.
+     */
+    public void saveResult(Path output) throws IOException {
+        searchResult.saveToOutput(output);
+    }
+
 }

@@ -77,7 +77,7 @@ public class QueryResult implements Comparable<QueryResult> {
         TreeMap<String, Object> map = new TreeMap<>();
         map.put("count", count);
         map.put("score", String.format("%.8f", score));
-        map.put("where", location);
+        map.put("where", "\"" + location + "\"");
 
         return map;
     }

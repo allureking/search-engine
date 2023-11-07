@@ -30,8 +30,6 @@ public class Driver {
 
         InvertedIndex invertedIndex = new InvertedIndex();
 
-        SearchResult searchResult = new SearchResult();
-
         if (argumentParser.hasFlag("-text")) {
           Path inputPath = Path.of(argumentParser.getString("-text", "./"));
           try {
@@ -76,7 +74,7 @@ public class Driver {
         if (argumentParser.hasFlag("-results")) {
             Path resultPath = Path.of(argumentParser.getString("-results", "results.json"));
             try {
-                searchResult.saveToOutput(resultPath);
+                searchProcessor.saveResult(resultPath);
             } catch (IOException e) {
                 System.out.println("Unable to save search result: " + e.getMessage());
             }
