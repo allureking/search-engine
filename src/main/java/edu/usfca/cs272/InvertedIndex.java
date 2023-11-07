@@ -220,16 +220,43 @@ public class  InvertedIndex {
         return Collections.unmodifiableMap(wordCount);
     }
 
-    /* TODO
-    public List<Result> exactSearch(Set<String> queries) {
-    public List<Map<String, Object>> exactSearch(Set<String> queries) { <-- 1 line in the query file
-    	Map<String, Integer> locationCountMap = new TreeMap<>();
-
-    	...
+    /**
+     * Exact search for a set of queries
+     * @param queries
+     * @param locationCountMap
+     */
+    public void exactSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
+        for (String query : queries) {
+            exactSearch(locationCountMap, query);
+        }
     }
 
-    public List<Result> partialSearch(Set<String> queries) {
-     don't worry about duplicate logic
+    /**
+     * Partial search for a set of queries
+     * @param queries
+     * @param locationCountMap
+     */
+    public void partialSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
+        for (String query: queries) {
+            for (String indexWord: viewWords()) {
+                if (indexWord.startsWith(query)) {
+                    exactSearch(locationCountMap, indexWord);
+                }
+            }
+        }
     }
-    */
+
+    /**
+     * Executes an exact search for a single word.
+     *
+     * @param locationCountMap Map to keep track of locations and counts.
+     * @param word The word to search.
+     */
+    private void exactSearch(Map<String, Integer> locationCountMap, String word) {
+        Set<String> locations = viewLocations(word);
+        for (String location : locations) {
+            int count = viewPositions(word, location).size();
+            locationCountMap.put(location, locationCountMap.getOrDefault(location, 0) + count);
+        }
+    }
 }
