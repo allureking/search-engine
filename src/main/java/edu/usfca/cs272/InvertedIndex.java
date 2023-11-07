@@ -221,9 +221,11 @@ public class  InvertedIndex {
     }
 
     /**
-     * Exact search for a set of queries
-     * @param queries
-     * @param locationCountMap
+     * Performs an exact search for each query in the provided set.
+     * This method delegates to a method that processes the search on a single query.
+     *
+     * @param queries A set of queries to search for.
+     * @param locationCountMap A map where the count of each location is stored.
      */
     public void exactSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
         for (String query : queries) {
@@ -232,9 +234,12 @@ public class  InvertedIndex {
     }
 
     /**
-     * Partial search for a set of queries
-     * @param queries
-     * @param locationCountMap
+     * Performs a partial search for each query in the provided set.
+     * A partial search considers any index word that starts with the given query string.
+     * For each matching index word, an exact search is performed.
+     *
+     * @param queries A set of queries to search for.
+     * @param locationCountMap A map where the count of each location is stored.
      */
     public void partialSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
         for (String query: queries) {
@@ -247,10 +252,14 @@ public class  InvertedIndex {
     }
 
     /**
-     * Executes an exact search for a single word.
+     * Executes an exact search for the provided word and updates the location count map.
+     * This method retrieves a set of locations where the word appears and counts how many
+     * times it appears in each location. The count is then added to the existing count in
+     * the locationCountMap.
      *
-     * @param locationCountMap Map to keep track of locations and counts.
-     * @param word The word to search.
+     * @param locationCountMap A map tracking the count of occurrences of words in various locations.
+     *                         The map is updated with the total count of occurrences for each location.
+     * @param word The word to search for across all indexed locations.
      */
     private void exactSearch(Map<String, Integer> locationCountMap, String word) {
         Set<String> locations = viewLocations(word);
