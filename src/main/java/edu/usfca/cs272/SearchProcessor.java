@@ -15,9 +15,26 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 /**
  * Processor for searching words from a file.
  */
-public class SearchProcessor { // TODO Take a non-static approach
-	
-	
+public class SearchProcessor {
+
+	private SearchResult searchResult;
+    private Path queryFile;
+    private InvertedIndex index;
+    private boolean partial;
+    private Stemmer stemmer;
+
+    /**
+     * @param index
+     * @param partial
+     */
+    public SearchProcessor(InvertedIndex index, boolean partial) {
+        this.index = index;
+        this.partial = partial;
+
+        searchResult = new SearchResult();
+        stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+    }
+
     /**
      * Executes a search.
      *
