@@ -161,10 +161,7 @@ public class  InvertedIndex {
      * @return Number of positions the word is found in the location.
      */
     public int numPositions(String word, String location) {
-    	// TODO return viewPositions(...).size();
-        return wordIndex.getOrDefault(word, new TreeMap<>())
-                        .getOrDefault(location, new TreeSet<>())
-                        .size();
+        return viewPositions(word, location).size();
     }
 
     /**
