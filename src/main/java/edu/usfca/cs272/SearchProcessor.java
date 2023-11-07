@@ -16,15 +16,33 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  */
 public class SearchProcessor {
 
+	/**
+	 * SearchResult object that will hold the results of the search operations.
+	 */
 	private SearchResult searchResult;
-    private Path queryFile;
-    private InvertedIndex index;
-    private boolean partial;
-    private Stemmer stemmer;
+
+	/**
+	 * InvertedIndex instance used for performing search operations.
+	 */
+	private InvertedIndex index;
+
+	/**
+	 * Flag indicating whether to perform partial (true) or exact (false) search operations.
+	 */
+	private boolean partial;
+
+	/**
+	 * Stemmer instance used for normalizing words during the search process.
+	 */
+	private Stemmer stemmer;
+
 
     /**
-     * @param index
-     * @param partial
+     * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
+     * whether to perform partial search.
+     *
+     * @param index The InvertedIndex to use for searching.
+     * @param partial True to perform partial search, false for exact search.
      */
     public SearchProcessor(InvertedIndex index, boolean partial) {
         this.index = index;
@@ -35,9 +53,10 @@ public class SearchProcessor {
     }
 
     /**
-     * Executes a search.
-     * @param queryFile
-     * @throws IOException
+     * Reads a query file line by line and performs a search for each line.
+     *
+     * @param queryFile The path to the query file.
+     * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
     public void search(Path queryFile) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
@@ -49,9 +68,9 @@ public class SearchProcessor {
     }
 
     /**
-     * Executes an exact search.
-     * @param line
+     * Processes a single line of text by stemming and searching for the resultant terms.
      *
+     * @param line The line of text to process and search.
      */
     private void search(String line) {
         if (line.isEmpty()) {
@@ -67,9 +86,9 @@ public class SearchProcessor {
     }
 
     /**
-     * Executes an exact search.
+     * Executes a search for a set of stemmed query words.
      *
-     * @param queries The set of words to search.
+     * @param queries The set of stemmed words to search.
      */
     private void search(TreeSet<String> queries) {
         String queryWords = String.join(" ", queries);
@@ -87,10 +106,10 @@ public class SearchProcessor {
     }
 
     /**
-     * Saves location search map to search results.
+     * Saves the results of a search to the SearchResult object.
      *
-     * @param queryWords The processed words of the query.
-     * @param locationCountMap Map of location and counts.
+     * @param queryWords The concatenated query words.
+     * @param locationCountMap A map containing locations and their associated hit counts.
      */
     private void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap) {
         for (Map.Entry<String, Integer> entry: locationCountMap.entrySet()) {
