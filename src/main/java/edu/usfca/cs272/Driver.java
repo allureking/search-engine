@@ -30,6 +30,8 @@ public class Driver {
 
         InvertedIndex invertedIndex = new InvertedIndex();
 
+        SearchResult searchResult = new SearchResult();
+
         if (argumentParser.hasFlag("-text")) {
           Path inputPath = Path.of(argumentParser.getString("-text", "./"));
           try {
@@ -58,7 +60,9 @@ public class Driver {
             }
         }
 
-        SearchResult searchResult = new SearchResult();
+        boolean partial = argumentParser.hasFlag("-partial");
+        SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
+
         String queryArg = argumentParser.getString("-query");
         if (queryArg != null) {
             Path queryPath = Path.of(queryArg);
