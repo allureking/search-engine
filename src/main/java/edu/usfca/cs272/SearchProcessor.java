@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -37,79 +36,54 @@ public class SearchProcessor {
 
     /**
      * Executes a search.
-     *
-     * @param queryFile The path to the query file.
-     * @param searchResult Object to store the search result.
-     * @param index The inverted index.
-     * @param partial Flag indicating whether search is partial or not.
-     * @throws IOException If there is an error reading the query file.
+     * @param queryFile
+     * @throws IOException
      */
-    public static void search(Path queryFile, SearchResult searchResult, InvertedIndex index, boolean partial) throws IOException {
+    public void search(Path queryFile) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
-            Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH); // TODO Make this a member of this class so we can easily reuse it
             while ((line = reader.readLine()) != null) {
-            	// TODO Call search(...) on the line
-                if (line.isEmpty()) {
-                    continue;
-                }
-
-                // TODO Move this into the other search method
-                TreeSet<String> wordSet = new TreeSet<>();
-                wordSet.addAll(FileStemmer.listStems(line, stemmer)); // TODO uniqueStems
-                if (wordSet.isEmpty()) {
-                    continue;
-                }
-
-                search(searchResult, index, wordSet, partial);
+                search(line);
             }
         }
     }
 
     /**
      * Executes an exact search.
+     * @param line
      *
-     * @param searchResult Object to store the search result.
-     * @param index The inverted index.
-     * @param wordSet The set of words to search.
-     * @param partial Flag indicating whether search is partial or not.
      */
-    private static void search(SearchResult searchResult, InvertedIndex index, TreeSet<String> wordSet, boolean partial) { // TODO TreeSet<String> wordSet --> String queryLine
-        String queryWords = String.join(" ", wordSet);
+    private void search(String line) {
+        if (line.isEmpty()) {
+            return;
+        }
+
+        TreeSet<String> queries = FileStemmer.uniqueStems(line, stemmer);
+        if (queries.isEmpty()) {
+            return;
+        }
+
+        search(queries);
+    }
+
+    /**
+     * Executes an exact search.
+     *
+     * @param queries The set of words to search.
+     */
+    private void search(TreeSet<String> queries) {
+        String queryWords = String.join(" ", queries);
         searchResult.addQuery(queryWords);
 
         Map<String, Integer> locationCountMap = new TreeMap<>();
 
         if (partial) {
-            for (String word: wordSet) {
-                for (String indexWord: index.viewWords()) {
-                    if (indexWord.startsWith(word)) {
-                        exactSearchOneWord(locationCountMap, index, indexWord);
-                    }
-                }
-            }
+            index.partialSearch(queries, locationCountMap);
         } else {
-            for (String word : wordSet) { // TODO String query : queries
-                exactSearchOneWord(locationCountMap, index, word);
-            }
+            index.exactSearch(queries, locationCountMap);
         }
 
-        saveToSearchResult(queryWords, locationCountMap, searchResult, index);
-    }
-
-    /**
-     * Executes an exact search for a single word.
-     *
-     * @param locationCountMap Map to keep track of locations and counts.
-     * @param index The inverted index.
-     * @param word The word to search.
-     */
-    private static void exactSearchOneWord(Map<String, Integer> locationCountMap, InvertedIndex index, String word) {
-        Set<String> locations = index.viewLocations(word);
-        for (String location : locations) {
-            int count = index.viewPositions(word, location).size();
-            locationCountMap.put(location, locationCountMap.getOrDefault(location, 0) + count);
-        }
+        saveToSearchResult(queryWords, locationCountMap);
     }
 
     /**
@@ -117,10 +91,8 @@ public class SearchProcessor {
      *
      * @param queryWords The processed words of the query.
      * @param locationCountMap Map of location and counts.
-     * @param searchResult Object to store the search result.
-     * @param index The inverted index.
      */
-    private static void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap, SearchResult searchResult, InvertedIndex index) {
+    private void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap) {
         for (Map.Entry<String, Integer> entry: locationCountMap.entrySet()) {
             String location = entry.getKey();
             int count = entry.getValue();
