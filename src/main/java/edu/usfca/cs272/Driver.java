@@ -62,15 +62,10 @@ public class Driver {
         String queryArg = argumentParser.getString("-query");
         if (queryArg != null) {
             Path queryPath = Path.of(queryArg);
-            if (queryPath.toFile().isFile()) { // TODO Don't use toFile, also don't need
-                try {
-                    boolean partial = argumentParser.hasFlag("-partial");
-                    SearchProcessor.search(queryPath, searchResult, invertedIndex, partial);
-                } catch (IOException e) {
-                    System.out.println("Unable to process word query: " + e.getMessage());
-                }
-            } else {
-                System.out.println("Query path must be a file");
+            try {
+                searchProcessor.search(queryPath);
+            } catch (IOException e) {
+                System.out.println("Unable to process word query: " + e.getMessage());
             }
         }
 
