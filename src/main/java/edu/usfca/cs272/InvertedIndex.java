@@ -51,22 +51,11 @@ public class  InvertedIndex {
      * @param position The position of the word in the file.
      */
     public void add(String word, String location, int position) {
-      wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
-               .computeIfAbsent(location, k -> new TreeSet<>())
-               .add(position);
-      
-      /*
-       * TODO Bug if we add the same thing more than once...
-       * 
-       * add(hello, hello.txt, 12)
-       * add(hello, hello.txt, 12) <-- should not increment
-       * add(hello, hello.txt, 12) <-- should not increment
-       * 
-       * boolean modified = wordIndex.computeIfAbsent.... add(...);
-       * if (modified) { wordCount.merge(...) } and continue the functional approach
-       */
-      
-      wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
+        wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
+           .computeIfAbsent(location, k -> new TreeSet<>())
+           .add(position);
+
+        wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
     }
 
     /**
@@ -233,15 +222,15 @@ public class  InvertedIndex {
     public Map<String, Integer> viewCount() {
         return Collections.unmodifiableMap(wordCount);
     }
-    
-    /* TODO 
+
+    /* TODO
     public List<Result> exactSearch(Set<String> queries) {
     public List<Map<String, Object>> exactSearch(Set<String> queries) { <-- 1 line in the query file
     	Map<String, Integer> locationCountMap = new TreeMap<>();
-    
+
     	...
     }
-    
+
     public List<Result> partialSearch(Set<String> queries) {
      don't worry about duplicate logic
     }
