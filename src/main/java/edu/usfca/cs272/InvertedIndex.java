@@ -232,6 +232,45 @@ public class  InvertedIndex {
             exactSearch(locationCountMap, query);
         }
     }
+    
+    /* TODO
+    public List<QueryResult> exactSearch(Set<String> queries) {
+    	Map<String, QueryResult> matches = ...
+    	List<QueryResult> results = ...
+    	
+      for (String query : queries) {
+          for (String location : viewLocations(query)) {
+          		int count = viewPositions(query).size();
+          		
+          		if (matches.containsKey(location)) {
+          			matches.get(location).update(count);
+          		}
+          		else {
+          			var result = new QueryResult(...);
+          			matches.put(location, result);
+          			results.add(result);
+          		}
+          }
+      }
+    	
+    	Collections.sort(results);
+    	return results;
+  }
+    
+    step 2:
+    stop using the public view methods
+    
+    
+    for (String location : viewLocations(query)) {
+    
+    ==>
+    
+    var innerMap = wordIndex.get(query);
+    
+    if (innerMap != null) {
+    	for (var innerEntry : innerMap.entrySet()) {
+    		String location = innerEntry.getKey();
+    */
 
     /**
      * Performs a partial search for each query in the provided set.
@@ -243,7 +282,8 @@ public class  InvertedIndex {
      */
     public void partialSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
         for (String query: queries) {
-            for (String indexWord: viewWords()) {
+        	// TODO Use tailMap + break to speed this up, similar to: https://github.com/usf-cs272-fall2023/cs272-lectures/blob/e57203970859ec8beb43038db7d543dee244db1c/DataStructures/src/main/java/edu/usfca/cs272/FindDemo.java#L124-L166
+            for (String indexWord: viewWords()) { // TODO Linear search
                 if (indexWord.startsWith(query)) {
                     exactSearch(locationCountMap, indexWord);
                 }
