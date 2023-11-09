@@ -21,6 +21,13 @@ public class SearchProcessor {
 	 */
 	private SearchResult searchResult;
 
+	/*
+	 * TODO Think about this so we can talk about it next time (dont have to make changes)
+	 * 
+	 * Why is it better for the index and partial values to be members of this class passed
+	 * to the constructor -versus- parameters to the search methods below.
+	 */
+	
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
@@ -72,7 +79,7 @@ public class SearchProcessor {
      *
      * @param line The line of text to process and search.
      */
-    private void search(String line) {
+    private void search(String line) { // TODO public
         if (line.isEmpty()) {
             return;
         }
@@ -90,11 +97,11 @@ public class SearchProcessor {
      *
      * @param queries The set of stemmed words to search.
      */
-    private void search(TreeSet<String> queries) {
+    private void search(TreeSet<String> queries) {  // TODO public
         String queryWords = String.join(" ", queries);
         searchResult.addQuery(queryWords);
 
-        Map<String, Integer> locationCountMap = new TreeMap<>();
+        Map<String, Integer> locationCountMap = new TreeMap<>(); // TODO Move this map into the search methods
 
         if (partial) {
             index.partialSearch(queries, locationCountMap);
@@ -102,7 +109,7 @@ public class SearchProcessor {
             index.exactSearch(queries, locationCountMap);
         }
 
-        saveToSearchResult(queryWords, locationCountMap);
+        saveToSearchResult(queryWords, locationCountMap); // TODO Move into the search methods
     }
 
     /**

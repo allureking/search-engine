@@ -17,7 +17,7 @@ public class SearchResult {
     /**
      * Stores search results mapped by query strings.
      */
-	private final TreeMap<String, List<QueryResult>> searchResults;
+	private final TreeMap<String, List<QueryResult>> searchResults; // TODO Move as a member into SearchProcessor
 
     /**
      *
