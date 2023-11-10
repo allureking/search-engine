@@ -12,13 +12,13 @@ public class QueryResult implements Comparable<QueryResult> {
 	 * The occurrenceCount is the number of times a query term appears. This is used
 	 * to measure how often a term is encountered within a particular dataset or document.
 	 */
-	private final int count;
+	private int count;
 
 	/**
 	 * The relevanceScore is a metric that quantifies how relevant a query result is
 	 * to the search query. Typically, higher scores indicate more relevance.
 	 */
-	private final double score;
+	private double score;
 
 	/**
 	 * The location is a string identifier for where the query result was found.
@@ -28,16 +28,24 @@ public class QueryResult implements Comparable<QueryResult> {
 
 
     /**
-     * Constructs a QueryResult with the specified occurrence count, relevance score, and location.
+     * Constructs a QueryResult with the specified location.
      *
-     * @param count the count of how often a query term occurs
-     * @param score  the calculated relevance score for the query result
-     * @param location        the location associated with the query result
+     * @param location    the location associated with the query result
      */
-    public QueryResult(int count, double score, String location) {
-        this.count = count;
-        this.score = score;
+    public QueryResult(String location) {
         this.location = location;
+    }
+
+    /**
+     * Updates the occurrence count and recalculates the relevance score for this query result.
+     * The relevance score is calculated as the ratio of this query result's count to the total count.
+     *
+     * @param total The total occurrence count across all query results.
+     * @param count The additional occurrence count to add to this query result.
+     */
+    public void updateCount(int total, int count) {
+        this.count += count;
+        score = total == 0 ? 0.0 : this.count / (double) total;
     }
 
     /**
