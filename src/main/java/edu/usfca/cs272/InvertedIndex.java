@@ -231,55 +231,26 @@ public class  InvertedIndex {
      */
     public List<QueryResult> exactSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new TreeMap<>();
+        List<QueryResult> results = new ArrayList<>();
 
-        for (String word: queries) {
-            exactSearch(word, matches);
+        for (String query : queries) {
+            var innerMap = wordIndex.get(query);
+
+            if (innerMap != null) {
+                for (var innerEntry : innerMap.entrySet()) {
+                    String location = innerEntry.getKey();
+                    int count = innerEntry.getValue().size();
+
+                    QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
+                    result.updateCount(totalCount(location), count);
+                }
+            }
         }
 
-        List<QueryResult> resultList = new ArrayList<>(matches.values());
-        Collections.sort(resultList);
-
-        return resultList;
+        results.addAll(matches.values());
+        Collections.sort(results);
+        return results;
     }
-
-    /* TODO
-    public List<QueryResult> exactSearch(Set<String> queries) {
-    	Map<String, QueryResult> matches = ...
-    	List<QueryResult> results = ...
-
-      for (String query : queries) {
-          for (String location : viewLocations(query)) {
-          		int count = viewPositions(query).size();
-
-          		if (matches.containsKey(location)) {
-          			matches.get(location).update(count);
-          		}
-          		else {
-          			var result = new QueryResult(...);
-          			matches.put(location, result);
-          			results.add(result);
-          		}
-          }
-      }
-
-    	Collections.sort(results);
-    	return results;
-  }
-
-    step 2:
-    stop using the public view methods
-
-
-    for (String location : viewLocations(query)) {
-
-    ==>
-
-    var innerMap = wordIndex.get(query);
-
-    if (innerMap != null) {
-    	for (var innerEntry : innerMap.entrySet()) {
-    		String location = innerEntry.getKey();
-    */
 
     /**
      * Performs a partial search for each query in the provided set.
@@ -321,13 +292,25 @@ public class  InvertedIndex {
     private void exactSearch(String word, Map<String, QueryResult> matches) {
         Set<String> locations = viewLocations(word);
         for (String location : locations) {
-            if (!matches.containsKey(location)) {
-                matches.put(location, new QueryResult(location));
-            }
-
-            QueryResult queryResult = matches.get(location);
             int count = viewPositions(word, location).size();
-            queryResult.updateCount(totalCount(location), count);
+            updateResult(matches, location, totalCount(location), count);
         }
+    }
+
+    /**
+     * Helper method for exactSearch.
+     * Updates the map of query results with the given location and count information.
+     * If a {@link QueryResult} for the location already exists in the map, this method
+     * updates its count and score. Otherwise, it creates a new {@link QueryResult} for
+     * the location and adds it to the map.
+     *
+     * @param matches The map of query results keyed by location.
+     * @param location The location (typically a file path) to be updated in the results.
+     * @param total The total count of words in the location (for score calculation).
+     * @param count The count of occurrences of a specific word in the location.
+     */
+    private static void updateResult(Map<String, QueryResult> matches, String location, int total, int count) {
+        matches.computeIfAbsent(location, k -> new QueryResult(location))
+               .updateCount(total, count);
     }
 }
