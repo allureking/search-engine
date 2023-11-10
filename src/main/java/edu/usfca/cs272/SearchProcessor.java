@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -16,10 +19,10 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  */
 public class SearchProcessor {
 
-	/**
-	 * SearchResult object that will hold the results of the search operations.
-	 */
-	private SearchResult searchResult;
+    /**
+     * Stores search results mapped by query strings.
+     */
+    private final TreeMap<String, List<QueryResult>> searchResults;
 
 	/*
 	 * TODO Think about this so we can talk about it next time (dont have to make changes)
@@ -55,8 +58,8 @@ public class SearchProcessor {
         this.index = index;
         this.partial = partial;
 
-        searchResult = new SearchResult();
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+        searchResults = new TreeMap<>();
     }
 
     /**
@@ -99,36 +102,12 @@ public class SearchProcessor {
      */
     public void search(TreeSet<String> queries) {
         String queryWords = String.join(" ", queries);
-        searchResult.addQuery(queryWords);
-
-        Map<String, Integer> locationCountMap = new TreeMap<>(); // TODO Move this map into the search methods
 
         if (partial) {
-            index.partialSearch(queries, locationCountMap);
+            searchResults.put(queryWords, index.partialSearch(queries));
         } else {
-            index.exactSearch(queries, locationCountMap);
+            searchResults.put(queryWords, index.exactSearch(queries));
         }
-
-        saveToSearchResult(queryWords, locationCountMap); // TODO Move into the search methods
-    }
-
-    /**
-     * Saves the results of a search to the SearchResult object.
-     *
-     * @param queryWords The concatenated query words.
-     * @param locationCountMap A map containing locations and their associated hit counts.
-     */
-    public void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap) {
-        for (Map.Entry<String, Integer> entry: locationCountMap.entrySet()) {
-            String location = entry.getKey();
-            int count = entry.getValue();
-            int total = index.totalCount(location);
-            double score = total == 0 ? 0.0 : count / (double) total;
-
-            searchResult.addKeyValue(queryWords, count, score, location);
-        }
-
-        searchResult.sortValues(queryWords);
     }
 
     /**
@@ -143,7 +122,14 @@ public class SearchProcessor {
      * @throws IOException If an I/O error occurs writing to the file path.
      */
     public void saveResult(Path output) throws IOException {
-        searchResult.saveToOutput(output);
+        Map<String, Collection<Map<String, Object>>> elements = new TreeMap<>();
+        for (Map.Entry<String, List<QueryResult>> entry: searchResults.entrySet()) {
+            List<Map<String, Object>> list = new ArrayList<>();
+            elements.put(entry.getKey(), list);
+            for (QueryResult result : entry.getValue()) {
+                list.add(result.toMap());
+            }
+        }
+        JsonWriter.writeObjectArrayObject(elements, output);
     }
-
 }
