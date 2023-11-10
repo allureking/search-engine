@@ -24,13 +24,6 @@ public class SearchProcessor {
      */
     private final TreeMap<String, List<QueryResult>> searchResults;
 
-	/*
-	 * TODO Think about this so we can talk about it next time (dont have to make changes)
-	 *
-	 * Why is it better for the index and partial values to be members of this class passed
-	 * to the constructor -versus- parameters to the search methods below.
-	 */
-
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
