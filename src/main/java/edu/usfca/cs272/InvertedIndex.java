@@ -2,6 +2,7 @@ package edu.usfca.cs272;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -222,26 +223,34 @@ public class  InvertedIndex {
 
     /**
      * Performs an exact search for each query in the provided set.
-     * This method delegates to a method that processes the search on a single query.
+     * This method delegates to a method that processes the search on a single query,
+     * aggregating the results into a list of {@link QueryResult} objects.
      *
      * @param queries A set of queries to search for.
-     * @param locationCountMap A map where the count of each location is stored.
+     * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
-    public void exactSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
-        for (String query : queries) {
-            exactSearch(locationCountMap, query);
+    public List<QueryResult> exactSearch(Set<String> queries) {
+        Map<String, QueryResult> matches = new TreeMap<>();
+
+        for (String word: queries) {
+            exactSearch(word, matches);
         }
+
+        List<QueryResult> resultList = new ArrayList<>(matches.values());
+        Collections.sort(resultList);
+
+        return resultList;
     }
-    
+
     /* TODO
     public List<QueryResult> exactSearch(Set<String> queries) {
     	Map<String, QueryResult> matches = ...
     	List<QueryResult> results = ...
-    	
+
       for (String query : queries) {
           for (String location : viewLocations(query)) {
           		int count = viewPositions(query).size();
-          		
+
           		if (matches.containsKey(location)) {
           			matches.get(location).update(count);
           		}
@@ -252,21 +261,21 @@ public class  InvertedIndex {
           		}
           }
       }
-    	
+
     	Collections.sort(results);
     	return results;
   }
-    
+
     step 2:
     stop using the public view methods
-    
-    
+
+
     for (String location : viewLocations(query)) {
-    
+
     ==>
-    
+
     var innerMap = wordIndex.get(query);
-    
+
     if (innerMap != null) {
     	for (var innerEntry : innerMap.entrySet()) {
     		String location = innerEntry.getKey();
@@ -275,37 +284,50 @@ public class  InvertedIndex {
     /**
      * Performs a partial search for each query in the provided set.
      * A partial search considers any index word that starts with the given query string.
-     * For each matching index word, an exact search is performed.
+     * For each matching index word, an exact search is performed, and the results are aggregated.
      *
      * @param queries A set of queries to search for.
-     * @param locationCountMap A map where the count of each location is stored.
+     * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
-    public void partialSearch(Set<String> queries, Map<String, Integer> locationCountMap) {
+    public List<QueryResult> partialSearch(Set<String> queries) {
+        Map<String, QueryResult> matches = new TreeMap<>();
+
+        TreeSet<String> set = new TreeSet<String>();
+        set.addAll(viewWords());
+
         for (String query: queries) {
-        	// TODO Use tailMap + break to speed this up, similar to: https://github.com/usf-cs272-fall2023/cs272-lectures/blob/e57203970859ec8beb43038db7d543dee244db1c/DataStructures/src/main/java/edu/usfca/cs272/FindDemo.java#L124-L166
-            for (String indexWord: viewWords()) { // TODO Linear search
+            for (String indexWord: set.tailSet(query)) {
                 if (indexWord.startsWith(query)) {
-                    exactSearch(locationCountMap, indexWord);
+                    exactSearch(indexWord, matches);
                 }
             }
         }
+
+        List<QueryResult> resultList = new ArrayList<>(matches.values());
+        Collections.sort(resultList);
+
+        return resultList;
     }
 
     /**
-     * Executes an exact search for the provided word and updates the location count map.
+     * Executes an exact search for the provided word and updates the map of matches.
      * This method retrieves a set of locations where the word appears and counts how many
-     * times it appears in each location. The count is then added to the existing count in
-     * the locationCountMap.
+     * times it appears in each location. The count and score are then updated in the QueryResult
+     * associated with each location.
      *
-     * @param locationCountMap A map tracking the count of occurrences of words in various locations.
-     *                         The map is updated with the total count of occurrences for each location.
      * @param word The word to search for across all indexed locations.
+     * @param matches A map tracking the {@link QueryResult} for each location.
      */
-    private void exactSearch(Map<String, Integer> locationCountMap, String word) {
+    private void exactSearch(String word, Map<String, QueryResult> matches) {
         Set<String> locations = viewLocations(word);
         for (String location : locations) {
+            if (!matches.containsKey(location)) {
+                matches.put(location, new QueryResult(location));
+            }
+
+            QueryResult queryResult = matches.get(location);
             int count = viewPositions(word, location).size();
-            locationCountMap.put(location, locationCountMap.getOrDefault(location, 0) + count);
+            queryResult.updateCount(totalCount(location), count);
         }
     }
 }
