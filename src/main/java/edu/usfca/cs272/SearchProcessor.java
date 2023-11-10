@@ -23,11 +23,11 @@ public class SearchProcessor {
 
 	/*
 	 * TODO Think about this so we can talk about it next time (dont have to make changes)
-	 * 
+	 *
 	 * Why is it better for the index and partial values to be members of this class passed
 	 * to the constructor -versus- parameters to the search methods below.
 	 */
-	
+
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
@@ -79,7 +79,7 @@ public class SearchProcessor {
      *
      * @param line The line of text to process and search.
      */
-    private void search(String line) { // TODO public
+    public void search(String line) {
         if (line.isEmpty()) {
             return;
         }
@@ -97,7 +97,7 @@ public class SearchProcessor {
      *
      * @param queries The set of stemmed words to search.
      */
-    private void search(TreeSet<String> queries) {  // TODO public
+    public void search(TreeSet<String> queries) {
         String queryWords = String.join(" ", queries);
         searchResult.addQuery(queryWords);
 
@@ -118,7 +118,7 @@ public class SearchProcessor {
      * @param queryWords The concatenated query words.
      * @param locationCountMap A map containing locations and their associated hit counts.
      */
-    private void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap) {
+    public void saveToSearchResult(String queryWords, Map<String, Integer> locationCountMap) {
         for (Map.Entry<String, Integer> entry: locationCountMap.entrySet()) {
             String location = entry.getKey();
             int count = entry.getValue();
