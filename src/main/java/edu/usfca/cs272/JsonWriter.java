@@ -522,6 +522,7 @@ public class JsonWriter {
      * @throws IOException if an IO error occurs
      * @see Writer#write(String)
      */
+    // TODO public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
     public static void writeMapArray(Collection<Map<String, Object>> elements, Writer writer, int indent) throws IOException {
         writer.write("[\n");
 
@@ -545,7 +546,7 @@ public class JsonWriter {
             }
             writeIndent("}", writer, indent + 1);
 
-            if (iterator.hasNext()) {
+            if (iterator.hasNext()) { // TODO Want to eliminate this and take an approach like the other methods
                 writer.write(",");
             }
             writer.write("\n");
@@ -553,4 +554,16 @@ public class JsonWriter {
 
         writeIndent("]", writer, indent);
     }
+    
+    /*
+     * TODO 
+     * writeJsonObject(JsonObject element, Writer writer, int indent)
+     * 
+     * create a nested interface....
+     * 
+     * public interface JsonObject {
+     * 		toMap()
+     * 		toJson(Writer writer, int indent)
+     * }
+     */
 }
