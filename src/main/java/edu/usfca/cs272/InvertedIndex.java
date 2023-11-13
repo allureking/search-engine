@@ -230,24 +230,25 @@ public class  InvertedIndex {
      * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
     public List<QueryResult> exactSearch(Set<String> queries) {
-        Map<String, QueryResult> matches = new TreeMap<>();
+        Map<String, QueryResult> matches = new TreeMap<>(); // TODO HashMap
         List<QueryResult> results = new ArrayList<>();
 
         for (String query : queries) {
             var innerMap = wordIndex.get(query);
 
             if (innerMap != null) {
-                for (var innerEntry : innerMap.entrySet()) {
+                for (var innerEntry : innerMap.entrySet()) { // TODO This for loop can be moved to a private search helper
                     String location = innerEntry.getKey();
                     int count = innerEntry.getValue().size();
 
+                    // TODO Avoid functional until caught up... create the loop here!
                     QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
                     result.updateCount(totalCount(location), count);
                 }
             }
         }
 
-        results.addAll(matches.values());
+        results.addAll(matches.values()); // TODO We want to avoid this step, but can't if you use computeIfAbsent
         Collections.sort(results);
         return results;
     }
@@ -262,15 +263,17 @@ public class  InvertedIndex {
      */
     public List<QueryResult> partialSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new TreeMap<>();
+        // TODO Create the list here... update it inside the of the loop when you update the map
 
         TreeSet<String> set = new TreeSet<String>();
-        set.addAll(viewWords());
+        set.addAll(viewWords()); // TODO Don't want to copy, want to access data directly
 
         for (String query: queries) {
-            for (String indexWord: set.tailSet(query)) {
+            for (String indexWord: set.tailSet(query)) { // TODO wordIndex.tailMap(query).entrySet()
                 if (indexWord.startsWith(query)) {
                     exactSearch(indexWord, matches);
                 }
+                // TODO break!
             }
         }
 
@@ -289,7 +292,7 @@ public class  InvertedIndex {
      * @param word The word to search for across all indexed locations.
      * @param matches A map tracking the {@link QueryResult} for each location.
      */
-    private void exactSearch(String word, Map<String, QueryResult> matches) {
+    private void exactSearch(String word, Map<String, QueryResult> matches) { // TODO Remove this one
         Set<String> locations = viewLocations(word);
         for (String location : locations) {
             int count = viewPositions(word, location).size();
@@ -297,6 +300,7 @@ public class  InvertedIndex {
         }
     }
 
+    // TODO Remove this one
     /**
      * Helper method for exactSearch.
      * Updates the map of query results with the given location and count information.

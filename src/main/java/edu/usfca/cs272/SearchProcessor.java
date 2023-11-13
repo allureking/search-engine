@@ -27,18 +27,19 @@ public class SearchProcessor {
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
-	private InvertedIndex index;
+	private InvertedIndex index; // TODO final
 
 	/**
 	 * Flag indicating whether to perform partial (true) or exact (false) search operations.
 	 */
-	private boolean partial;
+	private boolean partial; // TODO final
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.
 	 */
-	private Stemmer stemmer;
+	private Stemmer stemmer; // TODO final
 
+	// TODO private final Function<...> searchFunction;
 
     /**
      * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
@@ -53,6 +54,15 @@ public class SearchProcessor {
 
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
+        
+        /* TODO 
+        if (partial) {
+        	searchFunction = index::partialSearch;
+        }
+        else {
+        	
+        }
+        */
     }
 
     /**
@@ -93,9 +103,12 @@ public class SearchProcessor {
      *
      * @param queries The set of stemmed words to search.
      */
-    public void search(TreeSet<String> queries) {
+    public void search(TreeSet<String> queries) { // TODO public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
+        
+        // TODO return if queryWords is already a key in your map
 
+        // TODO searchResults.put(queryWords, searchFunction.apply(queries));
         if (partial) {
             searchResults.put(queryWords, index.partialSearch(queries));
         } else {
@@ -115,6 +128,7 @@ public class SearchProcessor {
      * @throws IOException If an I/O error occurs writing to the file path.
      */
     public void saveResult(Path output) throws IOException {
+    	// TODO Remove all the looping
         Map<String, Collection<Map<String, Object>>> elements = new TreeMap<>();
         for (Map.Entry<String, List<QueryResult>> entry: searchResults.entrySet()) {
             List<Map<String, Object>> list = new ArrayList<>();

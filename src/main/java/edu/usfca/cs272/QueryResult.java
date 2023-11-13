@@ -7,7 +7,7 @@ import java.util.TreeMap;
  * Represents a query result, encapsulating the count of occurrences,
  * a relevance score, and the location where the result was found.
  */
-public class QueryResult implements Comparable<QueryResult> {
+public class QueryResult implements Comparable<QueryResult> { // TODO Nested inside of inverted index... decide whether to use the static keyword!
 	/**
 	 * The occurrenceCount is the number of times a query term appears. This is used
 	 * to measure how often a term is encountered within a particular dataset or document.
