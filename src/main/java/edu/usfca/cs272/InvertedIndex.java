@@ -232,37 +232,46 @@ public class InvertedIndex {
      */
     public List<QueryResult> exactSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new HashMap<>();
-        List<QueryResult> results = new ArrayList<>();
 
         for (String query : queries) {
-            var innerMap = wordIndex.get(query);
+            if (wordIndex.containsKey(query)) {
+                var innerMap = wordIndex.get(query);
 
-            if (innerMap != null) {
-            		searchOneWord(innerMap, matches);
+                for (var entry : innerMap.entrySet()) {
+                    String location = entry.getKey();
+                    int count = entry.getValue().size();
+
+                    QueryResult result = matches.get(location);
+                    if (result == null) {
+                        result = new QueryResult(location);
+                        matches.put(location, result);
+                    }
+                    result.updateCount(totalCount(location), count);
+                }
             }
         }
 
-        results.addAll(matches.values()); // TODO We want to avoid this step, but can't if you use computeIfAbsent
+        List<QueryResult> results = new ArrayList<>(matches.values());
         Collections.sort(results);
         return results;
     }
 
-    /**
-     * search one query word.
-     * @param innerMap
-     * @param matches
-     */
-    @SuppressWarnings("javadoc")
-	private void searchOneWord(TreeMap<String, TreeSet<Integer>> innerMap, Map<String, QueryResult> matches) {
-        for (var innerEntry : innerMap.entrySet()) {
-            String location = innerEntry.getKey();
-            int count = innerEntry.getValue().size();
-
-            // TODO Avoid functional until caught up... create the loop here!
-            QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
-            result.updateCount(totalCount(location), count);
-        }
-    }
+//    /**
+//     * search one query word.
+//     * @param innerMap
+//     * @param matches
+//     */
+//    @SuppressWarnings("javadoc")
+//	private void searchOneWord(TreeMap<String, TreeSet<Integer>> innerMap, Map<String, QueryResult> matches) {
+//        for (var innerEntry : innerMap.entrySet()) {
+//            String location = innerEntry.getKey();
+//            int count = innerEntry.getValue().size();
+//
+//            // TODO Avoid functional until caught up... create the loop here!
+//            QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
+//            result.updateCount(totalCount(location), count);
+//        }
+//    }
 
     /**
      * Performs a partial search for each query in the provided set.
@@ -274,29 +283,31 @@ public class InvertedIndex {
      */
     public List<QueryResult> partialSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new TreeMap<>();
-        // TODO Create the list here... update it inside the of the loop when you update the map
 
-        TreeSet<String> set = new TreeSet<String>();
-        set.addAll(viewWords()); // TODO Don't want to copy, want to access data directly
-
-        for (String query: queries) {
-            for (String indexWord: wordIndex.tailMap(query).keySet()) {
-                if (indexWord.startsWith(query)) {
-                    Set<String> locations = viewLocations(indexWord);
-                    for (String location : locations) {
-                        int count = viewPositions(indexWord, location).size();
-                        matches.computeIfAbsent(location, k -> new QueryResult(location))
-                                .updateCount(totalCount(location), count);
-                    }
-                } else {
+        for (String query : queries) {
+            for (var entry : wordIndex.tailMap(query).entrySet()) {
+                String indexWord = entry.getKey();
+                if (!indexWord.startsWith(query)) {
                     break;
+                }
+
+                var locations = entry.getValue();
+                for (var locationEntry : locations.entrySet()) {
+                    String location = locationEntry.getKey();
+                    int count = locationEntry.getValue().size();
+
+                    QueryResult result = matches.get(location);
+                    if (result == null) {
+                        result = new QueryResult(location);
+                        matches.put(location, result);
+                    }
+                    result.updateCount(totalCount(location), count);
                 }
             }
         }
 
         List<QueryResult> resultList = new ArrayList<>(matches.values());
         Collections.sort(resultList);
-
         return resultList;
     }
 
