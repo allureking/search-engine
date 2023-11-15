@@ -279,11 +279,17 @@ public class InvertedIndex {
         set.addAll(viewWords()); // TODO Don't want to copy, want to access data directly
 
         for (String query: queries) {
-    		for (String indexWord: wordIndex.tailMap(query).keySet()) {
+            for (String indexWord: wordIndex.tailMap(query).keySet()) {
                 if (indexWord.startsWith(query)) {
-                    exactSearch(indexWord, matches);
+                    Set<String> locations = viewLocations(indexWord);
+                    for (String location : locations) {
+                        int count = viewPositions(indexWord, location).size();
+                        matches.computeIfAbsent(location, k -> new QueryResult(location))
+                                .updateCount(totalCount(location), count);
+                    }
+                } else {
+                    break;
                 }
-                // TODO break!
             }
         }
 
@@ -291,41 +297,6 @@ public class InvertedIndex {
         Collections.sort(resultList);
 
         return resultList;
-    }
-
-    /**
-     * Executes an exact search for the provided word and updates the map of matches.
-     * This method retrieves a set of locations where the word appears and counts how many
-     * times it appears in each location. The count and score are then updated in the QueryResult
-     * associated with each location.
-     *
-     * @param word The word to search for across all indexed locations.
-     * @param matches A map tracking the {@link QueryResult} for each location.
-     */
-    private void exactSearch(String word, Map<String, QueryResult> matches) { // TODO Remove this one
-        Set<String> locations = viewLocations(word);
-        for (String location : locations) {
-            int count = viewPositions(word, location).size();
-            updateResult(matches, location, totalCount(location), count);
-        }
-    }
-
-    // TODO Remove this one
-    /**
-     * Helper method for exactSearch.
-     * Updates the map of query results with the given location and count information.
-     * If a {@link QueryResult} for the location already exists in the map, this method
-     * updates its count and score. Otherwise, it creates a new {@link QueryResult} for
-     * the location and adds it to the map.
-     *
-     * @param matches The map of query results keyed by location.
-     * @param location The location (typically a file path) to be updated in the results.
-     * @param total The total count of words in the location (for score calculation).
-     * @param count The count of occurrences of a specific word in the location.
-     */
-    private static void updateResult(Map<String, QueryResult> matches, String location, int total, int count) {
-        matches.computeIfAbsent(location, k -> new QueryResult(location))
-               .updateCount(total, count);
     }
 
     /**
