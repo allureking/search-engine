@@ -224,8 +224,9 @@ public class InvertedIndex {
 
     /**
      * Performs an exact search for each query in the provided set.
-     * This method delegates to a method that processes the search on a single query,
-     * aggregating the results into a list of {@link QueryResult} objects.
+     * This method looks for exact matches of the query words in the index and
+     * aggregates the results into a sorted list of {@link QueryResult} objects.
+     * The sorting is based on the relevance score, occurrence count, and location.
      *
      * @param queries A set of queries to search for.
      * @return A sorted list of {@link QueryResult} objects representing the search results.
@@ -238,15 +239,7 @@ public class InvertedIndex {
                 var innerMap = wordIndex.get(query);
 
                 for (var entry : innerMap.entrySet()) {
-                    String location = entry.getKey();
-                    int count = entry.getValue().size();
-
-                    QueryResult result = matches.get(location);
-                    if (result == null) {
-                        result = new QueryResult(location);
-                        matches.put(location, result);
-                    }
-                    result.updateCount(totalCount(location), count);
+                    updateMatches(matches, entry.getKey(), entry.getValue().size());
                 }
             }
         }
@@ -256,27 +249,12 @@ public class InvertedIndex {
         return results;
     }
 
-//    /**
-//     * search one query word.
-//     * @param innerMap
-//     * @param matches
-//     */
-//    @SuppressWarnings("javadoc")
-//	private void searchOneWord(TreeMap<String, TreeSet<Integer>> innerMap, Map<String, QueryResult> matches) {
-//        for (var innerEntry : innerMap.entrySet()) {
-//            String location = innerEntry.getKey();
-//            int count = innerEntry.getValue().size();
-//
-//            // TODO Avoid functional until caught up... create the loop here!
-//            QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
-//            result.updateCount(totalCount(location), count);
-//        }
-//    }
-
     /**
      * Performs a partial search for each query in the provided set.
      * A partial search considers any index word that starts with the given query string.
-     * For each matching index word, an exact search is performed, and the results are aggregated.
+     * For each matching index word, the method aggregates the search results,
+     * ultimately returning them as a sorted list of {@link QueryResult} objects.
+     * The sorting is based on the relevance score, occurrence count, and location.
      *
      * @param queries A set of queries to search for.
      * @return A sorted list of {@link QueryResult} objects representing the search results.
@@ -293,15 +271,7 @@ public class InvertedIndex {
 
                 var locations = entry.getValue();
                 for (var locationEntry : locations.entrySet()) {
-                    String location = locationEntry.getKey();
-                    int count = locationEntry.getValue().size();
-
-                    QueryResult result = matches.get(location);
-                    if (result == null) {
-                        result = new QueryResult(location);
-                        matches.put(location, result);
-                    }
-                    result.updateCount(totalCount(location), count);
+                    updateMatches(matches, locationEntry.getKey(), locationEntry.getValue().size());
                 }
             }
         }
@@ -309,6 +279,25 @@ public class InvertedIndex {
         List<QueryResult> resultList = new ArrayList<>(matches.values());
         Collections.sort(resultList);
         return resultList;
+    }
+
+    /**
+     * Updates or adds a QueryResult object in the provided map based on the location and count.
+     * If a QueryResult for the given location already exists in the map, its count is updated.
+     * Otherwise, a new QueryResult object is created and added to the map.
+     * This method is a helper for both exact and partial search methods.
+     *
+     * @param matches The map of QueryResult objects keyed by their locations.
+     * @param location The location (typically a file path) of the search results.
+     * @param count The number of occurrences of the query in the given location.
+     */
+    private void updateMatches(Map<String, QueryResult> matches, String location, int count) {
+        QueryResult result = matches.get(location);
+        if (result == null) {
+            result = new QueryResult(location);
+            matches.put(location, result);
+        }
+        result.updateCount(totalCount(location), count);
     }
 
     /**
