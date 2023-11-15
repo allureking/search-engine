@@ -1,6 +1,7 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -244,7 +245,7 @@ public class InvertedIndex {
             }
         }
 
-        List<QueryResult> results = new ArrayList<>(matches.values());
+        List<QueryResult> results = new ArrayList<>();
         Collections.sort(results);
         return results;
     }
@@ -387,6 +388,39 @@ public class InvertedIndex {
             map.put("where", "\"" + location + "\"");
 
             return map;
+        }
+
+        /**
+         * Writes the JSON representation of this object to the provided writer.
+         * This method converts the object into a map and then iterates through each entry
+         * in the map, writing the key-value pairs as JSON. It handles the formatting
+         * and indentation of the JSON output according to the specified indentation level.
+         * The keys are written as JSON strings, and the values are converted to their
+         * string representations. This method assumes that all values in the map can be
+         * sensibly converted to a string representation.
+         *
+         * @param writer the writer to which the JSON representation is written
+         * @param indent the indentation level for the JSON output
+         * @throws IOException if an I/O error occurs while writing to the writer
+         */
+        @Override
+        public void toJson(Writer writer, int indent) throws IOException {
+            Map<String, Object> map = toMap();
+            var entryIterator = map.entrySet().iterator();
+            if (entryIterator.hasNext()) {
+                JsonWriter.writeIndent("{\n", writer, indent + 1);
+            }
+            while (entryIterator.hasNext()) {
+                Map.Entry<String, Object> entry = entryIterator.next();
+                JsonWriter.writeQuote(entry.getKey(), writer, indent + 2);
+                writer.write(": ");
+                writer.write(entry.getValue().toString());
+                if (entryIterator.hasNext()) {
+                    writer.write(",");
+                }
+                writer.write("\n");
+            }
+            JsonWriter.writeIndent("}", writer, indent + 1);
         }
 
         /**
