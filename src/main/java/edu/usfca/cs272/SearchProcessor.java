@@ -38,6 +38,12 @@ public class SearchProcessor {
 	 */
 	private final Stemmer stemmer;
 
+	/**
+	 * A functional interface representing the search operation. It takes a set of query terms
+	 * and returns a collection of {@link InvertedIndex.QueryResult} objects representing the search results.
+	 * This function abstracts the search logic, allowing for different search implementations
+	 * (e.g., exact or partial) to be used interchangeably.
+	 */
 	private final Function<Set<String>, Collection<InvertedIndex.QueryResult>> searchFunction;
 
     /**
@@ -54,11 +60,13 @@ public class SearchProcessor {
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
 
+
         if (partial) {
         	searchFunction = index::partialSearch;
         } else {
             searchFunction = index::exactSearch;
         }
+
     }
 
     /**
@@ -123,6 +131,6 @@ public class SearchProcessor {
      * @throws IOException If an I/O error occurs writing to the file path.
      */
     public void saveResult(Path output) throws IOException {
-        JsonWriter.writeObjectArrayObject(searchResults, output);
+        JsonWriter.writeJsonObjectArray(searchResults, output);
     }
 }
