@@ -605,28 +605,40 @@ public class JsonWriter {
         while (iterator.hasNext()) {
             Map<String, Object> map = iterator.next();
             var entryIterator = map.entrySet().iterator();
+
             if (entryIterator.hasNext()) {
                 writeIndent("{\n", writer, indent + 1);
-            }
-            while (entryIterator.hasNext()) {
                 Map.Entry<String, Object> entry = entryIterator.next();
-                writeQuote(entry.getKey(), writer, indent + 2);
-                writer.write(": ");
-                writer.write(entry.getValue().toString());
-                if (entryIterator.hasNext()) {
-                    writer.write(",");
+                writeMapEntry(entry, writer, indent + 2);
+
+                while (entryIterator.hasNext()) {
+                    writer.write(",\n");
+                    entry = entryIterator.next();
+                    writeMapEntry(entry, writer, indent + 2);
                 }
                 writer.write("\n");
+                writeIndent("}", writer, indent + 1);
             }
-            writeIndent("}", writer, indent + 1);
 
-            if (iterator.hasNext()) { //TODO Want to eliminate this and take an approach like the other methods
+            if (iterator.hasNext()) {
                 writer.write(",");
             }
             writer.write("\n");
         }
 
         writeIndent("]", writer, indent);
+    }
+
+    /**
+     * @param entry
+     * @param writer
+     * @param indent
+     * @throws IOException
+     */
+    private static void writeMapEntry(Map.Entry<String, Object> entry, Writer writer, int indent) throws IOException {
+        writeQuote(entry.getKey(), writer, indent);
+        writer.write(": ");
+        writer.write(entry.getValue().toString());
     }
 
     /**
