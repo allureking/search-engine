@@ -595,7 +595,8 @@ public class JsonWriter {
      *                 elements are indented by one level more, and the closing bracket is at the initial level
      * @throws IOException if an IO error occurs during writing
      */
-    //public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
+
+    //TODO public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
     public static void writeMapArray(Collection<Map<String, Object>> elements, Writer writer, int indent) throws IOException {
         writer.write("[\n");
 
@@ -619,7 +620,7 @@ public class JsonWriter {
             }
             writeIndent("}", writer, indent + 1);
 
-            if (iterator.hasNext()) { //Want to eliminate this and take an approach like the other methods
+            if (iterator.hasNext()) { //TODO Want to eliminate this and take an approach like the other methods
                 writer.write(",");
             }
             writer.write("\n");
@@ -627,20 +628,6 @@ public class JsonWriter {
 
         writeIndent("]", writer, indent);
     }
-
-    /*
-     * writeJsonObject(JsonObject element, Writer writer, int indent)
-     *
-     * create a nested interface....
-     *
-     * public interface JsonObject {
-     * 		toMap()
-     * 		toJson(Writer writer, int indent)
-     * }
-     *
-     * 改的和教授要求的不完全一样，应该还是需要加上writeJsonObject(JsonObject element, Writer writer, int indent)方法
-     * 和 toJson(Writer writer, int indent) 比较好
-     */
 
     /**
      * An interface representing a JSON object capable of converting itself into a map
@@ -662,6 +649,32 @@ public class JsonWriter {
          * @throws IOException if an IO error occurs during writing
          */
         void toJson(Writer writer, int indent) throws IOException;
+    }
+
+    /**
+     * @param element
+     * @param writer
+     * @param indent
+     * @throws IOException
+     */
+    public static void writeJsonObject(JsonObject element, Writer writer, int indent) throws IOException {
+        writeIndent("{\n", writer, indent);
+        Map<String, Object> map = element.toMap();
+        var entryIterator = map.entrySet().iterator();
+
+        while (entryIterator.hasNext()) {
+            Map.Entry<String, Object> entry = entryIterator.next();
+            writeQuote(entry.getKey(), writer, indent + 1);
+            writer.write(": ");
+            writer.write(entry.getValue().toString());
+
+            if (entryIterator.hasNext()) {
+                writer.write(",");
+            }
+            writer.write("\n");
+        }
+
+        writeIndent("}", writer, indent);
     }
 
     /**
