@@ -332,24 +332,24 @@ public class InvertedIndex {
      * Represents a query result, encapsulating the count of occurrences,
      * a relevance score, and the location where the result was found.
      */
-    public class QueryResult implements Comparable<QueryResult> { // TODO Nested inside of inverted index... decide whether to use the static keyword!
-    	/**
-    	 * The occurrenceCount is the number of times a query term appears. This is used
-    	 * to measure how often a term is encountered within a particular dataset or document.
-    	 */
-    	private int count;
+    public static class QueryResult implements Comparable<QueryResult>, JsonWriter.JsonObject {
+        /**
+         * The occurrenceCount is the number of times a query term appears. This is used
+         * to measure how often a term is encountered within a particular dataset or document.
+         */
+        private int count;
 
-    	/**
-    	 * The relevanceScore is a metric that quantifies how relevant a query result is
-    	 * to the search query. Typically, higher scores indicate more relevance.
-    	 */
-    	private double score;
+        /**
+         * The relevanceScore is a metric that quantifies how relevant a query result is
+         * to the search query. Typically, higher scores indicate more relevance.
+         */
+        private double score;
 
-    	/**
-    	 * The location is a string identifier for where the query result was found.
-    	 * This could represent a URL, a file path, or any other location identifier.
-    	 */
-    	private final String location;
+        /**
+         * The location is a string identifier for where the query result was found.
+         * This could represent a URL, a file path, or any other location identifier.
+         */
+        private final String location;
 
 
         /**
@@ -406,7 +406,8 @@ public class InvertedIndex {
          *
          * @return a TreeMap containing the properties of this QueryResult
          */
-        public Map<String, Object> toMap() {
+        @Override
+		public Map<String, Object> toMap() {
             TreeMap<String, Object> map = new TreeMap<>();
             map.put("count", count);
             map.put("score", String.format("%.8f", score));
