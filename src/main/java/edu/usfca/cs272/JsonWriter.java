@@ -595,7 +595,6 @@ public class JsonWriter {
      *                 elements are indented by one level more, and the closing bracket is at the initial level
      * @throws IOException if an IO error occurs during writing
      */
-    //TODO public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
     public static void writeMapArray(Collection<Map<String, Object>> elements, Writer writer, int indent) throws IOException {
         writer.write("[\n");
 
