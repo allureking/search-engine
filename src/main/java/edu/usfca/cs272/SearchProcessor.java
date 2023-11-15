@@ -26,12 +26,12 @@ public class SearchProcessor {
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
-	private final InvertedIndex index;
+	private final InvertedIndex index; //TODO 这里index和partial给javadoc警告提示未使用是为什么？
 
 	/**
 	 * Flag indicating whether to perform partial (true) or exact (false) search operations.
 	 */
-	private final boolean partial;
+	private final boolean partial;	//TODO 最好不要直接删了，我想保留index和partial作为member但不知道todo改完不知道怎么样用起来
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.

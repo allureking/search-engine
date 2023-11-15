@@ -547,7 +547,7 @@ public class JsonWriter {
             writeIndent("}", writer, indent + 1);
 
             if (iterator.hasNext()) { // TODO Want to eliminate this and take an approach like the other methods
-                writer.write(",");
+                writer.write(",");	//TODO 这里教授的意思估计是要想其他方法一样简洁，估计是把一部分移到一个新的writeMap的方法里面
             }
             writer.write("\n");
         }
@@ -565,6 +565,9 @@ public class JsonWriter {
      * 		toMap()
      * 		toJson(Writer writer, int indent)
      * }
+     *
+     * 改的和教授要求的不完全一样，应该还是需要加上writeJsonObject(JsonObject element, Writer writer, int indent)方法
+     * 和 toJson(Writer writer, int indent) 比较好
      */
 
     /**
