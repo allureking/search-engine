@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,7 @@ import java.util.TreeSet;
  *
  * @author Honghuai(King) Ke
  */
-public class  InvertedIndex {
+public class InvertedIndex {
 
 	/**
 	 * A nested TreeMap structure to store the word positions for each word in each file.
@@ -230,27 +231,36 @@ public class  InvertedIndex {
      * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
     public List<QueryResult> exactSearch(Set<String> queries) {
-        Map<String, QueryResult> matches = new TreeMap<>(); // TODO HashMap
+        Map<String, QueryResult> matches = new HashMap<>();
         List<QueryResult> results = new ArrayList<>();
 
         for (String query : queries) {
             var innerMap = wordIndex.get(query);
 
             if (innerMap != null) {
-                for (var innerEntry : innerMap.entrySet()) { // TODO This for loop can be moved to a private search helper
-                    String location = innerEntry.getKey();
-                    int count = innerEntry.getValue().size();
-
-                    // TODO Avoid functional until caught up... create the loop here!
-                    QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
-                    result.updateCount(totalCount(location), count);
-                }
+            		searchOneWord(innerMap, matches);
             }
         }
 
         results.addAll(matches.values()); // TODO We want to avoid this step, but can't if you use computeIfAbsent
         Collections.sort(results);
         return results;
+    }
+
+    /**
+     * search one query word.
+     * @param innerMap
+     * @param matches
+     */
+    private void searchOneWord(TreeMap<String, TreeSet<Integer>> innerMap, Map<String, QueryResult> matches) {
+        for (var innerEntry : innerMap.entrySet()) {
+            String location = innerEntry.getKey();
+            int count = innerEntry.getValue().size();
+
+            // TODO Avoid functional until caught up... create the loop here!
+            QueryResult result = matches.computeIfAbsent(location, k -> new QueryResult(location));
+            result.updateCount(totalCount(location), count);
+        }
     }
 
     /**
