@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -117,26 +114,17 @@ public class SearchProcessor {
     }
 
     /**
-     * Saves the search results to the specified file path.
-     * This method delegates to the {@code searchResult} object's
-     * {@code saveToOutput} method to write the results in a structured format,
-     * typically JSON, to the file system.
+     * Saves the search results to the specified file path in JSON format.
+     * This method leverages the JsonWriter.writeObjectArrayObject method to serialize
+     * and write the search results. The search results are expected to be in the form of
+     * a map where each key represents a query and the corresponding value is a collection
+     * of QueryResult objects implementing the JsonWriter.JsonObject interface.
      *
-     * @param output The {@code Path} object representing the file path
-     *               where the search results will be saved. If the file
-     *               already exists, it will be overwritten.
+     * @param output The Path object representing the file path where the search results
+     *               will be saved. If the file already exists, it will be overwritten.
      * @throws IOException If an I/O error occurs writing to the file path.
      */
     public void saveResult(Path output) throws IOException {
-    	// TODO Remove all the looping
-        Map<String, Collection<Map<String, Object>>> elements = new TreeMap<>();
-        for (Map.Entry<String, List<QueryResult>> entry: searchResults.entrySet()) {
-            List<Map<String, Object>> list = new ArrayList<>();
-            elements.put(entry.getKey(), list);
-            for (QueryResult result : entry.getValue()) {
-                list.add(result.toMap());
-            }
-        }
-        JsonWriter.writeObjectArrayObject(elements, output);
+        JsonWriter.writeObjectArrayObject(searchResults, output);
     }
 }
