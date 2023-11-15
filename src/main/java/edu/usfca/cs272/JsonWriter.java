@@ -595,30 +595,14 @@ public class JsonWriter {
      *                 elements are indented by one level more, and the closing bracket is at the initial level
      * @throws IOException if an IO error occurs during writing
      */
-
     //TODO public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
     public static void writeMapArray(Collection<Map<String, Object>> elements, Writer writer, int indent) throws IOException {
         writer.write("[\n");
 
         var iterator = elements.iterator();
-
         while (iterator.hasNext()) {
             Map<String, Object> map = iterator.next();
-            var entryIterator = map.entrySet().iterator();
-
-            if (entryIterator.hasNext()) {
-                writeIndent("{\n", writer, indent + 1);
-                Map.Entry<String, Object> entry = entryIterator.next();
-                writeMapEntry(entry, writer, indent + 2);
-
-                while (entryIterator.hasNext()) {
-                    writer.write(",\n");
-                    entry = entryIterator.next();
-                    writeMapEntry(entry, writer, indent + 2);
-                }
-                writer.write("\n");
-                writeIndent("}", writer, indent + 1);
-            }
+            writeMap(map, writer, indent + 1);
 
             if (iterator.hasNext()) {
                 writer.write(",");
@@ -630,10 +614,39 @@ public class JsonWriter {
     }
 
     /**
-     * @param entry
-     * @param writer
-     * @param indent
-     * @throws IOException
+     * Writes a single {@link JsonObject} as a JSON object.
+     *
+     * @param map    the {@link JsonObject} to write
+     * @param writer the {@link Writer} to use for output
+     * @param indent the indentation level for the start of this map; each element inside
+     *               will be indented further
+     * @throws IOException if an IO error occurs during writing
+     */
+    public static void writeMap(Map<String, Object> map, Writer writer, int indent) throws IOException {
+        var entryIterator = map.entrySet().iterator();
+
+        if (entryIterator.hasNext()) {
+            writeIndent("{\n", writer, indent);
+            Map.Entry<String, Object> entry = entryIterator.next();
+            writeMapEntry(entry, writer, indent + 1);
+
+            while (entryIterator.hasNext()) {
+                writer.write(",\n");
+                entry = entryIterator.next();
+                writeMapEntry(entry, writer, indent + 1);
+            }
+            writer.write("\n");
+            writeIndent("}", writer, indent);
+        }
+    }
+
+    /**
+     * Writes a single entry of a {@link JsonObject} as a key-value pair in JSON format.
+     *
+     * @param entry  the {@link JsonObject} to write
+     * @param writer the {@link Writer} to use for output
+     * @param indent the indentation level for this map entry
+     * @throws IOException if an IO error occurs during writing
      */
     private static void writeMapEntry(Map.Entry<String, Object> entry, Writer writer, int indent) throws IOException {
         writeQuote(entry.getKey(), writer, indent);
