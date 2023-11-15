@@ -1,6 +1,7 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -372,10 +373,37 @@ public class InvertedIndex {
         }
 
         /**
-         * Converts the QueryResult to a Map representation for JSON serialization.
-         * The relevance score is formatted to 8 decimal places.
+         * Serializes this QueryResult object to JSON using the specified Writer.
+         * This method converts the QueryResult to a map representation and then
+         * utilizes the JsonWriter's capabilities to serialize this map to JSON.
+         * The indentation level is respected to maintain the JSON structure's readability.
          *
-         * @return a TreeMap containing the properties of this QueryResult
+         * @param writer The writer to which the JSON data is written.
+         * @param indent The indentation level used for formatting the JSON output.
+         * @throws IOException If an I/O error occurs during writing to the writer.
+         */
+        @Override
+        public void toJson(Writer writer, int indent) throws IOException {
+            JsonWriter.writeIndent("{\n", writer, indent);
+
+            JsonWriter.writeQuote("count", writer, indent + 1);
+            writer.write(": " + count + ",\n");
+
+            JsonWriter.writeQuote("score", writer, indent + 1);
+            writer.write(": " + String.format("%.8f", score) + ",\n");
+
+            JsonWriter.writeQuote("where", writer, indent + 1);
+            writer.write(": \"" + location + "\"\n");
+
+            JsonWriter.writeIndent("}", writer, indent);
+        }
+
+        /**
+         * Converts the QueryResult to a Map representation for JSON serialization.
+         * The relevance score is formatted to 8 decimal places. This method is used
+         * for converting the QueryResult object to a format suitable for JSON serialization.
+         *
+         * @return a TreeMap containing the properties of this QueryResult, sorted by key
          */
         @Override
 		public Map<String, Object> toMap() {

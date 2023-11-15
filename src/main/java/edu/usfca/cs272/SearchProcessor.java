@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -36,7 +38,7 @@ public class SearchProcessor {
 	 */
 	private final Stemmer stemmer;
 
-	// TODO private final Function<...> searchFunction;
+	private final Function<Set<String>, Collection<InvertedIndex.QueryResult>> searchFunction;
 
     /**
      * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
@@ -52,14 +54,11 @@ public class SearchProcessor {
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
 
-        /* TODO
         if (partial) {
         	searchFunction = index::partialSearch;
+        } else {
+            searchFunction = index::exactSearch;
         }
-        else {
-
-        }
-        */
     }
 
     /**
@@ -100,17 +99,16 @@ public class SearchProcessor {
      *
      * @param queries The set of stemmed words to search.
      */
-    public void search(TreeSet<String> queries) { // TODO public void search(Set<String> queries) {
+    public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
 
-        // TODO return if queryWords is already a key in your map
-
-        // TODO searchResults.put(queryWords, searchFunction.apply(queries));
-        if (partial) {
-            searchResults.put(queryWords, index.partialSearch(queries));
-        } else {
-            searchResults.put(queryWords, index.exactSearch(queries));
+        // Return early if queryWords is already a key in the map
+        if (searchResults.containsKey(queryWords)) {
+            return;
         }
+
+        // Use the search function to get results and put them in the map
+        searchResults.put(queryWords, searchFunction.apply(queries));
     }
 
     /**
