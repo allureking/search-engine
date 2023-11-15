@@ -522,7 +522,7 @@ public class JsonWriter {
      *                 elements are indented by one level more, and the closing bracket is at the initial level
      * @throws IOException if an IO error occurs during writing
      */
-    // TODO public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
+    //public static void writeMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
     public static void writeMapArray(Collection<Map<String, Object>> elements, Writer writer, int indent) throws IOException {
         writer.write("[\n");
 
@@ -546,8 +546,8 @@ public class JsonWriter {
             }
             writeIndent("}", writer, indent + 1);
 
-            if (iterator.hasNext()) { // TODO Want to eliminate this and take an approach like the other methods
-                writer.write(",");	//TODO 这里教授的意思估计是要想其他方法一样简洁，估计是把一部分移到一个新的writeMap的方法里面
+            if (iterator.hasNext()) { //Want to eliminate this and take an approach like the other methods
+                writer.write(",");
             }
             writer.write("\n");
         }
@@ -556,7 +556,6 @@ public class JsonWriter {
     }
 
     /*
-     * TODO
      * writeJsonObject(JsonObject element, Writer writer, int indent)
      *
      * create a nested interface....
@@ -584,16 +583,19 @@ public class JsonWriter {
     }
 
     /**
-     * @param elements
-     * @param path
-     * @throws IOException
+     * Writes a JSON object representing a map where each key is associated with a collection of {@link JsonObject} elements.
+     * This method first converts each {@link JsonObject} in the collections to a map representation using their `toMap` method,
+     * and then writes the entire structure to a file at the specified path.
+     *
+     * @param elements A map where each key is a string and the value is a collection of {@link JsonObject}.
+     * @param path     The file path where the JSON formatted data will be written.
+     * @throws IOException If an I/O error occurs while writing to the file.
      */
-    @SuppressWarnings("javadoc")
 	public static void writeJsonObjectArray(Map<String, Collection<? extends JsonObject>> elements, Path path) throws IOException {
-        Map<String, Collection<Map<String, Object>>> mapElements = new TreeMap();
+        Map<String, Collection<Map<String, Object>>> mapElements = new TreeMap<>();
         for (Map.Entry<String, Collection<? extends JsonObject>> entry: elements.entrySet()) {
             String key = entry.getKey();
-            Collection<Map<String, Object>> mapCollection = new ArrayList();
+            Collection<Map<String, Object>> mapCollection = new ArrayList<>();
             for (JsonObject jsonObject: entry.getValue()) {
                 mapCollection.add(jsonObject.toMap());
             }
