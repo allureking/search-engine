@@ -22,22 +22,22 @@ public class SearchProcessor {
     /**
      * Stores search results mapped by query strings.
      */
-    private final TreeMap<String, List<QueryResult>> searchResults;
+	private final TreeMap<String, Collection<? extends JsonWriter.JsonObject>> searchResults;
 
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
-	private InvertedIndex index; // TODO final
+	private final InvertedIndex index;
 
 	/**
 	 * Flag indicating whether to perform partial (true) or exact (false) search operations.
 	 */
-	private boolean partial; // TODO final
+	private final boolean partial;
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.
 	 */
-	private Stemmer stemmer; // TODO final
+	private final Stemmer stemmer;
 
 	// TODO private final Function<...> searchFunction;
 
@@ -54,13 +54,13 @@ public class SearchProcessor {
 
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
-        
-        /* TODO 
+
+        /* TODO
         if (partial) {
         	searchFunction = index::partialSearch;
         }
         else {
-        	
+
         }
         */
     }
@@ -105,7 +105,7 @@ public class SearchProcessor {
      */
     public void search(TreeSet<String> queries) { // TODO public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
-        
+
         // TODO return if queryWords is already a key in your map
 
         // TODO searchResults.put(queryWords, searchFunction.apply(queries));
