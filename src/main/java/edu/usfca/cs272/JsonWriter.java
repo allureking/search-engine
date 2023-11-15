@@ -677,10 +677,16 @@ public class JsonWriter {
     }
 
     /**
-     * @param element
-     * @param writer
-     * @param indent
-     * @throws IOException
+     * Writes the provided {@link JsonObject} to a {@link Writer} in JSON format.
+     * This method serializes the {@link JsonObject} by converting it into a map representation
+     * through its `toMap` method and then writes each key-value pair as a JSON object.
+     * Each entry of the map is written with the specified indentation,
+     * and proper JSON formatting is maintained throughout the process.
+     *
+     * @param element The {@link JsonObject} to be written in JSON format.
+     * @param writer  The {@link Writer} where the JSON representation of the object will be written.
+     * @param indent  The level of indentation for formatting the JSON output.
+     * @throws IOException If an I/O error occurs while writing to the writer.
      */
     public static void writeJsonObject(JsonObject element, Writer writer, int indent) throws IOException {
         writeIndent("{\n", writer, indent);
