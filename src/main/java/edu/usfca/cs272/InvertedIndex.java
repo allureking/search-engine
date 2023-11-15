@@ -260,7 +260,7 @@ public class InvertedIndex {
      * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
     public List<QueryResult> partialSearch(Set<String> queries) {
-        Map<String, QueryResult> matches = new TreeMap<>();
+        Map<String, QueryResult> matches = new HashMap<>();
 
         for (String query : queries) {
             for (var entry : wordIndex.tailMap(query).entrySet()) {
