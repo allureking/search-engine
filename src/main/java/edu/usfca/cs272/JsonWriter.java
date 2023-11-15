@@ -497,6 +497,79 @@ public class JsonWriter {
     }
 
     /**
+     * Writes a JSON object representing a map where each key is associated with a collection of {@link JsonObject} elements.
+     * The method iterates over the map entries, writing each key as a JSON string, followed by a colon, and then the corresponding
+     * collection of {@link JsonObject} elements as a JSON array.
+     *
+     * @param elements A map where each key is a string and the value is a collection of {@link JsonObject}.
+     * @param writer   The writer to which the JSON formatted data is written.
+     * @param indent   The level of indentation to use for formatting the JSON output.
+     * @throws IOException If an I/O error occurs while writing to the writer.
+     */
+    public static void writeJsonArrayObject(Map<String, Collection<JsonObject>> elements, Writer writer, int indent) throws IOException {
+        writer.write('{');
+        var iterator = elements.entrySet().iterator();
+
+        if (iterator.hasNext()) {
+            writeJsonObjCollectionEntry(iterator.next(), writer, indent);
+
+            while (iterator.hasNext()) {
+                writer.write(",");
+                writeJsonObjCollectionEntry(iterator.next(), writer, indent);
+            }
+        }
+
+        writer.write('\n');
+        writeIndent("}", writer, indent);
+    }
+
+    /**
+     * Writes a single key-value pair entry of a map to the provided writer in JSON format.
+     * The key is written as a JSON string, followed by a colon, and then the corresponding
+     * collection of {@link JsonObject} elements as a JSON array.
+     *
+     * @param entry  A map entry containing a key and a collection of {@link JsonObject}.
+     * @param writer The writer to which the JSON formatted data is written.
+     * @param indent The level of indentation to use for formatting the JSON output.
+     * @throws IOException If an I/O error occurs while writing to the writer.
+     */
+    private static void writeJsonObjCollectionEntry(Map.Entry<String, ? extends Collection<JsonObject>> entry, Writer writer, int indent) throws IOException {
+        writer.write('\n');
+        writeQuote(entry.getKey(), writer, indent + 1);
+        writer.write(": ");
+        writeJsonMapArray(entry.getValue(), writer, indent + 1);
+    }
+
+    /**
+     * Writes a collection of {@link JsonObject} elements as a JSON array.
+     * Each {@link JsonObject} in the collection is written using its own `toJson` method, allowing for a custom representation.
+     * The method manages the array syntax and ensures proper indentation and formatting.
+     *
+     * @param elements A collection of {@link JsonObject} elements to write.
+     * @param writer   The writer to use for output.
+     * @param indent   The initial indentation level; the first bracket is at this level,
+     *                 elements are indented by one level more, and the closing bracket is at the initial level.
+     * @throws IOException If an IO error occurs during writing.
+     */
+    public static void writeJsonMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
+        writer.write("[\n");
+
+        var iterator = elements.iterator();
+
+        while (iterator.hasNext()) {
+            JsonObject json = iterator.next();
+            json.toJson(writer, indent);
+
+            if (iterator.hasNext()) {
+                writer.write(",");
+            }
+            writer.write("\n");
+        }
+
+        writeIndent("]", writer, indent);
+    }
+
+    /**
      * Writes an individual entry of the given map to the provided writer in JSON format.
      * The key is written as a JSON string, followed by a colon, and then the corresponding
      * values, which are {@link JsonObject} instances, are written as a JSON array.
@@ -580,6 +653,15 @@ public class JsonWriter {
          * @return a map representing this object
          */
         Map<String, Object> toMap();
+
+        /**
+         * Writes this object as a JSON string using the provided writer and indentation level.
+         *
+         * @param writer the writer to write the JSON string
+         * @param indent the indentation level for the JSON string
+         * @throws IOException if an IO error occurs during writing
+         */
+        void toJson(Writer writer, int indent) throws IOException;
     }
 
     /**
@@ -591,7 +673,7 @@ public class JsonWriter {
      * @param path     The file path where the JSON formatted data will be written.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
-	public static void writeJsonObjectArray(Map<String, Collection<? extends JsonObject>> elements, Path path) throws IOException {
+    public static void writeJsonObjectArray(Map<String, Collection<? extends JsonObject>> elements, Path path) throws IOException {
         Map<String, Collection<Map<String, Object>>> mapElements = new TreeMap<>();
         for (Map.Entry<String, Collection<? extends JsonObject>> entry: elements.entrySet()) {
             String key = entry.getKey();
