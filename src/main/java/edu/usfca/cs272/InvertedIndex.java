@@ -241,10 +241,9 @@ public class InvertedIndex {
 
         for (String query : queries) {
             if (wordIndex.containsKey(query)) {
-                var innerMap = wordIndex.get(query);
-
-                for (var entry : innerMap.entrySet()) { // TODO Move the for loop into the method
-                    updateMatches(matches, entry.getKey(), entry.getValue().size()); // TODO Pass in the list
+                var locations = wordIndex.get(query);
+                for (var locationEntry : locations.entrySet()) {
+                    updateMatches(matches, results, locationEntry.getKey(), locationEntry.getValue().size());
                 }
             }
         }
@@ -273,10 +272,9 @@ public class InvertedIndex {
                 if (!indexWord.startsWith(query)) {
                     break;
                 }
-
                 var locations = entry.getValue();
                 for (var locationEntry : locations.entrySet()) {
-                    updateMatches(matches, locationEntry.getKey(), locationEntry.getValue().size());
+                    updateMatches(matches, results, locationEntry.getKey(), locationEntry.getValue().size());
                 }
             }
         }
@@ -295,12 +293,12 @@ public class InvertedIndex {
      * @param location The location (typically a file path) of the search results.
      * @param count The number of occurrences of the query in the given location.
      */
-    private void updateMatches(Map<String, QueryResult> matches, String location, int count) {
+    private void updateMatches(Map<String, QueryResult> matches, List<QueryResult> results, String location, int count) {
         QueryResult result = matches.get(location);
         if (result == null) {
             result = new QueryResult(location);
             matches.put(location, result);
-            // TODO add to the list here
+            results.add(result);
         }
         result.updateCount(count);
     }
