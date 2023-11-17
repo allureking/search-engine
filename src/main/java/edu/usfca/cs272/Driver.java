@@ -43,15 +43,15 @@ public class Driver {
           }
         }
 
-        /*
-         * TODO
-         *
         if (argumentParser.hasFlag("-query")) {
-
+            Path queryPath = Path.of(argumentParser.getString("-query", "queries.txt"));
+            try {
+                searchProcessor.search(queryPath);
+            } catch (IOException e) {
+                System.out.println("Unable to process query file: " + e.getMessage());
+            }
         }
-         */
 
-        // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
             Path countPath = Path.of(argumentParser.getString("-counts", "counts.json"));
             try {
@@ -67,16 +67,6 @@ public class Driver {
                 invertedIndex.saveIndex(indexPath);
             } catch (IOException e) {
                 System.out.println("Unable to process word index: " + e.getMessage());
-            }
-        }
-
-        String queryArg = argumentParser.getString("-query");
-        if (queryArg != null) {
-            Path queryPath = Path.of(queryArg);
-            try {
-                searchProcessor.search(queryPath);
-            } catch (IOException e) {
-                System.out.println("Unable to process word query: " + e.getMessage());
             }
         }
 
