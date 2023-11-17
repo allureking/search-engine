@@ -29,13 +29,10 @@ public class Driver {
         ArgumentParser argumentParser = new ArgumentParser(args);
 
         InvertedIndex invertedIndex = new InvertedIndex();
-        
-        /* TODO
-         * boolean partial = argumentParser.hasFlag("-partial");
+
+        boolean partial = argumentParser.hasFlag("-partial");
+
         SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
-        
-        
-         */
 
         if (argumentParser.hasFlag("-text")) {
           Path inputPath = Path.of(argumentParser.getString("-text", "./"));
@@ -45,12 +42,12 @@ public class Driver {
               System.out.println("Unable to process: " + e.getMessage());
           }
         }
-        
+
         /*
-         * TODO 
-         * 
+         * TODO
+         *
         if (argumentParser.hasFlag("-query")) {
-        
+
         }
          */
 
@@ -72,9 +69,6 @@ public class Driver {
                 System.out.println("Unable to process word index: " + e.getMessage());
             }
         }
-
-        boolean partial = argumentParser.hasFlag("-partial");
-        SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
 
         String queryArg = argumentParser.getString("-query");
         if (queryArg != null) {
