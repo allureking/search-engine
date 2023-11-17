@@ -54,18 +54,14 @@ public class InvertedIndex {
      * @param position The position of the word in the file.
      */
     public void add(String word, String location, int position) {
-        wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
-           .computeIfAbsent(location, k -> new TreeSet<>())
-           .add(position);
+        boolean modified = wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
+                                    .computeIfAbsent(location, k -> new TreeSet<>())
+                                    .add(position);
 
-        /*
-         * TODO Only if the last add is true...
-         *
-         * boolean modified = wordIndex.computeIfAbsent...
-         *
-         * if (modified) { wordCount.put... }
-         */
-        wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
+        if(modified) {
+            wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
+        }
+
     }
 
     /**
