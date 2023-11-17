@@ -307,7 +307,7 @@ public class InvertedIndex {
             matches.put(location, result);
             // TODO add to the list here
         }
-        result.updateCount(totalCount(location), count);
+        result.updateCount(count);
     }
 
     /**
@@ -347,12 +347,12 @@ public class InvertedIndex {
          * Updates the occurrence count and recalculates the relevance score for this query result.
          * The relevance score is calculated as the ratio of this query result's count to the total count.
          *
-         * @param total The total occurrence count across all query results.
          * @param count The additional occurrence count to add to this query result.
          */
-        public void updateCount(int total, int count) { // TODO private
+        private void updateCount(int count) {
             this.count += count;
-            score = total == 0 ? 0.0 : this.count / (double) total; // TODO wordCount.get(location);
+            int total = wordCount.get(location);
+            score = total == 0 ? 0.0 : this.count / (double) total;
         }
 
         /**
