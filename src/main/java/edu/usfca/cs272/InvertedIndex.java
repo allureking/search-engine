@@ -242,9 +242,7 @@ public class InvertedIndex {
         for (String query : queries) {
             if (wordIndex.containsKey(query)) {
                 var locations = wordIndex.get(query);
-                for (var locationEntry : locations.entrySet()) {
-                    updateMatches(matches, results, locationEntry.getKey(), locationEntry.getValue().size());
-                }
+                updateMatches(matches, results, locations);
             }
         }
 
@@ -263,7 +261,7 @@ public class InvertedIndex {
      * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
     public List<QueryResult> partialSearch(Set<String> queries) {
-        Map<String, QueryResult> matches = new HashMap<>(); // TODO Same fix as exact
+        Map<String, QueryResult> matches = new HashMap<>();
         List<QueryResult> results = new ArrayList<>();
 
         for (String query : queries) {
@@ -272,10 +270,7 @@ public class InvertedIndex {
                 if (!indexWord.startsWith(query)) {
                     break;
                 }
-                var locations = entry.getValue();
-                for (var locationEntry : locations.entrySet()) {
-                    updateMatches(matches, results, locationEntry.getKey(), locationEntry.getValue().size());
-                }
+                updateMatches(matches, results, entry.getValue());
             }
         }
 
@@ -284,23 +279,28 @@ public class InvertedIndex {
     }
 
     /**
-     * Updates or adds a QueryResult object in the provided map based on the location and count.
-     * If a QueryResult for the given location already exists in the map, its count is updated.
-     * Otherwise, a new QueryResult object is created and added to the map.
+     * Updates or adds QueryResult objects in the provided map and list based on the locations and counts.
+     * For each location in the given map, this method either updates the count of an existing QueryResult
+     * or creates and adds a new QueryResult to the map and list.
      * This method is a helper for both exact and partial search methods.
      *
      * @param matches The map of QueryResult objects keyed by their locations.
-     * @param location The location (typically a file path) of the search results.
-     * @param count The number of occurrences of the query in the given location.
+     * @param results The list to which new QueryResults are added.
+     * @param locations The map of locations and their respective counts.
      */
-    private void updateMatches(Map<String, QueryResult> matches, List<QueryResult> results, String location, int count) {
-        QueryResult result = matches.get(location);
-        if (result == null) {
-            result = new QueryResult(location);
-            matches.put(location, result);
-            results.add(result);
+    private void updateMatches(Map<String, QueryResult> matches, List<QueryResult> results, Map<String, TreeSet<Integer>> locations) {
+        for (var locationEntry : locations.entrySet()) {
+            String location = locationEntry.getKey();
+            int count = locationEntry.getValue().size(); // The count is the size of the TreeSet
+
+            QueryResult result = matches.get(location);
+            if (result == null) {
+                result = new QueryResult(location);
+                matches.put(location, result);
+                results.add(result);
+            }
+            result.updateCount(count);
         }
-        result.updateCount(count);
     }
 
     /**
