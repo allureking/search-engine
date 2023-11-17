@@ -24,16 +24,6 @@ public class SearchProcessor {
 	private final TreeMap<String, Collection<? extends JsonWriter.JsonObject>> searchResults;
 
 	/**
-	 * InvertedIndex instance used for performing search operations.
-	 */
-	private final InvertedIndex index; // TODO Can remove
-
-	/**
-	 * Flag indicating whether to perform partial (true) or exact (false) search operations.
-	 */
-	private final boolean partial; // TODO Can remove
-
-	/**
 	 * Stemmer instance used for normalizing words during the search process.
 	 */
 	private final Stemmer stemmer;
@@ -54,12 +44,8 @@ public class SearchProcessor {
      * @param partial True to perform partial search, false for exact search.
      */
     public SearchProcessor(InvertedIndex index, boolean partial) {
-        this.index = index;
-        this.partial = partial;
-
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
-
 
         if (partial) {
         	searchFunction = index::partialSearch; // TODO Mix of tabs and spaces
@@ -133,7 +119,7 @@ public class SearchProcessor {
     public void saveResult(Path output) throws IOException {
         JsonWriter.writeJsonObjectArray(searchResults, output);
     }
-    
+
     /*
      * TODO At a minimum a toString and safe get methods
      */
