@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -120,7 +121,36 @@ public class SearchProcessor {
         JsonWriter.writeJsonObjectArray(searchResults, output);
     }
 
-    /*
-     * TODO At a minimum a toString and safe get methods
+    @Override
+    public String toString() {
+        return "SearchProcessor{" +
+                "searchResults=" + searchResults +
+                ", stemmer=" + stemmer +
+                '}';
+    }
+
+    /**
+     * Retrieves the search results for a specific query.
+     * If the query does not exist in the search results, an empty collection is returned.
+     *
+     * @param query The query string whose search results are to be retrieved.
+     * @return A collection of {@link JsonWriter.JsonObject} representing the search results for the given query.
+     *         Returns an empty collection if the query is not present.
      */
+    public Collection<? extends JsonWriter.JsonObject> getSearchResult(String query) {
+        return searchResults.getOrDefault(query, Collections.emptyList());
+    }
+
+    /**
+     * Retrieves all search results.
+     * This method returns a copy of the search results, ensuring that the internal
+     * data structure is not exposed or modified externally.
+     *
+     * @return A new {@link TreeMap} containing all the search results, where each key is a query string,
+     *         and the corresponding value is a collection of {@link JsonWriter.JsonObject}.
+     */
+    public TreeMap<String, Collection<? extends JsonWriter.JsonObject>> getAllSearchResults() {
+        return new TreeMap<>(searchResults);
+    }
+
 }
