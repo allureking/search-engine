@@ -58,6 +58,13 @@ public class InvertedIndex {
            .computeIfAbsent(location, k -> new TreeSet<>())
            .add(position);
 
+        /*
+         * TODO Only if the last add is true...
+         * 
+         * boolean modified = wordIndex.computeIfAbsent...
+         * 
+         * if (modified) { wordCount.put... }
+         */
         wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
     }
 
@@ -234,18 +241,19 @@ public class InvertedIndex {
      */
     public List<QueryResult> exactSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new HashMap<>();
-
+        // TODO List<QueryResult> results = new ArrayList<>();
+        
         for (String query : queries) {
             if (wordIndex.containsKey(query)) {
                 var innerMap = wordIndex.get(query);
 
-                for (var entry : innerMap.entrySet()) {
-                    updateMatches(matches, entry.getKey(), entry.getValue().size());
+                for (var entry : innerMap.entrySet()) { // TODO Move the for loop into the method
+                    updateMatches(matches, entry.getKey(), entry.getValue().size()); // TODO Pass in the list
                 }
             }
         }
 
-        List<QueryResult> results = new ArrayList<>(matches.values());
+        List<QueryResult> results = new ArrayList<>(matches.values()); // TODO REmove
         Collections.sort(results);
         return results;
     }
@@ -261,7 +269,7 @@ public class InvertedIndex {
      * @return A sorted list of {@link QueryResult} objects representing the search results.
      */
     public List<QueryResult> partialSearch(Set<String> queries) {
-        Map<String, QueryResult> matches = new HashMap<>();
+        Map<String, QueryResult> matches = new HashMap<>(); // TODO Same fix as exact
 
         for (String query : queries) {
             for (var entry : wordIndex.tailMap(query).entrySet()) {
@@ -297,6 +305,7 @@ public class InvertedIndex {
         if (result == null) {
             result = new QueryResult(location);
             matches.put(location, result);
+            // TODO add to the list here
         }
         result.updateCount(totalCount(location), count);
     }
@@ -305,7 +314,7 @@ public class InvertedIndex {
      * Represents a query result, encapsulating the count of occurrences,
      * a relevance score, and the location where the result was found.
      */
-    public static class QueryResult implements Comparable<QueryResult>, JsonWriter.JsonObject {
+    public static class QueryResult implements Comparable<QueryResult>, JsonWriter.JsonObject { // TODO non-static 
         /**
          * The occurrenceCount is the number of times a query term appears. This is used
          * to measure how often a term is encountered within a particular dataset or document.
@@ -341,9 +350,9 @@ public class InvertedIndex {
          * @param total The total occurrence count across all query results.
          * @param count The additional occurrence count to add to this query result.
          */
-        public void updateCount(int total, int count) {
+        public void updateCount(int total, int count) { // TODO private
             this.count += count;
-            score = total == 0 ? 0.0 : this.count / (double) total;
+            score = total == 0 ? 0.0 : this.count / (double) total; // TODO wordCount.get(location);
         }
 
         /**

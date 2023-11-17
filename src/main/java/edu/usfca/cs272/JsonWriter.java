@@ -506,7 +506,7 @@ public class JsonWriter {
      * @param indent   The level of indentation to use for formatting the JSON output.
      * @throws IOException If an I/O error occurs while writing to the writer.
      */
-    public static void writeJsonArrayObject(Map<String, Collection<JsonObject>> elements, Writer writer, int indent) throws IOException {
+    public static void writeJsonArrayObject(Map<String, Collection<JsonObject>> elements, Writer writer, int indent) throws IOException { // TODO Make sure this is what Driver uses
         writer.write('{');
         var iterator = elements.entrySet().iterator();
 
@@ -556,7 +556,7 @@ public class JsonWriter {
 
         var iterator = elements.iterator();
 
-        while (iterator.hasNext()) {
+        while (iterator.hasNext()) { // TODO if/while approach here too
             JsonObject json = iterator.next();
             json.toJson(writer, indent);
 
@@ -568,6 +568,8 @@ public class JsonWriter {
 
         writeIndent("]", writer, indent);
     }
+    
+    // TODO Can remove any Map<String, Object> references with JsonObject
 
     /**
      * Writes an individual entry of the given map to the provided writer in JSON format.

@@ -29,6 +29,13 @@ public class Driver {
         ArgumentParser argumentParser = new ArgumentParser(args);
 
         InvertedIndex invertedIndex = new InvertedIndex();
+        
+        /* TODO
+         * boolean partial = argumentParser.hasFlag("-partial");
+        SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
+        
+        
+         */
 
         if (argumentParser.hasFlag("-text")) {
           Path inputPath = Path.of(argumentParser.getString("-text", "./"));
@@ -38,6 +45,14 @@ public class Driver {
               System.out.println("Unable to process: " + e.getMessage());
           }
         }
+        
+        /*
+         * TODO 
+         * 
+        if (argumentParser.hasFlag("-query")) {
+        
+        }
+         */
 
         // Output word counts to JSON if required
         if (argumentParser.hasFlag("-counts")) {
