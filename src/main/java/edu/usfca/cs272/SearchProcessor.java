@@ -118,7 +118,7 @@ public class SearchProcessor {
      * @throws IOException If an I/O error occurs writing to the file path.
      */
     public void saveResult(Path output) throws IOException {
-        JsonWriter.writeJsonObjectArray(searchResults, output);
+        JsonWriter.writeObjectArrayObject(searchResults, output);
     }
 
     @Override
