@@ -60,9 +60,9 @@ public class InvertedIndex {
 
         /*
          * TODO Only if the last add is true...
-         * 
+         *
          * boolean modified = wordIndex.computeIfAbsent...
-         * 
+         *
          * if (modified) { wordCount.put... }
          */
         wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
@@ -242,7 +242,7 @@ public class InvertedIndex {
     public List<QueryResult> exactSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new HashMap<>();
         // TODO List<QueryResult> results = new ArrayList<>();
-        
+
         for (String query : queries) {
             if (wordIndex.containsKey(query)) {
                 var innerMap = wordIndex.get(query);
@@ -314,7 +314,7 @@ public class InvertedIndex {
      * Represents a query result, encapsulating the count of occurrences,
      * a relevance score, and the location where the result was found.
      */
-    public static class QueryResult implements Comparable<QueryResult>, JsonWriter.JsonObject { // TODO non-static 
+    public class QueryResult implements Comparable<QueryResult>, JsonWriter.JsonObject {
         /**
          * The occurrenceCount is the number of times a query term appears. This is used
          * to measure how often a term is encountered within a particular dataset or document.
