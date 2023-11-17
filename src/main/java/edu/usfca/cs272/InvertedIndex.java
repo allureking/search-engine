@@ -237,7 +237,7 @@ public class InvertedIndex {
      */
     public List<QueryResult> exactSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new HashMap<>();
-        // TODO List<QueryResult> results = new ArrayList<>();
+        List<QueryResult> results = new ArrayList<>();
 
         for (String query : queries) {
             if (wordIndex.containsKey(query)) {
@@ -249,7 +249,6 @@ public class InvertedIndex {
             }
         }
 
-        List<QueryResult> results = new ArrayList<>(matches.values()); // TODO REmove
         Collections.sort(results);
         return results;
     }
@@ -266,6 +265,7 @@ public class InvertedIndex {
      */
     public List<QueryResult> partialSearch(Set<String> queries) {
         Map<String, QueryResult> matches = new HashMap<>(); // TODO Same fix as exact
+        List<QueryResult> results = new ArrayList<>();
 
         for (String query : queries) {
             for (var entry : wordIndex.tailMap(query).entrySet()) {
@@ -281,9 +281,8 @@ public class InvertedIndex {
             }
         }
 
-        List<QueryResult> resultList = new ArrayList<>(matches.values());
-        Collections.sort(resultList);
-        return resultList;
+        Collections.sort(results);
+        return results;
     }
 
     /**
