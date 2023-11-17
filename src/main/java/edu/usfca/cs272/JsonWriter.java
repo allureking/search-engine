@@ -660,7 +660,7 @@ public class JsonWriter {
      * An interface representing a JSON object capable of converting itself into a map
      * and writing its JSON representation to a writer.
      */
-    public interface JsonObject {
+    public static interface JsonObject {
         /**
          * Converts this object into a map representation.
          *
