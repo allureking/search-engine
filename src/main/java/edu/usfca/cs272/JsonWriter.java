@@ -553,22 +553,24 @@ public class JsonWriter {
      */
     public static void writeJsonMapArray(Collection<JsonObject> elements, Writer writer, int indent) throws IOException {
         writer.write("[\n");
-
         var iterator = elements.iterator();
 
-        while (iterator.hasNext()) { // TODO if/while approach here too
+        if (iterator.hasNext()) {
             JsonObject json = iterator.next();
-            json.toJson(writer, indent);
+            json.toJson(writer, indent + 1);
 
-            if (iterator.hasNext()) {
-                writer.write(",");
+            while (iterator.hasNext()) {
+                writer.write(",\n");
+                json = iterator.next();
+                json.toJson(writer, indent + 1);
             }
             writer.write("\n");
         }
 
         writeIndent("]", writer, indent);
     }
-    
+
+
     // TODO Can remove any Map<String, Object> references with JsonObject
 
     /**
