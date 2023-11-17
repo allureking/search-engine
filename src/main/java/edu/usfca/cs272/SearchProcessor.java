@@ -26,12 +26,12 @@ public class SearchProcessor {
 	/**
 	 * InvertedIndex instance used for performing search operations.
 	 */
-	private final InvertedIndex index;
+	private final InvertedIndex index; // TODO Can remove
 
 	/**
 	 * Flag indicating whether to perform partial (true) or exact (false) search operations.
 	 */
-	private final boolean partial;
+	private final boolean partial; // TODO Can remove
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.
@@ -62,7 +62,7 @@ public class SearchProcessor {
 
 
         if (partial) {
-        	searchFunction = index::partialSearch;
+        	searchFunction = index::partialSearch; // TODO Mix of tabs and spaces
         } else {
             searchFunction = index::exactSearch;
         }
@@ -133,4 +133,8 @@ public class SearchProcessor {
     public void saveResult(Path output) throws IOException {
         JsonWriter.writeJsonObjectArray(searchResults, output);
     }
+    
+    /*
+     * TODO At a minimum a toString and safe get methods
+     */
 }
