@@ -48,7 +48,7 @@ public class SearchProcessor {
         searchResults = new TreeMap<>();
 
         if (partial) {
-        	searchFunction = index::partialSearch; // TODO Mix of tabs and spaces
+        	    searchFunction = index::partialSearch;
         } else {
             searchFunction = index::exactSearch;
         }
