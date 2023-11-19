@@ -461,7 +461,7 @@ public class JsonWriter {
      * @param path     the file path to use
      * @throws IOException If an I/O error occurs while writing to the writer.
      */
-    public static void writeObjectArrayObject(Map<String, Collection<? extends JsonObject>> elements, Path path) throws IOException {
+    public static void writeObjectArrayObject(Map<String, ? extends Collection<? extends JsonObject>> elements, Path path) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
             writeObjectArrayObject(elements, writer, 0);
         }
@@ -477,7 +477,7 @@ public class JsonWriter {
      * @param indent The level of indentation to use for formatting the JSON output.
      * @throws IOException If an I/O error occurs while writing to the writer.
      */
-    public static void writeObjectArrayObject(Map<String, Collection<? extends JsonObject>> elements, Writer writer, int indent) throws IOException {
+    public static void writeObjectArrayObject(Map<String, ? extends Collection<? extends JsonObject>> elements, Writer writer, int indent) throws IOException {
         writer.write('{');
         var iterator = elements.entrySet().iterator();
 

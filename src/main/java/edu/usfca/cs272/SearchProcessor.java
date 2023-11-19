@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -23,7 +23,7 @@ public class SearchProcessor {
     /**
      * Stores search results mapped by query strings.
      */
-	private final TreeMap<String, Collection<? extends JsonWriter.JsonObject>> searchResults;
+    private final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.
@@ -36,7 +36,7 @@ public class SearchProcessor {
 	 * This function abstracts the search logic, allowing for different search implementations
 	 * (e.g., exact or partial) to be used interchangeably.
 	 */
-	private final Function<Set<String>, Collection<InvertedIndex.QueryResult>> searchFunction;
+	private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
 
     /**
      * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
@@ -132,25 +132,30 @@ public class SearchProcessor {
 
     /**
      * Retrieves the search results for a specific query.
-     * If the query does not exist in the search results, an empty collection is returned.
+     * If the query does not exist in the search results, an empty list is returned.
+     * This method provides an unmodifiable view of the search results to prevent external modifications.
      *
      * @param query The query string whose search results are to be retrieved.
-     * @return An unmodifiable collection representing the search results for the given query.
-     *         Returns an empty collection if the query is not present.
+     * @return An unmodifiable list representing the search results for the given query.
+     *         Returns an empty list if the query is not present.
      */
-    public Collection<JsonWriter.JsonObject> getSearchResult(String query) {
-        return Collections.unmodifiableCollection(searchResults.getOrDefault(query, Collections.emptyList()));
+    public List<InvertedIndex.QueryResult> getSearchResult(String query) {
+        if (searchResults.containsKey(query)) {
+            return Collections.unmodifiableList(searchResults.get(query));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     /**
      * Retrieves an unmodifiable view of all search results.
      * This ensures that the internal data structure is not exposed or modified externally.
+     * The method returns a copy of the search results map that cannot be altered, preserving the integrity of the data.
      *
      * @return An unmodifiable map containing all the search results, where each key is a query string,
-     *         and the corresponding value is a collection of {@link JsonWriter.JsonObject}.
+     *         and the corresponding value is a list of {@link InvertedIndex.QueryResult}.
      */
-    public Map<String, Collection<? extends JsonWriter.JsonObject>> getAllSearchResults() {
-        return Collections.unmodifiableMap(searchResults);
+    public Map<String, List<InvertedIndex.QueryResult>> getAllSearchResults() {
+        return Collections.unmodifiableMap(new TreeMap<>(searchResults));
     }
-
 }
