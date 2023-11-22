@@ -2,7 +2,6 @@ package edu.usfca.cs272;
 
 import java.util.LinkedList;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -119,7 +118,7 @@ public class WorkQueue {
 		}
 		catch (InterruptedException e) {
 			System.err.println("Warning: Work queue interrupted while joining.");
-			log.catching(Level.WARN, e);
+//			log.catching(Level.WARN, e);
 			Thread.currentThread().interrupt();
 		}
 	}
@@ -190,14 +189,14 @@ public class WorkQueue {
 					catch (RuntimeException e) {
 						// catch runtime exceptions to avoid leaking threads
 						System.err.printf("Error: %s encountered an exception while running.%n", this.getName());
-						log.catching(Level.ERROR, e);
+						log.error(e);
 					}
 				}
 			}
 			catch (InterruptedException e) {
 				// causes early termination of worker threads
 				System.err.printf("Warning: %s interrupted while waiting.%n", this.getName());
-				log.catching(Level.WARN, e);
+				log.error(e);
 				Thread.currentThread().interrupt();
 			}
 		}
