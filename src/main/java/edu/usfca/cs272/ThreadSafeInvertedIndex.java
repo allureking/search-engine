@@ -19,7 +19,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     /**
      * Lock used for managing concurrent read/write access.
      */
-    private MultiReaderLock lock;
+    private MultiReaderLock lock; // TODO final
 
     /**
      * Initializes the ThreadSafeInvertedIndex with empty index and count maps and a new MultiReaderLock.
@@ -28,6 +28,8 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
         super();
         lock = new MultiReaderLock();
     }
+    
+    // TODO Missing some methods and not yet thread safe
 
     /**
      * Adds a new position from a file to the word index.
@@ -38,6 +40,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void add(String word, String location, int position) {
+    	// TODO Don't re-implement, use lock, try, super, finally
         lock.writeLock().lock();
         TreeMap<String, TreeSet<Integer>> locationMap = wordIndex.computeIfAbsent(word, k -> new TreeMap<>());
         lock.writeLock().unlock();
