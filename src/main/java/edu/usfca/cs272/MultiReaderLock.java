@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.logging.log4j.Level;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -178,7 +178,7 @@ public class MultiReaderLock {
 					log.debug("Locked Read");
 				}
 			} catch (InterruptedException ex) {
-				log.catching(Level.DEBUG, ex);
+			    log.error(ex);
 				Thread.currentThread().interrupt();
 			}
 		}
@@ -239,7 +239,7 @@ public class MultiReaderLock {
 				}
 			}
 			catch (InterruptedException ex) {
-				log.catching(Level.DEBUG, ex);
+				log.catching(ex);
 				Thread.currentThread().interrupt();
 			}
 		}
