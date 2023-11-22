@@ -25,7 +25,7 @@ public class InvertedIndex {
 	 * The outer key is the word, and the inner key is the file location.
 	 * The inner value is a TreeSet of positions where the word was found in that file.
 	 */
-    protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
+	protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
 
 	/**
 	 * A TreeMap structure to store the total count of each word across all files.
@@ -47,24 +47,6 @@ public class InvertedIndex {
     }
 
     /**
-     * Merges the contents of another InvertedIndex into a single one.
-     * This method iterates through each word, location, and position in the specified index,
-     * and adds them to the current index. This is useful in multi-threaded scenarios where
-     * each thread processes a part of the data and their results are combined.
-     *
-     * @param index The InvertedIndex to be merged into the current index.
-     */
-    public void merge(InvertedIndex index) {
-        for (String word : index.viewWords()) {
-            for (String location : index.viewLocations(word)) {
-                for (int position: index.viewPositions(word, location)) {
-                    add(word, location, position);
-                }
-            }
-        }
-    }
-
-    /**
      * Adds a new position from a file to the word index.
      *
      * @param word     The word to add.
@@ -79,7 +61,25 @@ public class InvertedIndex {
         if(modified) {
             wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
         }
+    }
 
+    /**
+     * merge another inverted index
+     * @param index The inverted index to be merged in a single thread.
+     */
+    public void merge(InvertedIndex index) {
+        for (String word : index.viewWords()) {
+            for (String location : index.viewLocations(word)) {
+                Set<Integer> positions = index.viewPositions(word, location);
+                boolean modified = wordIndex.computeIfAbsent(word, k -> new TreeMap<>())
+                        .computeIfAbsent(location, k -> new TreeSet<>())
+                        .addAll(positions);
+
+                if(modified) {
+                    wordCount.put(location, wordCount.getOrDefault(location, 0) + positions.size());
+                }
+            }
+        }
     }
 
     /**

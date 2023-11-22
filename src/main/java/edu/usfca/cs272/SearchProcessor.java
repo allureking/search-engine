@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -23,7 +23,7 @@ public class SearchProcessor {
     /**
      * Stores search results mapped by query strings.
      */
-    private final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
+	private final TreeMap<String, Collection<? extends JsonWriter.JsonObject>> searchResults;
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.
@@ -31,7 +31,7 @@ public class SearchProcessor {
 	private final Stemmer stemmer;
 
     /**
-     * Lock for Multi threads processing.
+     * lock for multi thread processing.
      */
     private MultiReaderLock lock;
 
@@ -41,26 +41,24 @@ public class SearchProcessor {
 	 * This function abstracts the search logic, allowing for different search implementations
 	 * (e.g., exact or partial) to be used interchangeably.
 	 */
-	private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
+	private final Function<Set<String>, Collection<InvertedIndex.QueryResult>> searchFunction;
 
-	/**
-	 * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
-	 * whether to perform partial search. Initializes the stemmer for word normalization and
-	 * sets the appropriate search function based on the search type.
-	 *
-	 * @param index The InvertedIndex to use for searching.
-	 * @param partial True to perform partial search, false for exact search.
-	 */
+    /**
+     * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
+     * whether to perform partial search.
+     *
+     * @param index The InvertedIndex to use for searching.
+     * @param partial True to perform partial search, false for exact search.
+     */
     public SearchProcessor(InvertedIndex index, boolean partial) {
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
 
         if (partial) {
-        	    searchFunction = index::partialSearch;
+            searchFunction = index::partialSearch;
         } else {
             searchFunction = index::exactSearch;
         }
-
     }
 
     /**
@@ -79,11 +77,10 @@ public class SearchProcessor {
     }
 
     /**
-     * Reads a query file line by line and performs a search for each line using multiple threads.
-     * Initializes a work queue with the specified number of threads to process the search queries concurrently.
+     * Reads a query file line by line and performs a search for each line.
      *
      * @param queryFile The path to the query file.
-     * @param threadNum The number of threads to use for processing the queries.
+     * @param threadNum number of threads to run
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
     public void search(Path queryFile, int threadNum) throws IOException {
@@ -103,10 +100,9 @@ public class SearchProcessor {
 
     /**
      * Processes a single line of text by stemming and searching for the resultant terms.
-     * Ignores empty lines and lines that yield no query terms after stemming.
      *
      * @param line The line of text to process and search.
-     * @param stemmer The stemmer instance to use for normalizing words.
+     * @param stemmer The stemmer to use.
      */
     public void search(String line, Stemmer stemmer) {
         if (line.isEmpty()) {
@@ -123,8 +119,6 @@ public class SearchProcessor {
 
     /**
      * Executes a search for a set of stemmed query words.
-     * If the query has already been processed, this method returns early.
-     * Otherwise, it performs the search and stores the results.
      *
      * @param queries The set of stemmed words to search.
      */
@@ -139,6 +133,7 @@ public class SearchProcessor {
         if (lock != null) {
             lock.writeLock().lock();
         }
+
         // Use the search function to get results and put them in the map
         searchResults.put(queryWords, searchFunction.apply(queries));
 
@@ -172,61 +167,25 @@ public class SearchProcessor {
 
     /**
      * Retrieves the search results for a specific query.
-     * If the query does not exist in the search results, an empty list is returned.
-     * This method provides an unmodifiable view of the search results to prevent external modifications.
+     * If the query does not exist in the search results, an empty collection is returned.
      *
      * @param query The query string whose search results are to be retrieved.
-     * @return An unmodifiable list representing the search results for the given query.
-     *         Returns an empty list if the query is not present.
+     * @return An unmodifiable collection representing the search results for the given query.
+     *         Returns an empty collection if the query is not present.
      */
-    public List<InvertedIndex.QueryResult> getSearchResult(String query) {
-        if (searchResults.containsKey(query)) {
-            return Collections.unmodifiableList(searchResults.get(query));
-        } else {
-            return Collections.emptyList();
-        }
+    public Collection<JsonWriter.JsonObject> getSearchResult(String query) {
+        return Collections.unmodifiableCollection(searchResults.getOrDefault(query, Collections.emptyList()));
     }
 
     /**
-     * Provides an unmodifiable set of all processed queries.
-     * This allows users to know which queries have been processed without revealing the actual results.
+     * Retrieves an unmodifiable view of all search results.
+     * This ensures that the internal data structure is not exposed or modified externally.
      *
-     * @return An unmodifiable set containing all the queries.
+     * @return An unmodifiable map containing all the search results, where each key is a query string,
+     *         and the corresponding value is a collection of {@link JsonWriter.JsonObject}.
      */
-    public Set<String> getAllQueries() {
-        return Collections.unmodifiableSet(searchResults.keySet());
-    }
-
-    /**
-     * Retrieves the number of search results for a specific query.
-     * If the query does not exist, returns 0.
-     *
-     * @param query The query string whose number of results is to be retrieved.
-     * @return The number of results for the specified query, or 0 if the query does not exist.
-     */
-    public int getNumberOfResults(String query) {
-        List<InvertedIndex.QueryResult> results = searchResults.get(query);
-        return results != null ? results.size() : 0;
-    }
-
-    /**
-     * Retrieves a subset of search results for a specific query.
-     * Allows controlled access to the search results by specifying a start index and count.
-     * If the query does not exist, or the parameters are out of bounds, returns an empty list.
-     *
-     * @param query The query string whose search results are to be retrieved.
-     * @param startIndex The starting index of the results to retrieve.
-     * @param count The number of results to retrieve starting from the startIndex.
-     * @return An unmodifiable list of search results starting from the specified index with the specified count.
-     *         Returns an empty list if the query does not exist or the parameters are out of bounds.
-     */
-    public List<InvertedIndex.QueryResult> getSearchResults(String query, int startIndex, int count) {
-        if (!searchResults.containsKey(query)) {
-            return Collections.emptyList();
-        }
-        List<InvertedIndex.QueryResult> results = searchResults.get(query);
-        int endIndex = Math.min(startIndex + count, results.size());
-        return Collections.unmodifiableList(new ArrayList<>(results.subList(startIndex, endIndex)));
+    public Map<String, Collection<? extends JsonWriter.JsonObject>> getAllSearchResults() {
+        return Collections.unmodifiableMap(searchResults);
     }
 
 }

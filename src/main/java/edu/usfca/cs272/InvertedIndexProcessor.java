@@ -6,13 +6,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.function.Supplier;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Class responsible for word processing. It processes individual files or
@@ -22,10 +22,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
  */
 public class InvertedIndexProcessor {
     /**
-     * Logger for the InvertedIndexProcessor class.
-     * This logger is used to log important information, warnings, and errors encountered
-     * during the operation of the InvertedIndexProcessor. It aids in debugging and monitoring
-     * the runtime behavior of the class.
+     * logger.
      */
     private static final Logger log = LogManager.getLogger(InvertedIndexProcessor.class);
 
@@ -74,7 +71,7 @@ public class InvertedIndexProcessor {
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             String line;
             int index = 1;
-            Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
+            Stemmer stemmer = ThreadLocal.<Stemmer>withInitial(() -> new SnowballStemmer(ALGORITHM.ENGLISH)).get();
             String location = filePath.toString();
             while ((line = reader.readLine()) != null) {
                 String[] words = FileStemmer.parse(line);
