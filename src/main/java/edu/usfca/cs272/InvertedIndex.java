@@ -25,13 +25,13 @@ public class InvertedIndex {
 	 * The outer key is the word, and the inner key is the file location.
 	 * The inner value is a TreeSet of positions where the word was found in that file.
 	 */
-	private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
+    protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
 
 	/**
 	 * A TreeMap structure to store the total count of each word across all files.
 	 * The key is the word and the value is the count of that word.
 	 */
-	private final TreeMap<String, Integer> wordCount;
+    protected final TreeMap<String, Integer> wordCount;
 
     /**
      * Initializes the InvertedIndex with empty index and count maps.
@@ -44,6 +44,24 @@ public class InvertedIndex {
     @Override
     public String toString() {
         return wordIndex.toString();
+    }
+
+    /**
+     * Merges the contents of another InvertedIndex into a single one.
+     * This method iterates through each word, location, and position in the specified index,
+     * and adds them to the current index. This is useful in multi-threaded scenarios where
+     * each thread processes a part of the data and their results are combined.
+     *
+     * @param index The InvertedIndex to be merged into the current index.
+     */
+    public void merge(InvertedIndex index) {
+        for (String word : index.viewWords()) {
+            for (String location : index.viewLocations(word)) {
+                for (int position: index.viewPositions(word, location)) {
+                    add(word, location, position);
+                }
+            }
+        }
     }
 
     /**
