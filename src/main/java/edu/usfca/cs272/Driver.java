@@ -34,19 +34,37 @@ public class Driver {
 
         SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
 
-        if (argumentParser.hasFlag("-text")) {
-          Path inputPath = Path.of(argumentParser.getString("-text", "./"));
-          try {
-              InvertedIndexProcessor.process(inputPath, invertedIndex);
-          } catch (IOException e) {
-              System.out.println("Unable to process: " + e.getMessage());
-          }
+        int threadNum = 1;
+
+        if (argumentParser.hasFlag("-threads")) {
+            threadNum = argumentParser.getInteger("-threads");
+            threadNum = threadNum < 1 ? 5 : threadNum;
         }
+
+        if (argumentParser.hasFlag("-text")) {
+            Path inputPath = Path.of(argumentParser.getString("-text", "./"));
+            try {
+                if (threadNum > 1) {
+                    System.out.println("run with " + threadNum + " threads");
+                    InvertedIndexProcessor.process(inputPath, invertedIndex, threadNum);
+                } else {
+                    System.out.println("run with single thread");
+                    InvertedIndexProcessor.process(inputPath, invertedIndex);
+
+                }
+            } catch (IOException e) {
+                System.out.println("Unable to process: " + e.getMessage());
+            }
+          }
 
         if (argumentParser.hasFlag("-query")) {
             Path queryPath = Path.of(argumentParser.getString("-query", "queries.txt"));
             try {
-                searchProcessor.search(queryPath);
+                if (threadNum > 1) {
+                    searchProcessor.search(queryPath, threadNum);
+                } else {
+                    searchProcessor.search(queryPath);
+                }
             } catch (IOException e) {
                 System.out.println("Unable to process query file: " + e.getMessage());
             }
