@@ -1,23 +1,28 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * This class is a thread-safe version of InvertedIndex.
+ * It uses a MultiReaderLock to manage concurrent access to the underlying InvertedIndex data structures.
  *
  * @author Honghuai(King) Ke
  */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
+
     /**
-     * lock for thread safety.
+     * Lock used for managing concurrent read/write access.
      */
     private MultiReaderLock lock;
 
     /**
-     * Initializes the InvertedIndex with empty index and count maps.
+     * Initializes the ThreadSafeInvertedIndex with empty index and count maps and a new MultiReaderLock.
      */
     public ThreadSafeInvertedIndex() {
         super();
@@ -31,6 +36,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param location The file location.
      * @param position The position of the word in the file.
      */
+    @Override
     public void add(String word, String location, int position) {
         lock.writeLock().lock();
         TreeMap<String, TreeSet<Integer>> locationMap = wordIndex.computeIfAbsent(word, k -> new TreeMap<>());
@@ -51,6 +57,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
+    @Override
     public void saveIndex(Path output) throws IOException {
         lock.readLock().lock();
         super.saveIndex(output);
@@ -63,6 +70,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param output The path to the output file.
      * @throws IOException If an I/O error occurs while writing to the file.
      */
+    @Override
     public void saveCount(Path output) throws IOException {
         lock.readLock().lock();
         super.saveCount(output);
@@ -75,6 +83,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param location The location to check.
      * @return true if the location exists in the word count; false otherwise.
      */
+    @Override
     public boolean hasCount(String location) {
         lock.readLock().lock();
         boolean res = super.hasCount(location);
@@ -89,6 +98,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param word The word to check.
      * @return true if the word exists in the word index; false otherwise.
      */
+    @Override
     public boolean hasWord(String word) {
         lock.readLock().lock();
         boolean res = super.hasWord(word);
@@ -103,6 +113,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param location The location (typically a file) to check.
      * @return Total count of the word.
      */
+    @Override
     public int totalCount(String location) {
         lock.readLock().lock();
         int count = super.totalCount(location);
@@ -116,6 +127,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      *
      * @return An unmodifiable set of words.
      */
+    @Override
     public Set<String> viewWords() {
         Set<String> words;
         lock.readLock().lock();
@@ -131,6 +143,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param word The word to check.
      * @return An unmodifiable set of locations for the given word.
      */
+    @Override
     public Set<String> viewLocations(String word) {
         Set<String> res;
 
@@ -148,6 +161,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * @param location The location to check.
      * @return An unmodifiable set of positions for the given word in the given location.
      */
+    @Override
     public Set<Integer> viewPositions(String word, String location) {
         Set<Integer> res;
 
@@ -164,6 +178,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      *
      * @return An unmodifiable view of the internal word count structure.
      */
+    @Override
     public Map<String, Integer> viewCount() {
         lock.readLock().lock();
         Map<String, Integer> map = super.viewCount();
@@ -175,12 +190,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     /**
      * Performs an exact search for each query in the provided set.
      * This method looks for exact matches of the query words in the index and
-     * aggregates the results into a sorted list of {@link QueryResult} objects.
+     * aggregates the results into a sorted list of QueryResult objects.
      * The sorting is based on the relevance score, occurrence count, and location.
      *
      * @param queries A set of queries to search for.
-     * @return A sorted list of {@link QueryResult} objects representing the search results.
+     * @return A sorted list of QueryResult objects representing the search results.
      */
+    @Override
     public List<QueryResult> exactSearch(Set<String> queries) {
         lock.readLock().lock();
         List<QueryResult> results = super.exactSearch(queries);
@@ -193,12 +209,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      * Performs a partial search for each query in the provided set.
      * A partial search considers any index word that starts with the given query string.
      * For each matching index word, the method aggregates the search results,
-     * ultimately returning them as a sorted list of {@link QueryResult} objects.
+     * ultimately returning them as a sorted list of QueryResult objects.
      * The sorting is based on the relevance score, occurrence count, and location.
      *
      * @param queries A set of queries to search for.
-     * @return A sorted list of {@link QueryResult} objects representing the search results.
+     * @return A sorted list of QueryResult objects representing the search results.
      */
+    @Override
     public List<QueryResult> partialSearch(Set<String> queries) {
         lock.readLock().lock();
         List<QueryResult> results = super.partialSearch(queries);
