@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Class responsible for running this project based on the provided command-line
@@ -17,6 +14,7 @@ import java.util.logging.Logger;
  * @version Fall 2023
  */
 public class Driver {
+
     /**
      * Initializes the classes necessary based on the provided command-line
      * arguments. This includes (but is not limited to) building or searching an
@@ -30,26 +28,34 @@ public class Driver {
 
         ArgumentParser argumentParser = new ArgumentParser(args);
 
+        InvertedIndex invertedIndex = new InvertedIndex();
+
+        boolean partial = argumentParser.hasFlag("-partial");
+
+        SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
+
         int threadNum = 1;
+
         if (argumentParser.hasFlag("-threads")) {
             threadNum = argumentParser.getInteger("-threads");
             threadNum = threadNum < 1 ? 5 : threadNum;
         }
 
-        InvertedIndex invertedIndex = new InvertedIndex();
-        boolean partial = argumentParser.hasFlag("-partial");
-
-        SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
-
         if (argumentParser.hasFlag("-text")) {
-          Path inputPath = Path.of(argumentParser.getString("-text", "./"));
-          try {
-              System.out.println("run with " + threadNum + " threads");
-              InvertedIndexProcessor.process(inputPath, invertedIndex, threadNum);
-          } catch (IOException e) {
-              System.out.println("Unable to process: " + e.getMessage());
+            Path inputPath = Path.of(argumentParser.getString("-text", "./"));
+            try {
+                if (threadNum > 1) {
+                    System.out.println("run with " + threadNum + " threads");
+                    InvertedIndexProcessor.process(inputPath, invertedIndex, threadNum);
+                } else {
+                    System.out.println("run with single thread");
+                    InvertedIndexProcessor.process(inputPath, invertedIndex);
+
+                }
+            } catch (IOException e) {
+                System.out.println("Unable to process: " + e.getMessage());
+            }
           }
-        }
 
         if (argumentParser.hasFlag("-query")) {
             Path queryPath = Path.of(argumentParser.getString("-query", "queries.txt"));
