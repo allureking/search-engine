@@ -43,13 +43,14 @@ public class SearchProcessor {
 	 */
 	private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
 
-    /**
-     * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
-     * whether to perform partial search.
-     *
-     * @param index The InvertedIndex to use for searching.
-     * @param partial True to perform partial search, false for exact search.
-     */
+	/**
+	 * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
+	 * whether to perform partial search. Initializes the stemmer for word normalization and
+	 * sets the appropriate search function based on the search type.
+	 *
+	 * @param index The InvertedIndex to use for searching.
+	 * @param partial True to perform partial search, false for exact search.
+	 */
     public SearchProcessor(InvertedIndex index, boolean partial) {
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
@@ -78,10 +79,11 @@ public class SearchProcessor {
     }
 
     /**
-     * Reads a query file line by line and performs a search for each line.
+     * Reads a query file line by line and performs a search for each line using multiple threads.
+     * Initializes a work queue with the specified number of threads to process the search queries concurrently.
      *
      * @param queryFile The path to the query file.
-     * @param threadNum
+     * @param threadNum The number of threads to use for processing the queries.
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
     public void search(Path queryFile, int threadNum) throws IOException {
@@ -101,9 +103,10 @@ public class SearchProcessor {
 
     /**
      * Processes a single line of text by stemming and searching for the resultant terms.
+     * Ignores empty lines and lines that yield no query terms after stemming.
      *
      * @param line The line of text to process and search.
-     * @param stemmer
+     * @param stemmer The stemmer instance to use for normalizing words.
      */
     public void search(String line, Stemmer stemmer) {
         if (line.isEmpty()) {
@@ -120,6 +123,8 @@ public class SearchProcessor {
 
     /**
      * Executes a search for a set of stemmed query words.
+     * If the query has already been processed, this method returns early.
+     * Otherwise, it performs the search and stores the results.
      *
      * @param queries The set of stemmed words to search.
      */
