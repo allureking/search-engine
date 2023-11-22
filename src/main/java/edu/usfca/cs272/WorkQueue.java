@@ -55,6 +55,7 @@ public class WorkQueue {
 		this.tasks = new LinkedList<Runnable>();
 		this.workers = new Worker[threads];
 		this.shutdown = false;
+		// TODO this.pending = 0;
 
 		// start the threads so they are waiting in the background
 		for (int i = 0; i < threads; i++) {
@@ -62,6 +63,8 @@ public class WorkQueue {
 			workers[i].start();
 		}
 	}
+	
+	// TODO Need to use a different lock object for the pending variable
 
 	/**
 	 * Adds a work (or task) request to the queue. A worker thread will process this
@@ -71,10 +74,12 @@ public class WorkQueue {
 	 */
     public void execute(Runnable task) {
         synchronized (tasks) {
+        	// TODO tasks.addLast(task)
             tasks.addLast(() -> {
                 try {
                     task.run();
                 } finally {
+                	    // TODO Think about where you can move this logic instead
                     synchronized (tasks) {
                         pending--;  // decrement pending tasks once finished
                         tasks.notifyAll();  // notify any threads waiting in finish()

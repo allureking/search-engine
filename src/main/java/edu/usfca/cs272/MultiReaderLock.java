@@ -178,7 +178,7 @@ public class MultiReaderLock {
 					log.debug("Locked Read");
 				}
 			} catch (InterruptedException ex) {
-			    log.error(ex);
+				log.error(ex);
 				Thread.currentThread().interrupt();
 			}
 		}
@@ -191,7 +191,7 @@ public class MultiReaderLock {
 		 */
 		@Override
 		public void unlock() throws IllegalStateException {
-			if (readers > 0) {
+			if (readers > 0) { // TODO Read of readers... needs to be sync
 				log.debug("Unlocking Read");
 				synchronized (lock) {
 					if (readers > 0) {
@@ -223,12 +223,12 @@ public class MultiReaderLock {
 			try {
 				// Note the lock object being used here and elsewhere
 				if (isActiveWriter()) {
-					writers++;
+					writers++; // TODO Not safe
 					return;
 				}
 
 				synchronized (lock) {
-					while (readers > 0 || writers > 0) {
+					while (readers > 0 || writers > 0) { // TODO Integrate isActiveWriter() as part of the condition here
 						lock.wait();
 					}
 
