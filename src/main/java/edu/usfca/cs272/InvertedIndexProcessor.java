@@ -100,10 +100,10 @@ public class InvertedIndexProcessor {
             processFile(textFile, invertedIndex);
         }
     }
-    
-    // TODO Move multithreaded code into a different class
 
-    // TODO Pass in a work queue instead of # threads, and create/shutdown the queue in Driver
+    // TODO Move multithreaded code into a different class  (文档内看6)
+
+    // TODO Pass in a work queue instead of # threads, and create/shutdown the queue in Driver  (文档内看6)
     /**
      * Processes a directory by traversing it and processing each path individually.
      * Populates the provided inverted index with words found in each file.
@@ -120,12 +120,12 @@ public class InvertedIndexProcessor {
         List<Path> textFiles = FileFinder.listText(dirPath);
         List<InvertedIndex> indexList = new ArrayList<>();
         for (Path textFile : textFiles) {
-            InvertedIndex tmpInvertedIndex = new InvertedIndex(); // TODO Uses extra memory
+            InvertedIndex tmpInvertedIndex = new InvertedIndex(); // TODO Uses extra memory   (文档内看6)
             workQueue.execute(() -> {
                 try {
                     log.debug("start process file {}", textFile);
-                    processFile(textFile, tmpInvertedIndex); // TODO Happens within a task
-                    
+                    processFile(textFile, tmpInvertedIndex); // TODO Happens within a task  (文档内看6)
+
                     	// TODO The merge should happen here...
                 } catch (IOException e) {
                     log.error("Unable to process file", e.getMessage());
@@ -136,7 +136,7 @@ public class InvertedIndexProcessor {
 
         workQueue.join();
 
-        for (InvertedIndex tmpInvertedIndex: indexList) { // TODO Being done by the main method
+        for (InvertedIndex tmpInvertedIndex: indexList) { // TODO Being done by the main method  (文档内看6)
             invertedIndex.merge(tmpInvertedIndex);
         }
     }

@@ -25,13 +25,13 @@ public class InvertedIndex {
 	 * The outer key is the word, and the inner key is the file location.
 	 * The inner value is a TreeSet of positions where the word was found in that file.
 	 */
-    protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex; // TODO private
+    protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex; // TODO private  (文档内看7)
 
 	/**
 	 * A TreeMap structure to store the total count of each word across all files.
 	 * The key is the word and the value is the count of that word.
 	 */
-    protected final TreeMap<String, Integer> wordCount; // TODO private
+    protected final TreeMap<String, Integer> wordCount; // TODO private  (文档内看7)
 
     /**
      * Initializes the InvertedIndex with empty index and count maps.

@@ -15,7 +15,7 @@ import java.util.function.Function;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-// TODO Keep this the same, create a new class for v3.1
+// TODO Keep this the same, create a new class for v3.1 （文档内看1）
 
 /**
  * Processor for searching words from a file.
