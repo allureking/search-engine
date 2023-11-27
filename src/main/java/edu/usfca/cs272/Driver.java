@@ -32,8 +32,6 @@ public class Driver {
 
         boolean partial = argumentParser.hasFlag("-partial");
 
-        SearchProcessor searchProcessor = new SearchProcessor(invertedIndex, partial);
-
         int threadNum = 1;
 
         if (argumentParser.hasFlag("-threads")) {
@@ -41,12 +39,16 @@ public class Driver {
             threadNum = threadNum < 1 ? 5 : threadNum;
         }
 
+        WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
+        SearchProcessor searchProcessor = workQueue == null ? new SearchProcessor(invertedIndex, partial) : new MultiThreadSearchProcessor(invertedIndex, partial);
+
         if (argumentParser.hasFlag("-text")) {
             Path inputPath = Path.of(argumentParser.getString("-text", "./"));
             try {
-                if (threadNum > 1) {
+                if (workQueue != null) {
                     System.out.println("run with " + threadNum + " threads");
-                    InvertedIndexProcessor.process(inputPath, invertedIndex, threadNum);
+                    MultiThreadInvertedIndexProcessor.process(inputPath, invertedIndex, workQueue);
+                    workQueue.finish();
                 } else {
                     System.out.println("run with single thread");
                     InvertedIndexProcessor.process(inputPath, invertedIndex);
@@ -60,14 +62,18 @@ public class Driver {
         if (argumentParser.hasFlag("-query")) {
             Path queryPath = Path.of(argumentParser.getString("-query", "queries.txt"));
             try {
-                if (threadNum > 1) {
-                    searchProcessor.search(queryPath, threadNum);
+                if (searchProcessor instanceof MultiThreadSearchProcessor) {
+                    ((MultiThreadSearchProcessor) searchProcessor).search(queryPath, workQueue);
                 } else {
                     searchProcessor.search(queryPath);
                 }
             } catch (IOException e) {
                 System.out.println("Unable to process query file: " + e.getMessage());
             }
+        }
+
+        if (workQueue != null) {
+            workQueue.join();
         }
 
         if (argumentParser.hasFlag("-counts")) {
