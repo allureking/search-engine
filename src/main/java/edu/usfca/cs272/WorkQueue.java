@@ -72,7 +72,6 @@ public class WorkQueue {
      */
     public void execute(Runnable task) {
         synchronized (tasks) {
-            // TODO tasks.addLast(task) (文档内看2）
             tasks.addLast(() -> {
                 try {
                     task.run();

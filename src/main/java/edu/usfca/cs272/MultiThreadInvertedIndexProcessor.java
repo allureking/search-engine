@@ -1,17 +1,18 @@
 package edu.usfca.cs272;
 
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
 /**
  * Class responsible for word processing. It processes individual files or
@@ -82,11 +83,11 @@ public class MultiThreadInvertedIndexProcessor {
         List<Path> textFiles = FileFinder.listText(dirPath);
         List<InvertedIndex> indexList = new ArrayList<>();
         for (Path textFile : textFiles) {
-            InvertedIndex tmpInvertedIndex = new InvertedIndex(); // TODO Uses extra memory   (文档内看6)
+            InvertedIndex tmpInvertedIndex = new InvertedIndex();
             workQueue.execute(() -> {
                 try {
                     log.debug("start process file {}", textFile);
-                    processFile(textFile, tmpInvertedIndex); // TODO Happens within a task  (文档内看6)
+                    processFile(textFile, tmpInvertedIndex);
                 } catch (IOException e) {
                     log.error("Unable to process file", e.getMessage());
                 }

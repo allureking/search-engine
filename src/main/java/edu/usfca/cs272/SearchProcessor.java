@@ -23,11 +23,7 @@ public class SearchProcessor {
     /**
      * Stores search results mapped by query strings.
      */
-    protected final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults; //TODO private
-    /*
-     * 这两个应该还是要保留为private吧，教授让SearchProcessor也要保持project02只有单线程代码的样子
-     * 改为protected可能又要被说把代码安全性的封装给破坏了。
-     */
+    protected final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
 
     /**
      * Stemmer instance used for normalizing words during the search process.
@@ -40,7 +36,7 @@ public class SearchProcessor {
      * This function abstracts the search logic, allowing for different search implementations
      * (e.g., exact or partial) to be used interchangeably.
      */
-    protected final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction; //TODO private
+    protected final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
 
     /**
      * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating

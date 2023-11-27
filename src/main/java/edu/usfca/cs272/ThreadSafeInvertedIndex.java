@@ -51,7 +51,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void add(String word, String location, int position) {
-        lock.writeLock().lock(); //TODO 看下这个add需不需要像下面一样按照教授说的也加上try...finally...逻辑
+        lock.writeLock().lock();
         super.add(word, location, position);
         lock.writeLock().unlock();
     }
