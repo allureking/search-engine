@@ -15,8 +15,6 @@ import java.util.function.Function;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
-// TODO Keep this the same, create a new class for v3.1 （文档内看1）
-
 /**
  * Processor for searching words from a file.
  */
@@ -32,11 +30,6 @@ public class SearchProcessor {
 	 */
 	private final Stemmer stemmer;
 
-    /**
-     * Lock for Multi threads processing.
-     */
-    private MultiReaderLock lock;
-
 	/**
 	 * A functional interface representing the search operation. It takes a set of query terms
 	 * and returns a collection of {@link InvertedIndex.QueryResult} objects representing the search results.
@@ -45,14 +38,13 @@ public class SearchProcessor {
 	 */
 	private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
 
-	/**
-	 * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
-	 * whether to perform partial search. Initializes the stemmer for word normalization and
-	 * sets the appropriate search function based on the search type.
-	 *
-	 * @param index The InvertedIndex to use for searching.
-	 * @param partial True to perform partial search, false for exact search.
-	 */
+    /**
+     * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
+     * whether to perform partial search.
+     *
+     * @param index The InvertedIndex to use for searching.
+     * @param partial True to perform partial search, false for exact search.
+     */
     public SearchProcessor(InvertedIndex index, boolean partial) {
         stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
@@ -75,42 +67,17 @@ public class SearchProcessor {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                search(line, this.stemmer);
+                search(line);
             }
         }
-    }
-
-    /**
-     * Reads a query file line by line and performs a search for each line using multiple threads.
-     * Initializes a work queue with the specified number of threads to process the search queries concurrently.
-     *
-     * @param queryFile The path to the query file.
-     * @param threadNum The number of threads to use for processing the queries.
-     * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
-     */
-    public void search(Path queryFile, int threadNum) throws IOException {
-        lock = new MultiReaderLock();
-
-        WorkQueue workQueue = new WorkQueue(threadNum);
-        try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String finalLine = line;
-                workQueue.execute(() -> search(finalLine, new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH)));
-            }
-        }
-
-        workQueue.join();
     }
 
     /**
      * Processes a single line of text by stemming and searching for the resultant terms.
-     * Ignores empty lines and lines that yield no query terms after stemming.
      *
      * @param line The line of text to process and search.
-     * @param stemmer The stemmer instance to use for normalizing words.
      */
-    public void search(String line, Stemmer stemmer) {
+    public void search(String line) {
         if (line.isEmpty()) {
             return;
         }
@@ -125,8 +92,6 @@ public class SearchProcessor {
 
     /**
      * Executes a search for a set of stemmed query words.
-     * If the query has already been processed, this method returns early.
-     * Otherwise, it performs the search and stores the results.
      *
      * @param queries The set of stemmed words to search.
      */
@@ -138,15 +103,8 @@ public class SearchProcessor {
             return;
         }
 
-        if (lock != null) {
-            lock.writeLock().lock();
-        }
         // Use the search function to get results and put them in the map
         searchResults.put(queryWords, searchFunction.apply(queries));
-
-        if (lock != null) {
-            lock.writeLock().unlock();
-        }
     }
 
     /**
