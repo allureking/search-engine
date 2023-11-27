@@ -191,7 +191,7 @@ public class MultiReaderLock {
          */
         @Override
         public void unlock() throws IllegalStateException {
-            if (readers > 0) {
+            if (readers > 0) { // TODO Read of readers... needs to be sync
                 log.debug("Unlocking Read");
                 synchronized (lock) {
                     if (readers > 0) {

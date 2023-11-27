@@ -34,13 +34,14 @@ public class Driver {
 
         int threadNum = 1;
 
+        WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
+
+        SearchProcessor searchProcessor = workQueue == null ? new SearchProcessor(invertedIndex, partial) : new MultiThreadSearchProcessor(invertedIndex, partial);
+
         if (argumentParser.hasFlag("-threads")) {
             threadNum = argumentParser.getInteger("-threads");
             threadNum = threadNum < 1 ? 5 : threadNum;
         }
-
-        WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
-        SearchProcessor searchProcessor = workQueue == null ? new SearchProcessor(invertedIndex, partial) : new MultiThreadSearchProcessor(invertedIndex, partial);
 
         if (argumentParser.hasFlag("-text")) {
             Path inputPath = Path.of(argumentParser.getString("-text", "./"));

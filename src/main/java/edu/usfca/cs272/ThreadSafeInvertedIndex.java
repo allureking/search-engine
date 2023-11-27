@@ -38,9 +38,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     @Override
     public void merge(InvertedIndex index) {
         lock.writeLock().lock();
-
         super.merge(index);
-
         lock.writeLock().unlock();
     }
 
@@ -55,7 +53,6 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     public void add(String word, String location, int position) {
         lock.writeLock().lock();
         super.add(word, location, position);
-
         lock.writeLock().unlock();
     }
 
