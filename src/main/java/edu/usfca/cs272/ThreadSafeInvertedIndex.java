@@ -5,8 +5,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 /**
  * This class is a thread-safe version of InvertedIndex.
@@ -19,7 +17,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     /**
      * Lock used for managing concurrent read/write access.
      */
-    private MultiReaderLock lock; // TODO final (文档内看5)
+    private final MultiReaderLock lock;
 
     /**
      * Initializes the ThreadSafeInvertedIndex with empty index and count maps and a new MultiReaderLock.
@@ -29,7 +27,22 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
         lock = new MultiReaderLock();
     }
 
-    // TODO Missing some methods and not yet thread safe (文档内看5)
+    /**
+     * Merges the contents of another InvertedIndex into a single one.
+     * This method iterates through each word, location, and position in the specified index,
+     * and adds them to the current index. This is useful in multi-threaded scenarios where
+     * each thread processes a part of the data and their results are combined.
+     *
+     * @param index The InvertedIndex to be merged into the current index.
+     */
+    @Override
+    public void merge(InvertedIndex index) {
+        lock.writeLock().lock();
+
+        super.merge(index);
+
+        lock.writeLock().unlock();
+    }
 
     /**
      * Adds a new position from a file to the word index.
@@ -40,18 +53,10 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void add(String word, String location, int position) {
-    	// TODO Don't re-implement, use lock, try, super, finally  (文档内看5)
         lock.writeLock().lock();
-        TreeMap<String, TreeSet<Integer>> locationMap = wordIndex.computeIfAbsent(word, k -> new TreeMap<>());
+        super.add(word, location, position);
+
         lock.writeLock().unlock();
-
-        boolean modified = locationMap
-                .computeIfAbsent(location, k -> new TreeSet<>())
-                .add(position);
-
-        if(modified) {
-            wordCount.put(location, wordCount.getOrDefault(location, 0) + 1);
-        }
     }
 
     /**
