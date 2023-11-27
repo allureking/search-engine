@@ -1,0 +1,102 @@
+package edu.usfca.cs272;
+
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Class responsible for word processing. It processes individual files or
+ * directories and populates the provided inverted index with words found.
+ *
+ * @author Honghuai(King) Ke
+ */
+public class MultiThreadInvertedIndexProcessor {
+    /**
+     * Logger for the InvertedIndexProcessor class.
+     * This logger is used to log important information, warnings, and errors encountered
+     * during the operation of the InvertedIndexProcessor. It aids in debugging and monitoring
+     * the runtime behavior of the class.
+     */
+    private static final Logger log = LogManager.getLogger(MultiThreadInvertedIndexProcessor.class);
+
+    /**
+     * Processes the input path, whether it's a directory or file, and populates
+     * the provided inverted index.
+     *
+     * @param inputFile      Path to the input file or directory.
+     * @param invertedIndex  The inverted index to populate.
+     * @param workQueue multi thread queue to execute
+     * @throws IOException   If any IO error occurs while processing or saving.
+     */
+    public static void process(Path inputFile, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException {
+        if (Files.isDirectory(inputFile)) {
+            processDirectory(inputFile, invertedIndex, workQueue);
+        } else {
+            processFile(inputFile, invertedIndex);
+        }
+    }
+
+    /**
+     * Processes a single file and populates the provided inverted index with words
+     * found in the file.
+     *
+     * @param filePath       Path to the file to process.
+     * @param invertedIndex  The inverted index to populate.
+     * @throws IOException   If any IO error occurs while processing the file.
+     */
+    public static void processFile(Path filePath, InvertedIndex invertedIndex) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+            String line;
+            int index = 1;
+            Stemmer stemmer = ThreadLocal.<Stemmer>withInitial(() -> new SnowballStemmer(ALGORITHM.ENGLISH)).get();
+            String location = filePath.toString();
+            while ((line = reader.readLine()) != null) {
+                String[] words = FileStemmer.parse(line);
+                for (String word : words) {
+                    String stemmedWord = stemmer.stem(word).toString();
+                    invertedIndex.add(stemmedWord, location, index++);
+                }
+            }
+        }
+    }
+
+    /**
+     * Processes a directory by traversing it and processing each path individually.
+     * Populates the provided inverted index with words found in each file.
+     *
+     * @param dirPath        The directory path.
+     * @param invertedIndex  The inverted index to populate.
+     * @param workQueue multi thread queue to execute
+     * @throws IOException   If any IO error occurs while processing the directory.
+     */
+    public static void processDirectory(Path dirPath, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException {
+        List<Path> textFiles = FileFinder.listText(dirPath);
+        List<InvertedIndex> indexList = new ArrayList<>();
+        for (Path textFile : textFiles) {
+            InvertedIndex tmpInvertedIndex = new InvertedIndex(); // TODO Uses extra memory   (文档内看6)
+            workQueue.execute(() -> {
+                try {
+                    log.debug("start process file {}", textFile);
+                    processFile(textFile, tmpInvertedIndex); // TODO Happens within a task  (文档内看6)
+                } catch (IOException e) {
+                    log.error("Unable to process file", e.getMessage());
+                }
+            });
+            indexList.add(tmpInvertedIndex);
+        }
+
+        workQueue.finish();
+        for (InvertedIndex tmpInvertedIndex : indexList) {
+            invertedIndex.merge(tmpInvertedIndex);
+        }
+    }
+}

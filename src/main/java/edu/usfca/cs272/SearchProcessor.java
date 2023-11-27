@@ -23,12 +23,12 @@ public class SearchProcessor {
     /**
      * Stores search results mapped by query strings.
      */
-    private final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
+    protected final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
 
 	/**
 	 * Stemmer instance used for normalizing words during the search process.
 	 */
-	private final Stemmer stemmer;
+	protected final Stemmer stemmer;
 
 	/**
 	 * A functional interface representing the search operation. It takes a set of query terms
