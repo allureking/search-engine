@@ -25,22 +25,23 @@ public class SearchProcessor {
      */
     protected final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
 
-	/**
-	 * Stemmer instance used for normalizing words during the search process.
-	 */
-	protected final Stemmer stemmer;
+    /**
+     * Stemmer instance used for normalizing words during the search process.
+     */
+    private final Stemmer stemmer;
 
-	/**
-	 * A functional interface representing the search operation. It takes a set of query terms
-	 * and returns a collection of {@link InvertedIndex.QueryResult} objects representing the search results.
-	 * This function abstracts the search logic, allowing for different search implementations
-	 * (e.g., exact or partial) to be used interchangeably.
-	 */
-	private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
+    /**
+     * A functional interface representing the search operation. It takes a set of query terms
+     * and returns a collection of {@link InvertedIndex.QueryResult} objects representing the search results.
+     * This function abstracts the search logic, allowing for different search implementations
+     * (e.g., exact or partial) to be used interchangeably.
+     */
+    protected final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
 
     /**
      * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
-     * whether to perform partial search.
+     * whether to perform partial search. Initializes the stemmer for word normalization and
+     * sets the appropriate search function based on the search type.
      *
      * @param index The InvertedIndex to use for searching.
      * @param partial True to perform partial search, false for exact search.
@@ -50,7 +51,7 @@ public class SearchProcessor {
         searchResults = new TreeMap<>();
 
         if (partial) {
-        	    searchFunction = index::partialSearch;
+                searchFunction = index::partialSearch;
         } else {
             searchFunction = index::exactSearch;
         }
@@ -67,17 +68,19 @@ public class SearchProcessor {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                search(line);
+                search(line, this.stemmer);
             }
         }
     }
 
     /**
      * Processes a single line of text by stemming and searching for the resultant terms.
+     * Ignores empty lines and lines that yield no query terms after stemming.
      *
      * @param line The line of text to process and search.
+     * @param stemmer The stemmer instance to use for normalizing words.
      */
-    public void search(String line) {
+    public void search(String line, Stemmer stemmer) {
         if (line.isEmpty()) {
             return;
         }
@@ -92,6 +95,8 @@ public class SearchProcessor {
 
     /**
      * Executes a search for a set of stemmed query words.
+     * If the query has already been processed, this method returns early.
+     * Otherwise, it performs the search and stores the results.
      *
      * @param queries The set of stemmed words to search.
      */
@@ -102,7 +107,6 @@ public class SearchProcessor {
         if (searchResults.containsKey(queryWords)) {
             return;
         }
-
         // Use the search function to get results and put them in the map
         searchResults.put(queryWords, searchFunction.apply(queries));
     }
