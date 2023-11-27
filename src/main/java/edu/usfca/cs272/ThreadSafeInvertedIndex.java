@@ -68,8 +68,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     @Override
     public void saveIndex(Path output) throws IOException {
         lock.readLock().lock();
-        super.saveIndex(output);
-        lock.readLock().unlock();
+        try {
+            super.saveIndex(output);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
@@ -80,9 +85,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void saveCount(Path output) throws IOException {
-        lock.readLock().lock();
-        super.saveCount(output);
-        lock.readLock().unlock();
+        try {
+            super.saveCount(output);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
