@@ -86,7 +86,14 @@ public class WorkQueue {
     }
 
     /**
-     * notify all workers when new tasks are added
+     * Notifies all worker threads about changes in the state of the task queue.
+     * This method is called whenever a new task is added to the queue or a task is completed.
+     * It is responsible for incrementing or decrementing the count of pending tasks
+     * and waking up threads that are waiting for tasks to be completed.
+     *
+     * @param isTaskFinished Indicates whether a task has just been completed. If true,
+     *                       it decrements the count of pending tasks. If false, it
+     *                       increments the count, signifying the addition of a new task.
      */
     private void notifyWorkers(boolean isTaskFinished) {
         synchronized (tasks) {
@@ -96,7 +103,7 @@ public class WorkQueue {
                 pending++;
             }
 
-            tasks.notifyAll();  // notify any threads waiting in finish()
+            tasks.notifyAll();  // Notify any threads waiting in finish()
         }
     }
 
