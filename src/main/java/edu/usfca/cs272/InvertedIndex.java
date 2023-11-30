@@ -62,13 +62,13 @@ public class InvertedIndex {
                 }
             }
         }
-        
-        /* TODO 
+
+        /* TODO  (文档内见v3.1修改序号2）
         for (var otherEntry : index.wordIndex.entrySet()) {
         	String otherWord = otherEntry.getKey();
         	var otherInnerMap = otherEntry.getValue();
         	var thisInnerMap = this.wordIndex.get(otherWord);
-        	
+
         	if (thisInnerMap == null) {
         		this.wordIndex.put(otherWord, otherInnerMap);
         	}
@@ -76,10 +76,10 @@ public class InvertedIndex {
         		loop and do something similar at a different level of nesting
         	}
         }
-        
+
         need a separate loop to update the word counts
         */
-        
+
     }
 
     /**

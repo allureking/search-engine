@@ -17,10 +17,10 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
     /**
      * Lock used for managing concurrent read/write access in a multithreaded environment.
      */
-    private MultiReaderLock lock; // TODO Remove and use the sync keyword instead
+    private MultiReaderLock lock; // TODO Remove and use the sync keyword instead (文档内见v3.1修改序号3）
 
-    // TODO WorkQueue workQueue member that is sent to the constructor
-    
+    // TODO WorkQueue workQueue member that is sent to the constructor (文档内见v3.1修改序号3）
+
     /**
      * Constructs a MultiThreadSearchProcessor with a reference to an InvertedIndex and a flag
      * indicating whether to perform partial search. This constructor initializes the stemmer
@@ -69,17 +69,17 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
         String queryWords = String.join(" ", queries);
 
         // Return early if queryWords is already a key in the map
-        if (searchResults.containsKey(queryWords)) { // TODO Need to protect this read
+        if (searchResults.containsKey(queryWords)) { // TODO Need to protect this read (文档内见v3.1修改序号3）
             return;
         }
-        
-        // TODO var local = searchFunction.apply(queries);
+
+        // TODO var local = searchFunction.apply(queries); (文档内见v3.1修改序号3）
 
         if (lock != null) {
             lock.writeLock().lock();
         }
         // Use the search function to get results and put them in the map
-        searchResults.put(queryWords, searchFunction.apply(queries)); // TODO local
+        searchResults.put(queryWords, searchFunction.apply(queries)); // TODO local (文档内见v3.1修改序号3）
 
         if (lock != null) {
             lock.writeLock().unlock();

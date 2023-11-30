@@ -26,8 +26,8 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
         super();
         lock = new MultiReaderLock();
     }
-    
-    // TODO Use the try/super/finally pattern for everything that needs a lock
+
+    // TODO Use the try/super/finally pattern for everything that needs a lock (文档内见v3.1修改序号4）
 
     /**
      * Merges the contents of another InvertedIndex into a single one.
