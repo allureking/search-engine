@@ -46,6 +46,7 @@ public class MultiThreadInvertedIndexProcessor {
         }
     }
 
+    // TODO Remove
     /**
      * Processes a single file and populates the provided inverted index with words
      * found in the file.
@@ -81,13 +82,20 @@ public class MultiThreadInvertedIndexProcessor {
      */
     public static void processDirectory(Path dirPath, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException {
         List<Path> textFiles = FileFinder.listText(dirPath);
-        List<InvertedIndex> indexList = new ArrayList<>();
+        List<InvertedIndex> indexList = new ArrayList<>(); // TODO Remove
         for (Path textFile : textFiles) {
-            InvertedIndex tmpInvertedIndex = new InvertedIndex();
+            InvertedIndex tmpInvertedIndex = new InvertedIndex(); // TODO Remove
             workQueue.execute(() -> {
                 try {
                     log.debug("start process file {}", textFile);
                     processFile(textFile, tmpInvertedIndex);
+                    
+                    /* TODO 
+                    InvertedIndex local = new InvertedIndex();
+                    processFile(textFile, local);
+                    invertedIndex.merge(local);
+                    	*/
+                    
                 } catch (IOException e) {
                     log.error("Unable to process file", e.getMessage());
                 }
@@ -96,7 +104,7 @@ public class MultiThreadInvertedIndexProcessor {
         }
 
         workQueue.finish();
-        for (InvertedIndex tmpInvertedIndex : indexList) {
+        for (InvertedIndex tmpInvertedIndex : indexList) { // TODO Remove
             invertedIndex.merge(tmpInvertedIndex);
         }
     }
