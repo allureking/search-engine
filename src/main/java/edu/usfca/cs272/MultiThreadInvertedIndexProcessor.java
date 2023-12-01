@@ -1,6 +1,5 @@
 package edu.usfca.cs272;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,10 +8,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
 /**
  * Class responsible for word processing. It processes individual files or
@@ -42,32 +37,7 @@ public class MultiThreadInvertedIndexProcessor {
         if (Files.isDirectory(inputFile)) {
             processDirectory(inputFile, invertedIndex, workQueue);
         } else {
-            processFile(inputFile, invertedIndex);
-        }
-    }
-
-    // TODO Remove (文档内见v3.1修改序号1）
-    /**
-     * Processes a single file and populates the provided inverted index with words
-     * found in the file.
-     *
-     * @param filePath       Path to the file to process.
-     * @param invertedIndex  The inverted index to populate.
-     * @throws IOException   If any IO error occurs while processing the file.
-     */
-    public static void processFile(Path filePath, InvertedIndex invertedIndex) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
-            String line;
-            int index = 1;
-            Stemmer stemmer = ThreadLocal.<Stemmer>withInitial(() -> new SnowballStemmer(ALGORITHM.ENGLISH)).get();
-            String location = filePath.toString();
-            while ((line = reader.readLine()) != null) {
-                String[] words = FileStemmer.parse(line);
-                for (String word : words) {
-                    String stemmedWord = stemmer.stem(word).toString();
-                    invertedIndex.add(stemmedWord, location, index++);
-                }
-            }
+            InvertedIndexProcessor.processFile(inputFile, invertedIndex);
         }
     }
 
@@ -88,7 +58,7 @@ public class MultiThreadInvertedIndexProcessor {
             workQueue.execute(() -> {
                 try {
                     log.debug("start process file {}", textFile);
-                    processFile(textFile, tmpInvertedIndex);
+                    InvertedIndexProcessor.processFile(textFile, tmpInvertedIndex);
 
                     /* TODO (文档内见v3.1修改序号1）
                     InvertedIndex local = new InvertedIndex();
