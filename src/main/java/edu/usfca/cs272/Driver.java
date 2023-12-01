@@ -41,7 +41,8 @@ public class Driver {
 
         WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
 
-        SearchProcessor searchProcessor = workQueue == null ? new SearchProcessor(invertedIndex, partial) : new MultiThreadSearchProcessor(invertedIndex, partial);
+        SearchProcessor searchProcessor = workQueue == null ?
+                new SearchProcessor(invertedIndex, partial) : new MultiThreadSearchProcessor(invertedIndex, partial, workQueue);
 
         if (argumentParser.hasFlag("-text")) {
             Path inputPath = Path.of(argumentParser.getString("-text", "./"));
@@ -63,11 +64,7 @@ public class Driver {
         if (argumentParser.hasFlag("-query")) {
             Path queryPath = Path.of(argumentParser.getString("-query", "queries.txt"));
             try {
-                if (searchProcessor instanceof MultiThreadSearchProcessor) {
-                    ((MultiThreadSearchProcessor) searchProcessor).search(queryPath, workQueue);
-                } else {
-                    searchProcessor.search(queryPath);
-                }
+                searchProcessor.search(queryPath);
             } catch (IOException e) {
                 System.out.println("Unable to process query file: " + e.getMessage());
             }
