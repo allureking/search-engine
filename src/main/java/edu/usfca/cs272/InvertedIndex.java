@@ -20,17 +20,17 @@ import java.util.TreeSet;
  */
 public class InvertedIndex {
 
-	/**
-	 * A nested TreeMap structure to store the word positions for each word in each file.
-	 * The outer key is the word, and the inner key is the file location.
-	 * The inner value is a TreeSet of positions where the word was found in that file.
-	 */
+    /**
+     * A nested TreeMap structure to store the word positions for each word in each file.
+     * The outer key is the word, and the inner key is the file location.
+     * The inner value is a TreeSet of positions where the word was found in that file.
+     */
     private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
 
-	/**
-	 * A TreeMap structure to store the total count of each word across all files.
-	 * The key is the word and the value is the count of that word.
-	 */
+    /**
+     * A TreeMap structure to store the total count of each word across all files.
+     * The key is the word and the value is the count of that word.
+     */
     private final TreeMap<String, Integer> wordCount;
 
     /**
@@ -55,31 +55,31 @@ public class InvertedIndex {
      * @param index The InvertedIndex to be merged into the current index.
      */
     public void merge(InvertedIndex index) {
-        for (String word : index.viewWords()) {
-            for (String location : index.viewLocations(word)) {
-                for (int position: index.viewPositions(word, location)) {
-                    add(word, location, position);
+        for (var otherEntry : index.wordIndex.entrySet()) {
+            String word = otherEntry.getKey();
+            TreeMap<String, TreeSet<Integer>> otherMap = otherEntry.getValue();
+            TreeMap<String, TreeSet<Integer>> innerMap = wordIndex.get(word);
+
+            if (innerMap == null) {
+                wordIndex.put(word, otherMap);
+            } else {
+                for (var locationEntry: otherMap.entrySet()) {
+                    String location = locationEntry.getKey();
+                    TreeSet<Integer> otherSet = locationEntry.getValue();
+                    TreeSet<Integer> innerSet = innerMap.get(location);
+                    if (innerSet == null) {
+                        innerMap.put(location, otherSet);
+                    } else {
+                        innerSet.addAll(otherSet);
+                    }
                 }
             }
         }
 
-        /* TODO  (文档内见v3.1修改序号2）
-        for (var otherEntry : index.wordIndex.entrySet()) {
-        	String otherWord = otherEntry.getKey();
-        	var otherInnerMap = otherEntry.getValue();
-        	var thisInnerMap = this.wordIndex.get(otherWord);
-
-        	if (thisInnerMap == null) {
-        		this.wordIndex.put(otherWord, otherInnerMap);
-        	}
-        	else {
-        		loop and do something similar at a different level of nesting
-        	}
+        for (var otherEntry: index.wordCount.entrySet()) {
+            String location = otherEntry.getKey();
+            wordCount.put(location, wordCount.getOrDefault(location, 0) + otherEntry.getValue());
         }
-
-        need a separate loop to update the word counts
-        */
-
     }
 
     /**
@@ -419,7 +419,7 @@ public class InvertedIndex {
          * @return a TreeMap containing the properties of this QueryResult, sorted by key
          */
         @Override
-		public Map<String, Object> toMap() {
+        public Map<String, Object> toMap() {
             TreeMap<String, Object> map = new TreeMap<>();
             map.put("count", count);
             map.put("score", String.format("%.8f", score));
