@@ -27,8 +27,6 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
         lock = new MultiReaderLock();
     }
 
-    // TODO Use the try/super/finally pattern for everything that needs a lock (文档内见v3.1修改序号4）
-
     /**
      * Merges the contents of another InvertedIndex into a single one.
      * This method iterates through each word, location, and position in the specified index,
@@ -39,9 +37,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void merge(InvertedIndex index) {
-        lock.writeLock().lock();
-        super.merge(index);
-        lock.writeLock().unlock();
+        try {
+            lock.writeLock().lock();
+            super.merge(index);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -53,9 +54,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void add(String word, String location, int position) {
-        lock.writeLock().lock();
-        super.add(word, location, position);
-        lock.writeLock().unlock();
+        try {
+            lock.writeLock().lock();
+            super.add(word, location, position);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -66,8 +70,8 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public void saveIndex(Path output) throws IOException {
-        lock.readLock().lock();
         try {
+            lock.readLock().lock();
             super.saveIndex(output);
         } catch (IOException e) {
             throw e;
@@ -101,9 +105,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public boolean hasCount(String location) {
-        lock.readLock().lock();
-        boolean res = super.hasCount(location);
-        lock.readLock().unlock();
+        boolean res;
+        try {
+            lock.readLock().lock();
+            res = super.hasCount(location);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return res;
     }
@@ -116,9 +124,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public boolean hasWord(String word) {
-        lock.readLock().lock();
-        boolean res = super.hasWord(word);
-        lock.readLock().unlock();
+        boolean res;
+        try {
+            lock.readLock().lock();
+            res = super.hasWord(word);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return res;
     }
@@ -131,9 +143,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public int totalCount(String location) {
-        lock.readLock().lock();
-        int count = super.totalCount(location);
-        lock.readLock().unlock();
+        int count;
+        try {
+            lock.readLock().lock();
+            count = super.totalCount(location);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return count;
     }
@@ -146,9 +162,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     @Override
     public Set<String> viewWords() {
         Set<String> words;
-        lock.readLock().lock();
-        words = super.viewWords();
-        lock.readLock().unlock();
+        try {
+            lock.readLock().lock();
+            words = super.viewWords();
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return words;
     }
@@ -163,9 +182,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     public Set<String> viewLocations(String word) {
         Set<String> res;
 
-        lock.readLock().lock();
-        res = viewLocations(word);
-        lock.readLock().unlock();
+        try {
+            lock.readLock().lock();
+            res = viewLocations(word);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return res;
     }
@@ -181,9 +203,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     public Set<Integer> viewPositions(String word, String location) {
         Set<Integer> res;
 
-        lock.readLock().lock();
-        res = super.viewPositions(word, location);
-        lock.readLock().unlock();
+        try {
+            lock.readLock().lock();
+            res = super.viewPositions(word, location);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return res;
     }
@@ -196,9 +221,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public Map<String, Integer> viewCount() {
-        lock.readLock().lock();
-        Map<String, Integer> map = super.viewCount();
-        lock.readLock().unlock();
+        Map<String, Integer> map;
+        try {
+            lock.readLock().lock();
+            map = super.viewCount();
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return map;
     }
@@ -214,9 +243,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public List<QueryResult> exactSearch(Set<String> queries) {
-        lock.readLock().lock();
-        List<QueryResult> results = super.exactSearch(queries);
-        lock.readLock().unlock();
+        List<QueryResult> results;
+        try {
+            lock.readLock().lock();
+            results = super.exactSearch(queries);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return results;
     }
@@ -233,9 +266,13 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
      */
     @Override
     public List<QueryResult> partialSearch(Set<String> queries) {
-        lock.readLock().lock();
-        List<QueryResult> results = super.partialSearch(queries);
-        lock.readLock().unlock();
+        List<QueryResult> results;
+        try {
+            lock.readLock().lock();
+            results = super.partialSearch(queries);
+        } finally {
+            lock.readLock().unlock();
+        }
 
         return results;
     }
