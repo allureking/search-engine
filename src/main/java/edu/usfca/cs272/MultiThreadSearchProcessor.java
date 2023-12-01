@@ -17,9 +17,11 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
     /**
      * Lock used for managing concurrent read/write access in a multithreaded environment.
      */
-    private MultiReaderLock lock; // TODO Remove and use the sync keyword instead (文档内见v3.1修改序号3）
-
-    // TODO WorkQueue workQueue member that is sent to the constructor (文档内见v3.1修改序号3）
+    private MultiReaderLock lock;
+    /**
+     * The work queue used to execute tasks in multiple threads.
+     */
+    private WorkQueue workQueue;
 
     /**
      * Constructs a MultiThreadSearchProcessor with a reference to an InvertedIndex and a flag
@@ -29,8 +31,11 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
      * @param index    The InvertedIndex to use for searching.
      * @param partial  True to perform partial search, false for exact search.
      */
-    public MultiThreadSearchProcessor(InvertedIndex index, boolean partial) {
+    public MultiThreadSearchProcessor(InvertedIndex index, boolean partial, WorkQueue workQueue) {
         super(index, partial);
+
+        lock = new MultiReaderLock();
+        this.workQueue = workQueue;
     }
 
     /**
@@ -39,10 +44,10 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
      * Each line from the query file is treated as a separate search task.
      *
      * @param queryFile The path to the query file.
-     * @param workQueue The work queue used to execute tasks in multiple threads.
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
-    public void search(Path queryFile, WorkQueue workQueue) throws IOException {
+    @Override
+    public void search(Path queryFile) throws IOException {
         lock = new MultiReaderLock();
 
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
@@ -68,21 +73,19 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
     public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
 
+        lock.readLock().lock();
         // Return early if queryWords is already a key in the map
-        if (searchResults.containsKey(queryWords)) { // TODO Need to protect this read (文档内见v3.1修改序号3）
+        if (searchResults.containsKey(queryWords)) {
+            lock.readLock().unlock();
             return;
         }
+        lock.readLock().unlock();
 
-        // TODO var local = searchFunction.apply(queries); (文档内见v3.1修改序号3）
-
-        if (lock != null) {
-            lock.writeLock().lock();
-        }
+        lock.writeLock().lock();
+        var local = searchFunction.apply(queries);
         // Use the search function to get results and put them in the map
-        searchResults.put(queryWords, searchFunction.apply(queries)); // TODO local (文档内见v3.1修改序号3）
+        searchResults.put(queryWords, local);
 
-        if (lock != null) {
-            lock.writeLock().unlock();
-        }
+        lock.writeLock().unlock();
     }
 }
