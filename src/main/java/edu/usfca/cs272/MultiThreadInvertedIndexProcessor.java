@@ -3,7 +3,6 @@ package edu.usfca.cs272;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -52,30 +51,22 @@ public class MultiThreadInvertedIndexProcessor {
      */
     public static void processDirectory(Path dirPath, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException {
         List<Path> textFiles = FileFinder.listText(dirPath);
-        List<InvertedIndex> indexList = new ArrayList<>(); // TODO Remove (文档内见v3.1修改序号1）
         for (Path textFile : textFiles) {
-            InvertedIndex tmpInvertedIndex = new InvertedIndex(); // TODO Remove (文档内见v3.1修改序号1）
             workQueue.execute(() -> {
                 try {
                     log.debug("start process file {}", textFile);
-                    InvertedIndexProcessor.processFile(textFile, tmpInvertedIndex);
 
-                    /* TODO (文档内见v3.1修改序号1）
                     InvertedIndex local = new InvertedIndex();
-                    processFile(textFile, local);
-                    invertedIndex.merge(local);
-                    	*/
-
+                    InvertedIndexProcessor.processFile(textFile, local);
+                    synchronized (invertedIndex) {
+                        invertedIndex.merge(local);
+                    }
                 } catch (IOException e) {
                     log.error("Unable to process file", e.getMessage());
                 }
             });
-            indexList.add(tmpInvertedIndex);
         }
 
         workQueue.finish();
-        for (InvertedIndex tmpInvertedIndex : indexList) { // TODO Remove (文档内见v3.1修改序号1）
-            invertedIndex.merge(tmpInvertedIndex);
-        }
     }
 }
