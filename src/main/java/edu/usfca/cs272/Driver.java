@@ -28,6 +28,26 @@ public class Driver {
 
         ArgumentParser argumentParser = new ArgumentParser(args);
 
+        /* TODO 
+        ThreadSafeInvertedIndex threadSafe = null;
+        InvertedIndex invertedIndex = null;
+        SearchProcessorInterface searchProcessor = null; 
+        WorkQueue workQueue = null;
+        
+        if (argumentParser.hasFlag("-threads")) {
+        	 threadNum = argumentParser.getInteger("-threads");
+           threadNum = threadNum < 1 ? 5 : threadNum;
+           
+        	threadSafe = new ThreadSafeInvertedIndex();
+        	invertedIndex = threadSafe;
+        	etc.
+        }
+        else {
+        	invertedIndex = new InvertedIndex();
+        	etc.
+        }
+        */
+        
         InvertedIndex invertedIndex = new InvertedIndex();
 
         boolean partial = argumentParser.hasFlag("-partial");
@@ -71,7 +91,7 @@ public class Driver {
         }
 
         if (workQueue != null) {
-            workQueue.join();
+            workQueue.join(); // TODO shutdown()
         }
 
         if (argumentParser.hasFlag("-counts")) {

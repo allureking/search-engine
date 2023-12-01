@@ -8,6 +8,10 @@ import java.util.Set;
 
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
+/*
+ * TODO Create a search processor interface that both of your classes implement
+ */
+
 /**
  * Processor for searching words from a file in a multithreaded manner.
  * This class extends the {@link SearchProcessor} and is designed to handle
@@ -30,6 +34,7 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
      * @param partial   True to perform a partial search, false for an exact search.
      * @param workQueue The WorkQueue instance to manage multithreaded tasks.
      */
+    // TODO thread-safe
     public MultiThreadSearchProcessor(InvertedIndex index, boolean partial, WorkQueue workQueue) {
         super(index, partial);
 
@@ -69,7 +74,7 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
     public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
 
-        synchronized (searchResults) {
+        synchronized (searchResults) { // TODO Break up the sync block so the searchFunction happens outside
             // Return early if queryWords is already a key in the map
             if (searchResults.containsKey(queryWords)) {
                 return;

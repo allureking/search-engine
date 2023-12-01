@@ -32,7 +32,7 @@ public class MultiThreadInvertedIndexProcessor {
      * @param workQueue multi thread queue to execute
      * @throws IOException   If any IO error occurs while processing or saving.
      */
-    public static void process(Path inputFile, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException {
+    public static void process(Path inputFile, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException { // TODO ThreadSafeInvertedIndex
         if (Files.isDirectory(inputFile)) {
             processDirectory(inputFile, invertedIndex, workQueue);
         } else {
@@ -49,7 +49,7 @@ public class MultiThreadInvertedIndexProcessor {
      * @param workQueue multi thread queue to execute
      * @throws IOException   If any IO error occurs while processing the directory.
      */
-    public static void processDirectory(Path dirPath, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException {
+    public static void processDirectory(Path dirPath, InvertedIndex invertedIndex, WorkQueue workQueue) throws IOException { // TODO ThreadSafeInvertedIndex
         List<Path> textFiles = FileFinder.listText(dirPath);
         for (Path textFile : textFiles) {
             workQueue.execute(() -> {
@@ -58,7 +58,7 @@ public class MultiThreadInvertedIndexProcessor {
 
                     InvertedIndex local = new InvertedIndex();
                     InvertedIndexProcessor.processFile(textFile, local);
-                    synchronized (invertedIndex) {
+                    synchronized (invertedIndex) { // TODO Remove
                         invertedIndex.merge(local);
                     }
                 } catch (IOException e) {

@@ -54,7 +54,7 @@ public class InvertedIndex {
      *
      * @param index The InvertedIndex to be merged into the current index.
      */
-    public void merge(InvertedIndex index) {
+    public void merge(InvertedIndex index) { // TODO mergeDistinct and indicate in the javadoc the index should not overlap in locations with this index
         for (var otherEntry : index.wordIndex.entrySet()) {
             String word = otherEntry.getKey();
             TreeMap<String, TreeSet<Integer>> otherMap = otherEntry.getValue();
