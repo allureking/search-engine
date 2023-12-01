@@ -15,26 +15,24 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  */
 public class MultiThreadSearchProcessor extends SearchProcessor {
     /**
-     * Lock used for managing concurrent read/write access in a multithreaded environment.
-     */
-    private MultiReaderLock lock;
-    /**
      * The work queue used to execute tasks in multiple threads.
      */
     private WorkQueue workQueue;
 
     /**
-     * Constructs a MultiThreadSearchProcessor with a reference to an InvertedIndex and a flag
-     * indicating whether to perform partial search. This constructor initializes the stemmer
-     * for word normalization and sets the appropriate search function based on the search type.
+     * Constructs a MultiThreadSearchProcessor with a reference to an InvertedIndex, a flag
+     * indicating the type of search (partial or exact), and a WorkQueue instance for managing
+     * multithreaded tasks. This constructor initializes the underlying SearchProcessor with
+     * the specified InvertedIndex and search type. It also sets up the WorkQueue to handle
+     * concurrent search operations.
      *
-     * @param index    The InvertedIndex to use for searching.
-     * @param partial  True to perform partial search, false for exact search.
+     * @param index     The InvertedIndex to use for searching.
+     * @param partial   True to perform a partial search, false for an exact search.
+     * @param workQueue The WorkQueue instance to manage multithreaded tasks.
      */
     public MultiThreadSearchProcessor(InvertedIndex index, boolean partial, WorkQueue workQueue) {
         super(index, partial);
 
-        lock = new MultiReaderLock();
         this.workQueue = workQueue;
     }
 
@@ -48,8 +46,6 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
      */
     @Override
     public void search(Path queryFile) throws IOException {
-        lock = new MultiReaderLock();
-
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -73,19 +69,14 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
     public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
 
-        lock.readLock().lock();
-        // Return early if queryWords is already a key in the map
-        if (searchResults.containsKey(queryWords)) {
-            lock.readLock().unlock();
-            return;
+        synchronized (searchResults) {
+            // Return early if queryWords is already a key in the map
+            if (searchResults.containsKey(queryWords)) {
+                return;
+            }
+            var local = searchFunction.apply(queries);
+            // Use the search function to get results and put them in the map
+            searchResults.put(queryWords, local);
         }
-        lock.readLock().unlock();
-
-        lock.writeLock().lock();
-        var local = searchFunction.apply(queries);
-        // Use the search function to get results and put them in the map
-        searchResults.put(queryWords, local);
-
-        lock.writeLock().unlock();
     }
 }
