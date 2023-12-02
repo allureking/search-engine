@@ -15,7 +15,7 @@ import java.util.Set;
 public class ThreadSafeInvertedIndex extends InvertedIndex {
 
 	// TODO Need to override more methods to make thread-safe
-	
+
     /**
      * Lock used for managing concurrent read/write access.
      */
@@ -29,253 +29,197 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
         lock = new MultiReaderLock();
     }
 
-    /**
-     * Merges the contents of another InvertedIndex into a single one.
-     * This method iterates through each word, location, and position in the specified index,
-     * and adds them to the current index. This is useful in multi-threaded scenarios where
-     * each thread processes a part of the data and their results are combined.
-     *
-     * @param index The InvertedIndex to be merged into the current index.
-     */
     @Override
-    public void merge(InvertedIndex index) {
+    public void merge(InvertedIndex other) {
+        lock.writeLock().lock();
         try {
-            lock.writeLock().lock();
-            super.merge(index);
+            super.merge(other);
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-    /**
-     * Adds a new position from a file to the word index.
-     *
-     * @param word     The word to add.
-     * @param location The file location.
-     * @param position The position of the word in the file.
-     */
     @Override
     public void add(String word, String location, int position) {
+        lock.writeLock().lock();
         try {
-            lock.writeLock().lock();
             super.add(word, location, position);
         } finally {
             lock.writeLock().unlock();
         }
     }
 
-    /**
-     * Saves the computed word index to the specified output file.
-     *
-     * @param output The path to the output file.
-     * @throws IOException If an I/O error occurs while writing to the file.
-     */
     @Override
-    public void saveIndex(Path output) throws IOException {
+    public void addAll(List<String> words, String location, int start) {
+        lock.writeLock().lock();
         try {
-            lock.readLock().lock();
-            super.saveIndex(output);
-        } catch (IOException e) {
-            throw e;
+            super.addAll(words, location, start);
         } finally {
-            lock.readLock().unlock();
+            lock.writeLock().unlock();
         }
     }
 
-    /**
-     * Saves the computed word count to the specified output file.
-     *
-     * @param output The path to the output file.
-     * @throws IOException If an I/O error occurs while writing to the file.
-     */
-    @Override
-    public void saveCount(Path output) throws IOException {
-        try {
-            super.saveCount(output);
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            lock.readLock().unlock();
-        }
-    }
-
-    /**
-     * Determines whether the word count contains the specified location.
-     *
-     * @param location The location to check.
-     * @return true if the location exists in the word count; false otherwise.
-     */
-    @Override
-    public boolean hasCount(String location) {
-        boolean res;
-        try {
-            lock.readLock().lock();
-            res = super.hasCount(location);
-        } finally {
-            lock.readLock().unlock();
-        }
-
-        return res;
-    }
-
-    /**
-     * Determines whether the word index contains the specified word.
-     *
-     * @param word The word to check.
-     * @return true if the word exists in the word index; false otherwise.
-     */
-    @Override
-    public boolean hasWord(String word) {
-        boolean res;
-        try {
-            lock.readLock().lock();
-            res = super.hasWord(word);
-        } finally {
-            lock.readLock().unlock();
-        }
-
-        return res;
-    }
-
-    /**
-     * Returns the total count of a specific word across all files.
-     *
-     * @param location The location (typically a file) to check.
-     * @return Total count of the word.
-     */
-    @Override
-    public int totalCount(String location) {
-        int count;
-        try {
-            lock.readLock().lock();
-            count = super.totalCount(location);
-        } finally {
-            lock.readLock().unlock();
-        }
-
-        return count;
-    }
-
-    /**
-     * Provides an unmodifiable view of the words in the index.
-     *
-     * @return An unmodifiable set of words.
-     */
     @Override
     public Set<String> viewWords() {
-        Set<String> words;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
-            words = super.viewWords();
+            return super.viewWords();
         } finally {
             lock.readLock().unlock();
         }
-
-        return words;
     }
 
-    /**
-     * Provides an unmodifiable view of the locations a specific word appears in.
-     *
-     * @param word The word to check.
-     * @return An unmodifiable set of locations for the given word.
-     */
     @Override
     public Set<String> viewLocations(String word) {
-        Set<String> res;
-
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
-            res = viewLocations(word);
+            return super.viewLocations(word);
         } finally {
             lock.readLock().unlock();
         }
-
-        return res;
     }
 
-    /**
-     * Provides an unmodifiable view of the positions a specific word appears at in a specific location.
-     *
-     * @param word     The word to check.
-     * @param location The location to check.
-     * @return An unmodifiable set of positions for the given word in the given location.
-     */
     @Override
     public Set<Integer> viewPositions(String word, String location) {
-        Set<Integer> res;
-
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
-            res = super.viewPositions(word, location);
+            return super.viewPositions(word, location);
         } finally {
             lock.readLock().unlock();
         }
-
-        return res;
     }
 
-
-    /**
-     * Provides a direct view of the word count map.
-     *
-     * @return An unmodifiable view of the internal word count structure.
-     */
     @Override
     public Map<String, Integer> viewCount() {
-        Map<String, Integer> map;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
-            map = super.viewCount();
+            return super.viewCount();
         } finally {
             lock.readLock().unlock();
         }
-
-        return map;
     }
 
-    /**
-     * Performs an exact search for each query in the provided set.
-     * This method looks for exact matches of the query words in the index and
-     * aggregates the results into a sorted list of QueryResult objects.
-     * The sorting is based on the relevance score, occurrence count, and location.
-     *
-     * @param queries A set of queries to search for.
-     * @return A sorted list of QueryResult objects representing the search results.
-     */
+    @Override
+    public boolean hasWord(String word) {
+        lock.readLock().lock();
+        try {
+            return super.hasWord(word);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public boolean hasLocation(String word, String location) {
+        lock.readLock().lock();
+        try {
+            return super.hasLocation(word, location);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public boolean hasPosition(String word, String location, Integer position) {
+        lock.readLock().lock();
+        try {
+            return super.hasPosition(word, location, position);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public boolean hasCount(String location) {
+        lock.readLock().lock();
+        try {
+            return super.hasCount(location);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int totalCount(String location) {
+        lock.readLock().lock();
+        try {
+            return super.totalCount(location);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int numWords() {
+        lock.readLock().lock();
+        try {
+            return super.numWords();
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int numLocations(String word) {
+        lock.readLock().lock();
+        try {
+            return super.numLocations(word);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public int numPositions(String word, String location) {
+        lock.readLock().lock();
+        try {
+            return super.numPositions(word, location);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    // Override methods that save data to files
+
+    @Override
+    public void saveIndex(Path output) throws IOException {
+        lock.readLock().lock();
+        try {
+            super.saveIndex(output);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public void saveCount(Path output) throws IOException {
+        lock.readLock().lock();
+        try {
+            super.saveCount(output);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    // Override methods for searching
+
     @Override
     public List<QueryResult> exactSearch(Set<String> queries) {
-        List<QueryResult> results;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
-            results = super.exactSearch(queries);
+            return super.exactSearch(queries);
         } finally {
             lock.readLock().unlock();
         }
-
-        return results;
     }
 
-    /**
-     * Performs a partial search for each query in the provided set.
-     * A partial search considers any index word that starts with the given query string.
-     * For each matching index word, the method aggregates the search results,
-     * ultimately returning them as a sorted list of QueryResult objects.
-     * The sorting is based on the relevance score, occurrence count, and location.
-     *
-     * @param queries A set of queries to search for.
-     * @return A sorted list of QueryResult objects representing the search results.
-     */
     @Override
     public List<QueryResult> partialSearch(Set<String> queries) {
-        List<QueryResult> results;
+        lock.readLock().lock();
         try {
-            lock.readLock().lock();
-            results = super.partialSearch(queries);
+            return super.partialSearch(queries);
         } finally {
             lock.readLock().unlock();
         }
-
-        return results;
     }
 }

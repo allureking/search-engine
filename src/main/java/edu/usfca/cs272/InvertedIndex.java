@@ -252,7 +252,6 @@ public class InvertedIndex {
         return Collections.emptySet();
     }
 
-
     /**
      * Provides a direct view of the word count map.
      *
