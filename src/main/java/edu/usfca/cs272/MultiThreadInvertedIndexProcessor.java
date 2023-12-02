@@ -59,7 +59,7 @@ public class MultiThreadInvertedIndexProcessor {
                     InvertedIndex local = new InvertedIndex();
                     InvertedIndexProcessor.processFile(textFile, local);
                     synchronized (invertedIndex) { // TODO Remove
-                        invertedIndex.merge(local);
+                        invertedIndex.mergeDistinct(local);
                     }
                 } catch (IOException e) {
                     log.error("Unable to process file", e.getMessage());

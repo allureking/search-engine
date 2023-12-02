@@ -28,10 +28,10 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
     }
 
     @Override
-    public void merge(InvertedIndex other) {
+    public void mergeDistinct(InvertedIndex other) {
         lock.writeLock().lock();
         try {
-            super.merge(other);
+            super.mergeDistinct(other);
         } finally {
             lock.writeLock().unlock();
         }
