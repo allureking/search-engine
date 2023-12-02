@@ -188,7 +188,7 @@ public class SearchProcessor {
             return Collections.emptyList();
         }
         List<InvertedIndex.QueryResult> results = searchResults.get(query);
-        int endIndex = Math.min(startIndex + count, results.size()); // TODO Remove new ArrayList<>(
+        int endIndex = Math.min(startIndex + count, results.size());
         return Collections.unmodifiableList(results.subList(startIndex, endIndex));
     }
 
