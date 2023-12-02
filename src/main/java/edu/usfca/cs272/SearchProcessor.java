@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -190,7 +189,7 @@ public class SearchProcessor {
         }
         List<InvertedIndex.QueryResult> results = searchResults.get(query);
         int endIndex = Math.min(startIndex + count, results.size()); // TODO Remove new ArrayList<>(
-        return Collections.unmodifiableList(new ArrayList<>(results.subList(startIndex, endIndex)));
+        return Collections.unmodifiableList(results.subList(startIndex, endIndex));
     }
 
 }
