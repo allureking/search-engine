@@ -84,7 +84,6 @@ public class InvertedIndex {
         }
     }
 
-
     /**
      * Adds a new position from a file to the word index.
      *
