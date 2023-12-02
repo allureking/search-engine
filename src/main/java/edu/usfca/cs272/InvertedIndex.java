@@ -47,14 +47,15 @@ public class InvertedIndex {
     }
 
     /**
-     * Merges the contents of another InvertedIndex into a single one.
-     * This method iterates through each word, location, and position in the specified index,
-     * and adds them to the current index. This is useful in multi-threaded scenarios where
-     * each thread processes a part of the data and their results are combined.
+     * Merges the contents of another InvertedIndex into this one, ensuring that the locations
+     * do not overlap between the two indexes. This method is useful in scenarios where two distinct
+     * indexes are combined, like in multi-threaded indexing, where each thread works on a separate part
+     * and their results are merged without location overlap. This method avoids double-counting of words
+     * by ensuring distinct locations in the merged indexes.
      *
      * @param index The InvertedIndex to be merged into the current index.
      */
-    public void merge(InvertedIndex index) { // TODO mergeDistinct and indicate in the javadoc the index should not overlap in locations with this index
+    public void mergeDistinct(InvertedIndex index) {
         for (var otherEntry : index.wordIndex.entrySet()) {
             String word = otherEntry.getKey();
             TreeMap<String, TreeSet<Integer>> otherMap = otherEntry.getValue();
@@ -63,10 +64,11 @@ public class InvertedIndex {
             if (innerMap == null) {
                 wordIndex.put(word, otherMap);
             } else {
-                for (var locationEntry: otherMap.entrySet()) {
+                for (var locationEntry : otherMap.entrySet()) {
                     String location = locationEntry.getKey();
                     TreeSet<Integer> otherSet = locationEntry.getValue();
                     TreeSet<Integer> innerSet = innerMap.get(location);
+
                     if (innerSet == null) {
                         innerMap.put(location, otherSet);
                     } else {
@@ -76,11 +78,12 @@ public class InvertedIndex {
             }
         }
 
-        for (var otherEntry: index.wordCount.entrySet()) {
+        for (var otherEntry : index.wordCount.entrySet()) {
             String location = otherEntry.getKey();
             wordCount.put(location, wordCount.getOrDefault(location, 0) + otherEntry.getValue());
         }
     }
+
 
     /**
      * Adds a new position from a file to the word index.
