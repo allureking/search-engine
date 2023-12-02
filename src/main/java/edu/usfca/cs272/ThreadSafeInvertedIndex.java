@@ -14,8 +14,6 @@ import java.util.Set;
  */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
 
-	// TODO Need to override more methods to make thread-safe
-
     /**
      * Lock used for managing concurrent read/write access.
      */
