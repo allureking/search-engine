@@ -4,20 +4,32 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Function;
 
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
-
-/*
- * TODO Create a search processor interface that both of your classes implement
- */
 
 /**
  * Processor for searching words from a file in a multithreaded manner.
  * This class extends the {@link SearchProcessor} and is designed to handle
  * search queries using multiple threads for improved performance.
  */
-public class MultiThreadSearchProcessor extends SearchProcessor {
+public class MultiThreadSearchProcessor implements SearchProcessorInterface {
+    /**
+     * Stores search results mapped by query strings.
+     */
+    private final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
+
+    /**
+     * A functional interface representing the search operation. It takes a set of query terms
+     * and returns a collection of {@link InvertedIndex.QueryResult} objects representing the search results.
+     * This function abstracts the search logic, allowing for different search implementations
+     * (e.g., exact or partial) to be used interchangeably.
+     */
+    private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
     /**
      * The work queue used to execute tasks in multiple threads.
      */
@@ -34,9 +46,14 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
      * @param partial   True to perform a partial search, false for an exact search.
      * @param workQueue The WorkQueue instance to manage multithreaded tasks.
      */
-    // TODO thread-safe
-    public MultiThreadSearchProcessor(InvertedIndex index, boolean partial, WorkQueue workQueue) {
-        super(index, partial);
+    public MultiThreadSearchProcessor(ThreadSafeInvertedIndex index, boolean partial, WorkQueue workQueue) {
+        searchResults = new TreeMap<>();
+
+        if (partial) {
+            searchFunction = index::partialSearch;
+        } else {
+            searchFunction = index::exactSearch;
+        }
 
         this.workQueue = workQueue;
     }
@@ -74,14 +91,53 @@ public class MultiThreadSearchProcessor extends SearchProcessor {
     public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
 
-        synchronized (searchResults) { // TODO Break up the sync block so the searchFunction happens outside
+        synchronized (searchResults) {
             // Return early if queryWords is already a key in the map
             if (searchResults.containsKey(queryWords)) {
                 return;
             }
-            var local = searchFunction.apply(queries);
+        }
+
+        var local = searchFunction.apply(queries);
+
+        synchronized (searchResults) {
             // Use the search function to get results and put them in the map
             searchResults.put(queryWords, local);
         }
+    }
+
+    @Override
+    public void saveResult(Path output) throws IOException {
+        JsonWriter.writeObjectArrayObject(searchResults, output);
+    }
+
+    @Override
+    public List<InvertedIndex.QueryResult> getSearchResult(String query) {
+        if (searchResults.containsKey(query)) {
+            return Collections.unmodifiableList(searchResults.get(query));
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Set<String> getAllQueries() {
+        return Collections.unmodifiableSet(searchResults.keySet());
+    }
+
+    @Override
+    public int getNumberOfResults(String query) {
+        List<InvertedIndex.QueryResult> results = searchResults.get(query);
+        return results != null ? results.size() : 0;
+    }
+
+    @Override
+    public List<InvertedIndex.QueryResult> getSearchResults(String query, int startIndex, int count) {
+        if (!searchResults.containsKey(query)) {
+            return Collections.emptyList();
+        }
+        List<InvertedIndex.QueryResult> results = searchResults.get(query);
+        int endIndex = Math.min(startIndex + count, results.size());
+        return Collections.unmodifiableList(results.subList(startIndex, endIndex));
     }
 }

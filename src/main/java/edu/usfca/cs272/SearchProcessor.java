@@ -17,17 +17,11 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 /**
  * Processor for searching words from a file.
  */
-public class SearchProcessor {
-
+public class SearchProcessor implements SearchProcessorInterface {
     /**
      * Stores search results mapped by query strings.
      */
-    protected final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
-
-    /**
-     * Stemmer instance used for normalizing words during the search process.
-     */
-    private final Stemmer stemmer;
+    private final TreeMap<String, List<InvertedIndex.QueryResult>> searchResults;
 
     /**
      * A functional interface representing the search operation. It takes a set of query terms
@@ -35,7 +29,12 @@ public class SearchProcessor {
      * This function abstracts the search logic, allowing for different search implementations
      * (e.g., exact or partial) to be used interchangeably.
      */
-    protected final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
+    private final Function<Set<String>, List<InvertedIndex.QueryResult>> searchFunction;
+
+    /**
+     * Stemmer instance used for normalizing words during the search process.
+     */
+    private final Stemmer stemmer;
 
     /**
      * Constructs a SearchProcessor with a reference to an InvertedIndex and a flag indicating
@@ -46,15 +45,14 @@ public class SearchProcessor {
      * @param partial True to perform partial search, false for exact search.
      */
     public SearchProcessor(InvertedIndex index, boolean partial) {
-        stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
         searchResults = new TreeMap<>();
+        stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 
         if (partial) {
-                searchFunction = index::partialSearch;
+            searchFunction = index::partialSearch;
         } else {
             searchFunction = index::exactSearch;
         }
-
     }
 
     /**
@@ -63,6 +61,7 @@ public class SearchProcessor {
      * @param queryFile The path to the query file.
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
+    @Override
     public void search(Path queryFile) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
@@ -79,6 +78,7 @@ public class SearchProcessor {
      * @param line The line of text to process and search.
      * @param stemmer The stemmer instance to use for normalizing words.
      */
+    @Override
     public void search(String line, Stemmer stemmer) {
         if (line.isEmpty()) {
             return;
@@ -99,6 +99,7 @@ public class SearchProcessor {
      *
      * @param queries The set of stemmed words to search.
      */
+    @Override
     public void search(Set<String> queries) {
         String queryWords = String.join(" ", queries);
 
@@ -121,6 +122,7 @@ public class SearchProcessor {
      *               will be saved. If the file already exists, it will be overwritten.
      * @throws IOException If an I/O error occurs writing to the file path.
      */
+    @Override
     public void saveResult(Path output) throws IOException {
         JsonWriter.writeObjectArrayObject(searchResults, output);
     }
@@ -142,6 +144,7 @@ public class SearchProcessor {
      * @return An unmodifiable list representing the search results for the given query.
      *         Returns an empty list if the query is not present.
      */
+    @Override
     public List<InvertedIndex.QueryResult> getSearchResult(String query) {
         if (searchResults.containsKey(query)) {
             return Collections.unmodifiableList(searchResults.get(query));
@@ -156,6 +159,7 @@ public class SearchProcessor {
      *
      * @return An unmodifiable set containing all the queries.
      */
+    @Override
     public Set<String> getAllQueries() {
         return Collections.unmodifiableSet(searchResults.keySet());
     }
@@ -167,6 +171,7 @@ public class SearchProcessor {
      * @param query The query string whose number of results is to be retrieved.
      * @return The number of results for the specified query, or 0 if the query does not exist.
      */
+    @Override
     public int getNumberOfResults(String query) {
         List<InvertedIndex.QueryResult> results = searchResults.get(query);
         return results != null ? results.size() : 0;
@@ -183,6 +188,7 @@ public class SearchProcessor {
      * @return An unmodifiable list of search results starting from the specified index with the specified count.
      *         Returns an empty list if the query does not exist or the parameters are out of bounds.
      */
+    @Override
     public List<InvertedIndex.QueryResult> getSearchResults(String query, int startIndex, int count) {
         if (!searchResults.containsKey(query)) {
             return Collections.emptyList();

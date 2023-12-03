@@ -28,29 +28,6 @@ public class Driver {
 
         ArgumentParser argumentParser = new ArgumentParser(args);
 
-        ThreadSafeInvertedIndex threadSafeInvertedIndex = null;
-        /* TODO
-        ThreadSafeInvertedIndex threadSafe = null;
-        InvertedIndex invertedIndex = null;
-        SearchProcessorInterface searchProcessor = null;
-        WorkQueue workQueue = null;
-
-        if (argumentParser.hasFlag("-threads")) {
-        	 threadNum = argumentParser.getInteger("-threads");
-           threadNum = threadNum < 1 ? 5 : threadNum;
-
-        	threadSafe = new ThreadSafeInvertedIndex();
-        	invertedIndex = threadSafe;
-        	etc.
-        }
-        else {
-        	invertedIndex = new InvertedIndex();
-        	etc.
-        }
-        */
-
-        InvertedIndex invertedIndex = new InvertedIndex();
-
         boolean partial = argumentParser.hasFlag("-partial");
 
         int threadNum = 1;
@@ -61,9 +38,17 @@ public class Driver {
         }
 
         WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
+        InvertedIndex invertedIndex = null;
+        ThreadSafeInvertedIndex threadSafeInvertedIndex = null;
+        SearchProcessorInterface searchProcessor;
 
-        SearchProcessor searchProcessor = workQueue == null ?
-                new SearchProcessor(invertedIndex, partial) : new MultiThreadSearchProcessor(invertedIndex, partial, workQueue);
+        if (workQueue == null) {
+            invertedIndex = new InvertedIndex();
+            searchProcessor = new SearchProcessor(invertedIndex, partial);
+        } else {
+            threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
+            searchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, partial, workQueue);
+        }
 
         if (argumentParser.hasFlag("-text")) {
             Path inputPath = Path.of(argumentParser.getString("-text", "./"));
@@ -98,7 +83,11 @@ public class Driver {
         if (argumentParser.hasFlag("-counts")) {
             Path countPath = Path.of(argumentParser.getString("-counts", "counts.json"));
             try {
-                invertedIndex.saveCount(countPath);
+                if (invertedIndex != null) {
+                    invertedIndex.saveCount(countPath);
+                } else {
+                    threadSafeInvertedIndex.saveCount(countPath);
+                }
             } catch (IOException e) {
                 System.out.println("Unable to save word counts: " + e.getMessage());
             }
@@ -107,7 +96,11 @@ public class Driver {
         if (argumentParser.hasFlag("-index")) {
             Path indexPath = Path.of(argumentParser.getString("-index", "index.json"));
             try {
-                invertedIndex.saveIndex(indexPath);
+                if (invertedIndex != null) {
+                    invertedIndex.saveIndex(indexPath);
+                } else {
+                    threadSafeInvertedIndex.saveIndex(indexPath);
+                }
             } catch (IOException e) {
                 System.out.println("Unable to process word index: " + e.getMessage());
             }
