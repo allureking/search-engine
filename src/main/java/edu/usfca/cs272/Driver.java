@@ -28,16 +28,17 @@ public class Driver {
 
         ArgumentParser argumentParser = new ArgumentParser(args);
 
-        /* TODO 
+        ThreadSafeInvertedIndex threadSafeInvertedIndex = null;
+        /* TODO
         ThreadSafeInvertedIndex threadSafe = null;
         InvertedIndex invertedIndex = null;
-        SearchProcessorInterface searchProcessor = null; 
+        SearchProcessorInterface searchProcessor = null;
         WorkQueue workQueue = null;
-        
+
         if (argumentParser.hasFlag("-threads")) {
         	 threadNum = argumentParser.getInteger("-threads");
            threadNum = threadNum < 1 ? 5 : threadNum;
-           
+
         	threadSafe = new ThreadSafeInvertedIndex();
         	invertedIndex = threadSafe;
         	etc.
@@ -47,7 +48,7 @@ public class Driver {
         	etc.
         }
         */
-        
+
         InvertedIndex invertedIndex = new InvertedIndex();
 
         boolean partial = argumentParser.hasFlag("-partial");
@@ -69,7 +70,7 @@ public class Driver {
             try {
                 if (workQueue != null) {
                     System.out.println("run with " + threadNum + " threads");
-                    MultiThreadInvertedIndexProcessor.process(inputPath, invertedIndex, workQueue);
+                    MultiThreadInvertedIndexProcessor.process(inputPath, threadSafeInvertedIndex, workQueue);
                     workQueue.finish();
                 } else {
                     System.out.println("run with single thread");
@@ -91,7 +92,7 @@ public class Driver {
         }
 
         if (workQueue != null) {
-            workQueue.join(); // TODO shutdown()
+            workQueue.shutdown();
         }
 
         if (argumentParser.hasFlag("-counts")) {
