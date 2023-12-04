@@ -47,6 +47,7 @@ public class Driver {
             searchProcessor = new SearchProcessor(invertedIndex, partial);
         } else {
             threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
+            // TODO invertedIndex = threadSafeInvertedIndex;
             searchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, partial, workQueue);
         }
 
@@ -54,11 +55,11 @@ public class Driver {
             Path inputPath = Path.of(argumentParser.getString("-text", "./"));
             try {
                 if (workQueue != null) {
-                    System.out.println("run with " + threadNum + " threads");
+                    System.out.println("run with " + threadNum + " threads"); // TODO Remove
                     MultiThreadInvertedIndexProcessor.process(inputPath, threadSafeInvertedIndex, workQueue);
                     workQueue.finish();
                 } else {
-                    System.out.println("run with single thread");
+                    System.out.println("run with single thread"); // TODO Remove
                     InvertedIndexProcessor.process(inputPath, invertedIndex);
 
                 }
@@ -84,7 +85,7 @@ public class Driver {
             Path countPath = Path.of(argumentParser.getString("-counts", "counts.json"));
             try {
                 if (invertedIndex != null) {
-                    invertedIndex.saveCount(countPath);
+                    invertedIndex.saveCount(countPath); // TODO Only need this line, here and below
                 } else {
                     threadSafeInvertedIndex.saveCount(countPath);
                 }
