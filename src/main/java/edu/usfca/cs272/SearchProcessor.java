@@ -61,12 +61,12 @@ public class SearchProcessor implements SearchProcessorInterface {
      * @param queryFile The path to the query file.
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
-    @Override
+    @Override // TODO Put this method into the interface
     public void search(Path queryFile) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                search(line, this.stemmer);
+                search(line, this.stemmer); // TODO search(line)
             }
         }
     }
@@ -91,6 +91,12 @@ public class SearchProcessor implements SearchProcessorInterface {
 
         search(queries);
     }
+    
+    /* TODO 
+    public void search(String line) {
+    	search(line, this.stemmer);
+    }
+    */
 
     /**
      * Executes a search for a set of stemmed query words.
@@ -146,6 +152,7 @@ public class SearchProcessor implements SearchProcessorInterface {
      */
     @Override
     public List<InvertedIndex.QueryResult> getSearchResult(String query) {
+    	// TODO stem and re-join to get the map key
         if (searchResults.containsKey(query)) {
             return Collections.unmodifiableList(searchResults.get(query));
         } else {
@@ -172,11 +179,13 @@ public class SearchProcessor implements SearchProcessorInterface {
      * @return The number of results for the specified query, or 0 if the query does not exist.
      */
     @Override
-    public int getNumberOfResults(String query) {
+    public int getNumberOfResults(String query) { // TODO Put in the interface
+    	// TODO return getSearchResult(query).size();
         List<InvertedIndex.QueryResult> results = searchResults.get(query);
         return results != null ? results.size() : 0;
     }
 
+    // TODO Remove
     /**
      * Retrieves a subset of search results for a specific query.
      * Allows controlled access to the search results by specifying a start index and count.
