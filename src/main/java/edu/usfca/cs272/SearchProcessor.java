@@ -152,9 +152,11 @@ public class SearchProcessor implements SearchProcessorInterface {
      */
     @Override
     public List<InvertedIndex.QueryResult> getSearchResult(String query) {
-    	// TODO stem and re-join to get the map key
-        if (searchResults.containsKey(query)) {
-            return Collections.unmodifiableList(searchResults.get(query));
+        TreeSet<String> normalizedQuery = FileStemmer.uniqueStems(query, this.stemmer);
+        String normalizedKey = String.join(" ", normalizedQuery);
+
+        if (searchResults.containsKey(normalizedKey)) {
+            return Collections.unmodifiableList(searchResults.get(normalizedKey));
         } else {
             return Collections.emptyList();
         }
@@ -180,8 +182,6 @@ public class SearchProcessor implements SearchProcessorInterface {
      */
     @Override
     public int getNumberOfResults(String query) { // TODO Put in the interface
-    	// TODO return getSearchResult(query).size();
-        List<InvertedIndex.QueryResult> results = searchResults.get(query);
-        return results != null ? results.size() : 0;
+    	return getSearchResult(query).size();
     }
 }
