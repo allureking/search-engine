@@ -17,6 +17,9 @@ public interface SearchProcessorInterface {
 
     /**
      * Reads a query file line by line and performs a search for each line.
+     * In the case of being used multithreading:
+     * Initializes a work queue with the specified number of threads to process the search queries concurrently.
+     * Each line from the query file is treated as a separate search task.
      *
      * @param queryFile The path to the query file.
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
@@ -60,10 +63,11 @@ public interface SearchProcessorInterface {
 
     /**
      * Executes a search for a set of stemmed query words.
-     * If the query has already been processed, this method returns early.
-     * Otherwise, it performs the search and stores the results.
+     * If the query has already been processed, this method returns early to avoid duplicate processing.
+     * Otherwise, it performs the search using the search function defined in the parent class
+     * and stores the results in the {@code searchResults} map.
      *
-     * @param queries The set of stemmed words to search.
+     * @param queries The set of stemmed words to search for.
      */
     void search(Set<String> queries);
 
