@@ -66,7 +66,7 @@ public class SearchProcessor implements SearchProcessorInterface {
         try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                search(line, this.stemmer); // TODO search(line)
+                search(line);
             }
         }
     }
@@ -92,11 +92,15 @@ public class SearchProcessor implements SearchProcessorInterface {
         search(queries);
     }
 
-    /* TODO
+    /**
+     * Processes a single line of text by stemming and searching for the resultant terms.
+     * Ignores empty lines and lines that yield no query terms after stemming.
+     *
+     * @param line The line of text to process and search.
+     */
     public void search(String line) {
     	search(line, this.stemmer);
     }
-    */
 
     /**
      * Executes a search for a set of stemmed query words.
