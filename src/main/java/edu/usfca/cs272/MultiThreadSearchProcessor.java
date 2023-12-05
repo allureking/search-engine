@@ -33,7 +33,7 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
     /**
      * The work queue used to execute tasks in multiple threads.
      */
-    private WorkQueue workQueue; // TODO final
+    private final WorkQueue workQueue;
 
     /**
      * Constructs a MultiThreadSearchProcessor with a reference to an InvertedIndex, a flag
@@ -108,13 +108,13 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
 
     @Override
     public void saveResult(Path output) throws IOException {
-        JsonWriter.writeObjectArrayObject(searchResults, output); // TODO synchronized (searchResults) 
+        JsonWriter.writeObjectArrayObject(searchResults, output); // TODO synchronized (searchResults)
     }
 
     @Override
     public List<InvertedIndex.QueryResult> getSearchResult(String query) {
         if (searchResults.containsKey(query)) {
-            return Collections.unmodifiableList(searchResults.get(query)); // TODO synchronized (searchResults) 
+            return Collections.unmodifiableList(searchResults.get(query)); // TODO synchronized (searchResults)
         } else {
             return Collections.emptyList();
         }
@@ -122,12 +122,12 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
 
     @Override
     public Set<String> getAllQueries() {
-        return Collections.unmodifiableSet(searchResults.keySet()); // TODO synchronized (searchResults) 
+        return Collections.unmodifiableSet(searchResults.keySet()); // TODO synchronized (searchResults)
     }
 
     @Override
     public int getNumberOfResults(String query) {
-        List<InvertedIndex.QueryResult> results = searchResults.get(query); // TODO synchronized (searchResults) 
+        List<InvertedIndex.QueryResult> results = searchResults.get(query); // TODO synchronized (searchResults)
         return results != null ? results.size() : 0;
     }
 
