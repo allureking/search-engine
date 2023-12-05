@@ -1,6 +1,8 @@
 package edu.usfca.cs272;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +21,14 @@ public interface SearchProcessorInterface {
      * @param queryFile The path to the query file.
      * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
      */
-    void search(Path queryFile) throws IOException;
+    default void search(Path queryFile) throws IOException{
+        try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                search(line);
+            }
+        }
+    }
 
     /**
      * Processes a single line of text by stemming and searching for the resultant terms.
@@ -40,6 +49,14 @@ public interface SearchProcessorInterface {
 
         search(queries);
     }
+
+    /**
+     * Processes a single line of text by stemming and searching for the resultant terms.
+     * Ignores empty lines and lines that yield no query terms after stemming.
+     *
+     * @param line The line of text to process and search.
+     */
+    void search(String line);
 
     /**
      * Executes a search for a set of stemmed query words.

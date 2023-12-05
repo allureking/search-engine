@@ -80,6 +80,11 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
         workQueue.finish();
     }
 
+    @Override
+    public void search(String line) {
+        search(line, new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH));
+    }
+
     /**
      * Executes a search for a set of stemmed query words.
      * If the query has already been processed, this method returns early to avoid duplicate processing.

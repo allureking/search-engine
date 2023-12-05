@@ -92,12 +92,7 @@ public class SearchProcessor implements SearchProcessorInterface {
         search(queries);
     }
 
-    /**
-     * Processes a single line of text by stemming and searching for the resultant terms.
-     * Ignores empty lines and lines that yield no query terms after stemming.
-     *
-     * @param line The line of text to process and search.
-     */
+    @Override
     public void search(String line) {
     	search(line, this.stemmer);
     }
