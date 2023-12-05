@@ -47,7 +47,7 @@ public class Driver {
             searchProcessor = new SearchProcessor(invertedIndex, partial);
         } else {
             threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
-            // TODO invertedIndex = threadSafeInvertedIndex;
+            invertedIndex = threadSafeInvertedIndex;
             searchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, partial, workQueue);
         }
 
@@ -55,11 +55,9 @@ public class Driver {
             Path inputPath = Path.of(argumentParser.getString("-text", "./"));
             try {
                 if (workQueue != null) {
-                    System.out.println("run with " + threadNum + " threads"); // TODO Remove
                     MultiThreadInvertedIndexProcessor.process(inputPath, threadSafeInvertedIndex, workQueue);
                     workQueue.finish();
                 } else {
-                    System.out.println("run with single thread"); // TODO Remove
                     InvertedIndexProcessor.process(inputPath, invertedIndex);
 
                 }
@@ -84,11 +82,7 @@ public class Driver {
         if (argumentParser.hasFlag("-counts")) {
             Path countPath = Path.of(argumentParser.getString("-counts", "counts.json"));
             try {
-                if (invertedIndex != null) {
-                    invertedIndex.saveCount(countPath); // TODO Only need this line, here and below
-                } else {
-                    threadSafeInvertedIndex.saveCount(countPath);
-                }
+                invertedIndex.saveCount(countPath);
             } catch (IOException e) {
                 System.out.println("Unable to save word counts: " + e.getMessage());
             }
@@ -97,11 +91,7 @@ public class Driver {
         if (argumentParser.hasFlag("-index")) {
             Path indexPath = Path.of(argumentParser.getString("-index", "index.json"));
             try {
-                if (invertedIndex != null) {
-                    invertedIndex.saveIndex(indexPath);
-                } else {
-                    threadSafeInvertedIndex.saveIndex(indexPath);
-                }
+                invertedIndex.saveIndex(indexPath);
             } catch (IOException e) {
                 System.out.println("Unable to process word index: " + e.getMessage());
             }
