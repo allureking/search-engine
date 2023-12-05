@@ -89,5 +89,7 @@ public interface SearchProcessorInterface {
      * @param query The query string whose number of results is to be retrieved.
      * @return The number of results for the specified query, or 0 if the query does not exist.
      */
-    int getNumberOfResults(String query);
+    default int getNumberOfResults(String query) {
+        return getSearchResult(query).size();
+    }
 }

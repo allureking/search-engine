@@ -176,16 +176,4 @@ public class SearchProcessor implements SearchProcessorInterface {
     public Set<String> getAllQueries() {
         return Collections.unmodifiableSet(searchResults.keySet());
     }
-
-    /**
-     * Retrieves the number of search results for a specific query.
-     * If the query does not exist, returns 0.
-     *
-     * @param query The query string whose number of results is to be retrieved.
-     * @return The number of results for the specified query, or 0 if the query does not exist.
-     */
-    @Override
-    public int getNumberOfResults(String query) { // TODO Put in the interface
-    	return getSearchResult(query).size();
-    }
 }
