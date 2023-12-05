@@ -1,8 +1,6 @@
 package edu.usfca.cs272;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -52,22 +50,6 @@ public class SearchProcessor implements SearchProcessorInterface {
             searchFunction = index::partialSearch;
         } else {
             searchFunction = index::exactSearch;
-        }
-    }
-
-    /**
-     * Reads a query file line by line and performs a search for each line.
-     *
-     * @param queryFile The path to the query file.
-     * @throws IOException If an I/O error occurs reading from the file or a malformed or unmappable byte sequence is read.
-     */
-    @Override // TODO Put this method into the interface
-    public void search(Path queryFile) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(queryFile)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                search(line);
-            }
         }
     }
 
