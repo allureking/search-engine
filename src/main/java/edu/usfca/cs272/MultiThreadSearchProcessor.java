@@ -108,36 +108,34 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
 
     @Override
     public void saveResult(Path output) throws IOException {
-        JsonWriter.writeObjectArrayObject(searchResults, output); // TODO synchronized (searchResults)
+        synchronized (searchResults) {
+            JsonWriter.writeObjectArrayObject(searchResults, output);
+        }
     }
 
     @Override
     public List<InvertedIndex.QueryResult> getSearchResult(String query) {
-        if (searchResults.containsKey(query)) {
-            return Collections.unmodifiableList(searchResults.get(query)); // TODO synchronized (searchResults)
-        } else {
-            return Collections.emptyList();
+        synchronized (searchResults) {
+            if (searchResults.containsKey(query)) {
+                return Collections.unmodifiableList(searchResults.get(query));
+            } else {
+                return Collections.emptyList();
+            }
         }
     }
 
     @Override
     public Set<String> getAllQueries() {
-        return Collections.unmodifiableSet(searchResults.keySet()); // TODO synchronized (searchResults)
+        synchronized (searchResults) {
+            return Collections.unmodifiableSet(searchResults.keySet());
+        }
     }
 
     @Override
     public int getNumberOfResults(String query) {
-        List<InvertedIndex.QueryResult> results = searchResults.get(query); // TODO synchronized (searchResults)
-        return results != null ? results.size() : 0;
-    }
-
-    @Override
-    public List<InvertedIndex.QueryResult> getSearchResults(String query, int startIndex, int count) {
-        if (!searchResults.containsKey(query)) {
-            return Collections.emptyList();
+        synchronized (searchResults) {
+            List<InvertedIndex.QueryResult> results = searchResults.get(query);
+            return results != null ? results.size() : 0;
         }
-        List<InvertedIndex.QueryResult> results = searchResults.get(query);
-        int endIndex = Math.min(startIndex + count, results.size());
-        return Collections.unmodifiableList(results.subList(startIndex, endIndex));
     }
 }

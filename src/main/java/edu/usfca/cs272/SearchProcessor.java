@@ -91,8 +91,8 @@ public class SearchProcessor implements SearchProcessorInterface {
 
         search(queries);
     }
-    
-    /* TODO 
+
+    /* TODO
     public void search(String line) {
     	search(line, this.stemmer);
     }
@@ -184,27 +184,4 @@ public class SearchProcessor implements SearchProcessorInterface {
         List<InvertedIndex.QueryResult> results = searchResults.get(query);
         return results != null ? results.size() : 0;
     }
-
-    // TODO Remove
-    /**
-     * Retrieves a subset of search results for a specific query.
-     * Allows controlled access to the search results by specifying a start index and count.
-     * If the query does not exist, or the parameters are out of bounds, returns an empty list.
-     *
-     * @param query The query string whose search results are to be retrieved.
-     * @param startIndex The starting index of the results to retrieve.
-     * @param count The number of results to retrieve starting from the startIndex.
-     * @return An unmodifiable list of search results starting from the specified index with the specified count.
-     *         Returns an empty list if the query does not exist or the parameters are out of bounds.
-     */
-    @Override
-    public List<InvertedIndex.QueryResult> getSearchResults(String query, int startIndex, int count) {
-        if (!searchResults.containsKey(query)) {
-            return Collections.emptyList();
-        }
-        List<InvertedIndex.QueryResult> results = searchResults.get(query);
-        int endIndex = Math.min(startIndex + count, results.size());
-        return Collections.unmodifiableList(results.subList(startIndex, endIndex));
-    }
-
 }

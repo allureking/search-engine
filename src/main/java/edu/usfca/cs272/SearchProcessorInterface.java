@@ -1,10 +1,12 @@
 package edu.usfca.cs272;
 
-import opennlp.tools.stemmer.Stemmer;
-
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import opennlp.tools.stemmer.Stemmer;
 
 /**
  * an interface of SearchProcessor
@@ -88,17 +90,4 @@ public interface SearchProcessorInterface {
      * @return The number of results for the specified query, or 0 if the query does not exist.
      */
     int getNumberOfResults(String query);
-
-    /**
-     * Retrieves a subset of search results for a specific query.
-     * Allows controlled access to the search results by specifying a start index and count.
-     * If the query does not exist, or the parameters are out of bounds, returns an empty list.
-     *
-     * @param query The query string whose search results are to be retrieved.
-     * @param startIndex The starting index of the results to retrieve.
-     * @param count The number of results to retrieve starting from the startIndex.
-     * @return An unmodifiable list of search results starting from the specified index with the specified count.
-     *         Returns an empty list if the query does not exist or the parameters are out of bounds.
-     */
-    List<InvertedIndex.QueryResult> getSearchResults(String query, int startIndex, int count);
 }
