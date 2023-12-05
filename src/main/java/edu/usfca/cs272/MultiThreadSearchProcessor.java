@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Function;
 
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -116,8 +117,11 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
     @Override
     public List<InvertedIndex.QueryResult> getSearchResult(String query) {
         synchronized (searchResults) {
-            if (searchResults.containsKey(query)) {
-                return Collections.unmodifiableList(searchResults.get(query));
+            TreeSet<String> normalizedQuery = FileStemmer.uniqueStems(query, new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH));
+            String normalizedKey = String.join(" ", normalizedQuery);
+
+            if (searchResults.containsKey(normalizedKey)) {
+                return Collections.unmodifiableList(searchResults.get(normalizedKey));
             } else {
                 return Collections.emptyList();
             }
@@ -128,14 +132,6 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
     public Set<String> getAllQueries() {
         synchronized (searchResults) {
             return Collections.unmodifiableSet(searchResults.keySet());
-        }
-    }
-
-    @Override
-    public int getNumberOfResults(String query) {
-        synchronized (searchResults) {
-            List<InvertedIndex.QueryResult> results = searchResults.get(query);
-            return results != null ? results.size() : 0;
         }
     }
 }
