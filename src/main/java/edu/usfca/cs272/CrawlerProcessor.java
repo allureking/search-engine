@@ -34,10 +34,9 @@ public class CrawlerProcessor implements CrawlerProcessorInterface {
 
     /**
      * crawl one url and process inverted index
-     * @param url
+     * @param url to be processed url
      */
     public void crawl(URL url) {
-        url = cleanUrl(url);
         if (url == null || urlSet.contains(url) || urlSet.size() >= totalCrawl) {
             return;
         }

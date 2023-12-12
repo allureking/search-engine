@@ -26,6 +26,17 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
     private final int totalCrawl;
 
     /**
+     * total number of page which has been crawled
+     */
+    private int totalProcessed;
+
+    /**
+     * pending url queue to be processed
+     */
+    private final Queue<URL> pendingQueue;
+
+
+    /**
      * create a multi thread crawler with a reference to an InvertedIndex and total page to crawl.
      * @param workQueue work queue to execute tasks in multiple threads.
      * @param invertedIndex inverted index to be used.
@@ -37,57 +48,78 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
         this.totalCrawl = totalCrawl;
 
         urlSet = new HashSet<>();
+        pendingQueue = new LinkedList<>();
     }
 
     /**
      * crawl one url and process inverted index
-     * @param url
+     * @param url seed url to crawl
      */
     public void crawl(URL url) {
-        final URL targetUrl = url;
-        workQueue.execute(() -> {
-            URL cleanedUrl = cleanUrl(targetUrl);
-            if (cleanedUrl == null) {
-                return;
+        pendingQueue.add(url);
+
+        while (true) {
+            if (totalProcessed >= totalCrawl || pendingQueue.isEmpty()) {
+                break;
             }
 
-            synchronized (urlSet) {
-                if (urlSet.contains(cleanedUrl) || urlSet.size() >= totalCrawl) {
-                    return;
+            int restNum = totalCrawl - totalProcessed;
+            while (!pendingQueue.isEmpty() && restNum > 0) {
+                URL pendingUrl = pendingQueue.poll();
+                if (urlSet.contains(pendingUrl)) {
+                    continue;
                 }
+
+                urlSet.add(pendingUrl);
+                crawlOneUrl(pendingUrl);
+                restNum--;
             }
 
+            workQueue.finish();
+        }
+    }
+
+    /**
+     * crawl one url through one task
+     * @param url to be processed
+     */
+    private void crawlOneUrl(URL url) {
+        workQueue.execute(() -> {
             HtmlFetcher.HtmlFetchResult htmlFetchResult = fetchUrlContent(url);
             String htmlContent = htmlFetchResult.getContent();
+
             if (htmlFetchResult.isHasHeader()) {
                 synchronized (urlSet) {
-                    if (urlSet.size() >= totalCrawl) {
-                        return;
-                    }
-
-                    urlSet.add(cleanedUrl);
+                    totalProcessed++;
                 }
-            }
 
-//            System.out.println(Thread.currentThread().getName() + " crawl " + cleanedUrl + " content: " + (htmlContent != null) + " url num : " + urlSet.size());
-            if (htmlContent != null) {
-                String clearHtml = HtmlCleaner.stripHtml(htmlContent);
-                String[] lines = clearHtml.split("\n");
+                System.out.println(Thread.currentThread().getName() + " crawl " + url + " header: " + htmlFetchResult.isHasHeader()
+                        + " content: " + (htmlContent != null) + " url num : " + urlSet.size() + " " + totalProcessed);
+                if (htmlContent != null) {
+                    String nonBlockHtml = HtmlCleaner.stripBlockElements(htmlContent);
+                    String clearHtml = HtmlCleaner.stripTags(nonBlockHtml);
+                    clearHtml = HtmlCleaner.stripEntities(clearHtml);
 
-                InvertedIndexProcessor.processLines(cleanedUrl.toString(), lines, invertedIndex);
-                List<URL> links = LinkFinder.listUrls(url, htmlContent);
-                for (URL link : links) {
-                    if (urlSet.contains(link)) {
-                        continue;
+                    String[] lines = clearHtml.split("\n");
+
+                    InvertedIndex local = new InvertedIndex();
+                    InvertedIndexProcessor.processLines(url.toString(), lines, local);
+                    invertedIndex.mergeDistinct(local);
+
+                    synchronized (urlSet) {
+                        if (totalProcessed >= totalCrawl) {
+                            return;
+                        }
                     }
 
-                    crawl(link);
+                    List<URL> links = LinkFinder.listUrls(url, nonBlockHtml);
+                    if (!links.isEmpty()) {
+                        synchronized (pendingQueue) {
+                            pendingQueue.addAll(links);
+                        }
+                    }
                 }
             }
         });
-    }
-
-    public Set<URL> getUrlSet() {
-        return urlSet;
     }
 }
