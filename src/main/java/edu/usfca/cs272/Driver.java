@@ -40,11 +40,6 @@ public class Driver {
             threadNum = threadNum < 1 ? 5 : threadNum;
         }
 
-        int totalCrawl = argumentParser.getInteger("-crawl", 1);
-        if (totalCrawl <= 0) {
-            totalCrawl = 1;
-        }
-
         WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
         InvertedIndex invertedIndex = null;
         ThreadSafeInvertedIndex threadSafeInvertedIndex = null;
@@ -54,12 +49,12 @@ public class Driver {
         if (workQueue == null) {
             invertedIndex = new InvertedIndex();
             searchProcessor = new SearchProcessor(invertedIndex, partial);
-            crawlerProcessor = new CrawlerProcessor(invertedIndex, totalCrawl);
+            crawlerProcessor = new CrawlerProcessor(invertedIndex, 1);
         } else {
             threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
             invertedIndex = threadSafeInvertedIndex;
             searchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, partial, workQueue);
-            crawlerProcessor = new MultiThreadCrawlerProcessor(workQueue, threadSafeInvertedIndex, totalCrawl);
+            crawlerProcessor = new MultiThreadCrawlerProcessor(workQueue, threadSafeInvertedIndex, 1);
         }
 
         boolean processHtml = false;
