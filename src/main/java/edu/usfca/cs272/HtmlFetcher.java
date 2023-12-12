@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,10 +10,9 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * A specialized version of {@link HttpsFetcher} that follows redirects and
@@ -137,7 +138,7 @@ public class HtmlFetcher {
 	 * @see #getRedirect(Map)
 	 */
 	public static HtmlFetchResult fetchHtml(URL url, int redirects) {
-		String html = null;
+		String content = null;
 		boolean getHeader = false;
 
 		try (
@@ -146,7 +147,7 @@ public class HtmlFetcher {
 				InputStreamReader input = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
 				BufferedReader response = new BufferedReader(input);
 		) {
-			socket.setSoTimeout(10000);
+			socket.setSoTimeout(3000);
 			HttpsFetcher.printHeadRequest(request, url);
 			Map<String, List<String>> headers = HttpsFetcher.getHeaderFields(response);
 			getHeader = true;
@@ -154,19 +155,18 @@ public class HtmlFetcher {
 			int statusCode = getStatusCode(headers);
 			if (statusCode == 200 && isHtml(headers)) {
 				List<String> contentList = HttpsFetcher.fetchUrl(url).get("Content");
-				html = contentList == null ? null : StringUtils.join("\n", contentList);
+				content = contentList == null ? null : StringUtils.join("\n", contentList);
 			} else if (statusCode >= 300 && statusCode <= 399 && redirects > 0) {
 				String redirectUrl = getRedirect(headers);
 				if (redirectUrl != null) {
-					html = fetch(redirectUrl, redirects - 1);
+					return fetchHtml(new URL(redirectUrl), redirects - 1);
 				}
 			}
 		}
 		catch (IOException e) {
-			html = null;
 		}
 
-		return new HtmlFetchResult(getHeader, html);
+		return new HtmlFetchResult(getHeader, content);
 	}
 
 	/**
