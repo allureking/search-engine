@@ -111,5 +111,4 @@ public class Driver {
         double seconds = (double) elapsed / Duration.ofSeconds(1).toMillis();
         System.out.printf("Elapsed: %f seconds%n", seconds);
     }
-
 }
