@@ -3,6 +3,7 @@ package edu.usfca.cs272;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -70,7 +71,8 @@ public class Driver {
                 URI uri = LinkFinder.makeUri(seed);
                 if (uri != null) {
                     try {
-                        crawlerProcessor.crawl(uri.toURL());
+                        URL url = LinkFinder.cleanUri(uri).toURL();
+                        crawlerProcessor.crawl(url);
                         processHtml = true;
                         if (workQueue != null) {
                             workQueue.finish();
