@@ -140,7 +140,7 @@ public class SearchServlet extends HttpServlet {
         String templateString = Files.readString(BASE.resolve("index.html"), StandardCharsets.UTF_8);
         StringBuilder searchResults = new StringBuilder();
         for (InvertedIndex.QueryResult result : results) {
-            String score = String.format("%.4f", Math.ceil(result.getScore()));
+
             /**
              * HTML template for displaying individual search results.
              */
@@ -150,12 +150,18 @@ public class SearchServlet extends HttpServlet {
                             <p class="score">Score: %s  and  Count: %s</p>
                         </div>
                     """;
-            String resultString = String.format(searchResultTemplate, result.getLocation(), result.getLocation(), score, result.getCount());
+            // Escape HTML special characters in the search result data
+            String location = StringEscapeUtils.escapeHtml4(result.getLocation());
+            String score = StringEscapeUtils.escapeHtml4(String.format("%.4f", Math.max(result.getScore(), 0.0001)));
+            String count = StringEscapeUtils.escapeHtml4(String.valueOf(result.getCount()));
+            String resultString = String.format(searchResultTemplate, location, location, score, count);
             searchResults.append(resultString);
         }
         // Replace placeholders in the HTML template with actual search data
         templateString = templateString.replace("name=\"query\" value=\"\"", "name=\"query\" value=\""+query+"\"");
+        // <!-- search-results -->
         templateString = templateString.replace("<!-- search-results -->", searchResults.toString());
+        // <!-- Last Visited -->
         templateString = templateString.replace("<!-- Last Visited -->", lastVisited.toString());
         //<!-- Total Results -->
         templateString = templateString.replace("<!-- Total Results -->", String.valueOf(results.size()));
@@ -223,4 +229,3 @@ public class SearchServlet extends HttpServlet {
         }
     }
 }
-
