@@ -6,76 +6,72 @@
     <title>Search Engine</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background-color: #f4f4f4;
             color: #333;
             transition: background-color 0.3s, color 0.3s;
         }
 
         .search-section {
             max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
+            margin: 40px auto;
+            padding: 40px;
             background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
             transition: background-color 0.3s, color 0.3s;
         }
 
         .search-section img {
-            width: 100px;
+            width: 120px;
             display: block;
-            margin: 0 auto 20px;
+            margin: 0 auto 30px;
         }
 
-        .search-section button {
-            padding: 10px;
+        .tagline {
+            font-size: 28px;
+            color: #008080; /* Teal color for the tagline */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-section button, .search-section input[type="submit"] {
+            padding: 12px 20px;
             background-color: #4CAF50;
             color: #fff;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
-        .search-section button:hover {
+        .search-section button:hover, .search-section input[type="submit"]:hover {
             background-color: #45a049;
         }
 
         .search-section form {
-            margin-top: 20px;
+            margin-top: 30px;
             text-align: center;
         }
 
-        .search-section label {
-            margin-right: 10px;
-        }
-
-        .search-section input[type="text"],
-        .search-section input[type="submit"],
-        .search-section input[type="checkbox"] {
-            padding: 8px;
+        .search-section input[type="text"] {
+            padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 5px;
             box-sizing: border-box;
+            width: 300px; /* Set a fixed width for the input */
         }
 
-        .search-section input[type="submit"] {
-            background-color: #4CAF50;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .search-section input[type="submit"]:hover {
-            background-color: #45a049;
+        .search-section input[type="checkbox"] {
+            margin-left: 10px;
         }
 
         .search-section a {
-            display: block;
+            display: inline-block;
             margin-top: 10px;
             color: #007BFF;
             text-decoration: none;
@@ -86,19 +82,22 @@
             color: #0056b3;
         }
 
+        .search-results {
+            margin-top: 20px;
+        }
+        
         .search-result {
             border: 1px solid #dfe1e5;
             border-radius: 8px;
             margin-bottom: 20px;
             padding: 20px;
+            background-color: #f8f8f8; /* Slightly different background for results */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adding subtle shadow */
         }
-
-        .search-results {
-            margin-top: 20px;
-        }
-
+        
         .search-results p {
             margin-bottom: 10px;
+            font-size: 16px;
         }
 
         .dark-mode {
@@ -129,13 +128,11 @@
             color: #64B5F6;
         }
 
-        .tagline {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 18px;
-            color: #777;
+        .dark-mode .search-result {
+            background-color: #555;
+            border-color: #666;
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
         }
-
         .search-stats {
             margin-top: 20px;
             text-align: center;
@@ -148,7 +145,7 @@
 <div class="search-section">
     <div class="tagline">WebDepth Search</div>
 
-    <img src="logo_transparent.png" alt="Logo">
+    <img src="logo.png" alt="Logo">
     <button onclick="toggleMode()">Change Mode</button>
 
     <form method="get" action="/index.html">
@@ -162,9 +159,9 @@
     </form>
 
     <div>
-        <a href="/index.html?action=viewHistory">View Search History</a>
-<!--        <a href="/index.html?action=viewVisited">View Visited Results</a>-->
-        <a href="/index.html?action=download">Download Index</a>
+        <a href="/index.html?action=viewHistory">View Search History</a><br>
+<!--        <a href="/index.html?action=viewVisited">View Visited Results</a><br>-->
+        <a href="/index.html?action=download">Download Index</a><br>
     </div>
 
     <div class="search-stats" id="searchStats">
