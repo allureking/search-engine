@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Engine</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .search-section {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .search-section img {
+            width: 120px;
+            display: block;
+            margin: 0 auto 30px;
+        }
+
+        .tagline {
+            font-size: 28px;
+            color: #008080; /* Teal color for the tagline */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-section button, .search-section input[type="submit"] {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-section button:hover, .search-section input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .search-section form {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .search-section input[type="text"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            width: 300px; /* Set a fixed width for the input */
+        }
+
+        .search-section input[type="checkbox"] {
+            margin-left: 10px;
+        }
+
+        .search-section a {
+            display: inline-block;
+            margin-top: 10px;
+            color: #007BFF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .search-section a:hover {
+            color: #0056b3;
+        }
+
+        .search-results {
+            margin-top: 20px;
+        }
+        
+        .search-result {
+            border: 1px solid #dfe1e5;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f8f8; /* Slightly different background for results */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adding subtle shadow */
+        }
+        
+        .search-results p {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode .search-section {
+            background-color: #444;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .search-section button,
+        .dark-mode .search-section input[type="submit"] {
+            background-color: #1E88E5;
+        }
+
+        .dark-mode .search-section button:hover,
+        .dark-mode .search-section input[type="submit"]:hover {
+            background-color: #1565C0;
+        }
+
+        .dark-mode .search-section a {
+            color: #80D8FF;
+        }
+
+        .dark-mode .search-section a:hover {
+            color: #64B5F6;
+        }
+
+        .dark-mode .search-result {
+            background-color: #555;
+            border-color: #666;
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+        }
+        
+        .search-stats {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="search-section">
+    <div class="tagline">WebDepth Search</div>
+
+    <img src="logo.png" alt="Logo">
+    <button onclick="toggleMode()">Change Mode</button>
+
+    <form method="get" action="/index.html">
+        <label for="query">Search:</label>
+        <input type="text" id="query" name="query" value="">
+        <input type="submit" value="Search">
+        <input type="checkbox" id="reverse" name="reverse" value="reverse">
+        <label for="reverse">reverse sort order</label>
+        <input type="checkbox" id="partial" name="partial" value="partial">
+        <label for="partial">partial search</label><br>
+    </form>
+
+    <div>
+        <a href="/index.html?action=viewHistory">View Search History</a><br>
+<!--        <a href="/index.html?action=viewVisited">View Visited Results</a><br>-->
+        <a href="/index.html?action=download">Download Index</a><br>
+    </div>
+
+    <div class="search-stats" id="searchStats">
+        Total Results: <span id="totalResults"><!-- Total Results --></span> |
+        Time Taken: <span id="timeTaken"><!-- Time Taken -->ms</span>
+    </div>
+
+    <!-- search-results -->
+
+    <div class="search-results">
+        <p>Last Visited: <!-- Last Visited --></p>
+    </div>
+</div>
+
+<script>
+    function toggleMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+        }
+    });
+</script>
+</body>
+</html>
