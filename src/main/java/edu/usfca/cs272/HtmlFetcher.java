@@ -1,7 +1,5 @@
 package edu.usfca.cs272;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,9 +8,10 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A specialized version of {@link HttpsFetcher} that follows redirects and
@@ -20,7 +19,7 @@ import java.util.Map;
  *
  * @see HttpsFetcher
  *
- * @author CS 272 Software Development (University of San Francisco)
+ * @author Honghuai(King) Ke
  * @version Fall 2023
  */
 public class HtmlFetcher {

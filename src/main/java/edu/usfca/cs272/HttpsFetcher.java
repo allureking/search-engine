@@ -23,7 +23,7 @@ import javax.net.ssl.SSLSocketFactory;
  * An alternative to using {@link Socket} connections instead of a
  * {@link URLConnection} to fetch the headers and content from a URL on the web.
  *
- * @author CS 272 Software Development (University of San Francisco)
+ * @author Honghuai(King) Ke
  * @version Fall 2023
  */
 public class HttpsFetcher {

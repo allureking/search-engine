@@ -1,41 +1,52 @@
 package edu.usfca.cs272;
 
 import java.net.URL;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * single thread crawler implementation.
+ * Implements a single-threaded web crawler. This class is responsible for crawling web pages,
+ * extracting links, and processing the content to build an InvertedIndex.
  */
 public class CrawlerProcessor implements CrawlerProcessorInterface {
     /**
-     * The InvertedIndex to use
+     * The InvertedIndex used for storing crawled data.
      */
     private final InvertedIndex invertedIndex;
+
     /**
-     * the url set which has been crawled
+     * The set of URLs that have been crawled.
      */
     private final Set<URL> urlSet;
+
     /**
-     * total number of page to crawl
+     * The maximum number of pages to crawl.
      */
     private final int totalCrawl;
 
+
     /**
-     * create a single thread crawler with a reference to an InvertedIndex and total page to crawl.
-     * @param invertedIndex The InvertedIndex to use
-     * @param totalCrawl maximum number of pages to crawl
+     * Constructs a single-threaded crawler with a reference to an InvertedIndex and a specified
+     * maximum number of pages to crawl.
+     *
+     * @param invertedIndex The InvertedIndex to store crawled data.
+     * @param totalCrawl    The maximum number of pages to crawl.
      */
     public CrawlerProcessor(InvertedIndex invertedIndex, int totalCrawl) {
         this.invertedIndex = invertedIndex;
         this.totalCrawl = totalCrawl;
-
         urlSet = new HashSet<>();
     }
 
     /**
-     * crawl one url and process inverted index
-     * @param url to be processed url
+     * Crawls a single URL and processes it to update the InvertedIndex. It fetches the content
+     * of the URL, extracts and processes the textual content, and then finds and crawls
+     * additional links from this content. The process stops when either the URL has been crawled
+     * before, the total number of pages to crawl has been reached, or the URL is null.
+     *
+     * @param url The URL to be crawled and processed.
      */
+    @Override
     public void crawl(URL url) {
         if (url == null || urlSet.contains(url) || urlSet.size() >= totalCrawl) {
             return;
@@ -55,11 +66,9 @@ public class CrawlerProcessor implements CrawlerProcessorInterface {
             if (urlSet.size() < totalCrawl) {
                 HashSet<URL> links = LinkFinder.uniqueUrls(url, htmlContent);
                 for (URL link : links) {
-                    if (urlSet.contains(link)) {
-                        continue;
+                    if (!urlSet.contains(link)) {
+                        crawl(link);
                     }
-
-                    crawl(link);
                 }
             }
         }

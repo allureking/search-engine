@@ -19,7 +19,7 @@ import org.apache.commons.text.StringEscapeUtils;
  * @see Pattern#CASE_INSENSITIVE
  * @see StringEscapeUtils#unescapeHtml4(String)
  *
- * @author CS 272 Software Development (University of San Francisco)
+ * @author Honghuai(King) Ke
  * @version Spring 2023
  */
 public class HtmlCleaner {
