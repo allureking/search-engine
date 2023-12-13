@@ -155,14 +155,16 @@
         <label for="query">Search:</label>
         <input type="text" id="query" name="query" value="">
         <input type="submit" value="Search">
-        <input type="checkbox" id="wildcard" name="wildcard" value="wildcard">
-        <label for="wildcard">Wildcard Search</label><br>
+        <input type="checkbox" id="reverse" name="reverse" value="reverse">
+        <label for="reverse">reverse sort order</label>
+        <input type="checkbox" id="partial" name="partial" value="partial">
+        <label for="partial">partial search</label><br>
     </form>
 
     <div>
         <a href="/index.html?action=viewHistory">View Search History</a>
-        <a href="/index.html?action=viewVisited">View Visited Results</a>
-        <a href="/index.html?action=viewFavorites">View Favorite Results</a>
+<!--        <a href="/index.html?action=viewVisited">View Visited Results</a>-->
+<!--        <a href="/index.html?action=viewFavorites">View Favorite Results</a>-->
     </div>
 
     <div class="search-stats" id="searchStats">

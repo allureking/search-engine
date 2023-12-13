@@ -88,7 +88,16 @@ public class Driver {
 
         if (argumentParser.hasFlag("-server")) {
             Integer port = argumentParser.getInteger("-server", 8080);
-            SearchServer server = new SearchServer(port, searchProcessor);
+            SearchProcessorInterface exactSearchProcessor;
+            SearchProcessorInterface partialSearchProcessor;
+            if (workQueue == null) {
+                exactSearchProcessor = new SearchProcessor(invertedIndex, false);
+                partialSearchProcessor = new SearchProcessor(invertedIndex, true);
+            } else {
+                exactSearchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, false, workQueue);
+                partialSearchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, true, workQueue);
+            }
+            SearchServer server = new SearchServer(port, exactSearchProcessor, partialSearchProcessor);
             try {
                 server.startServer();
             } catch (Exception e) {

@@ -1,5 +1,7 @@
 package edu.usfca.cs272;
 
+import java.nio.file.Path;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -7,16 +9,16 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import java.nio.file.Path;
-
 public class SearchServer {
 
     private final int port;
-    private final SearchProcessorInterface searchProcessor;
+    private final SearchProcessorInterface exactSearchProcessor;
+    private final SearchProcessorInterface partialSearchProcessor;
 
-    public SearchServer(int port, SearchProcessorInterface searchProcessor) {
+    public SearchServer(int port, SearchProcessorInterface searchProcessor, SearchProcessorInterface partySearchProcessor) {
         this.port = port;
-        this.searchProcessor = searchProcessor;
+        this.exactSearchProcessor = searchProcessor;
+        this.partialSearchProcessor = partySearchProcessor;
     }
 
     public void startServer() throws Exception {
@@ -35,7 +37,7 @@ public class SearchServer {
 
         // Add the SearchServlet to the context
         ServletHandler servletHandler = new ServletHandler();
-        servletHandler.addServletWithMapping(new ServletHolder(new SearchServlet(searchProcessor)), "/index.html");
+        servletHandler.addServletWithMapping(new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor)), "/index.html");
 
 
         HandlerList handlers = new HandlerList();

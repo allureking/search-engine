@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -18,7 +19,8 @@ public class SearchServlet extends HttpServlet {
     // Assume that the inverted index is stored in some data structure
     // and the Driver.main method has populated it.
 
-    private final SearchProcessorInterface searchProcessor;
+    private final SearchProcessorInterface exactSearchProcessor;
+    private final SearchProcessorInterface partialSearchProcessor;
     private List<String> searchHistory = new ArrayList<>();
     private List<String> visitedResults = new ArrayList<>();
     private List<String> favoriteResults = new ArrayList<>();
@@ -31,8 +33,9 @@ public class SearchServlet extends HttpServlet {
                 </div>
             """;
 
-    public SearchServlet(SearchProcessorInterface searchProcessor) {
-        this.searchProcessor = searchProcessor;
+    public SearchServlet(SearchProcessorInterface searchProcessor, SearchProcessorInterface partialSearchProcessor) {
+        this.exactSearchProcessor = searchProcessor;
+        this.partialSearchProcessor = partialSearchProcessor;
         lastVisited = new Date();
     }
     @Override
@@ -44,10 +47,8 @@ public class SearchServlet extends HttpServlet {
             serach(request, response);
         } else if ("viewHistory".equals(action)) {
             showSearchHistory(response);
-        } else if ("viewVisited".equals(action)) {
-            showVisitedResults(response);
-        } else if ("viewFavorites".equals(action)) {
-            showFavoriteResults(response);
+        } else if ("clearHistory".equals(action)) {
+            clearSearchHistory(response);
         } else {
             serach(request, response);
         }
@@ -61,11 +62,25 @@ public class SearchServlet extends HttpServlet {
 
         // Retrieve the search query from the HTML form
         String query = request.getParameter("query");
+        String partial = request.getParameter("partial");
+        String reverse = request.getParameter("reverse");
+        if (query == null || query.isBlank()) {
+            query = "test";
+        }
         searchHistory.add(query);
-        System.out.println("Query: " + query);
-        searchProcessor.search(query);
-        List<InvertedIndex.QueryResult> results = searchProcessor.getSearchResult(query);
-
+        System.out.println("Query: " + query + " partial: " + partial + " reverse: " + reverse);
+        List<InvertedIndex.QueryResult> results = new ArrayList<>();
+        if (partial != null){
+            partialSearchProcessor.search(query);
+            results = partialSearchProcessor.getSearchResult(query);
+        } else{
+            exactSearchProcessor.search(query);
+            results = exactSearchProcessor.getSearchResult(query);
+        }
+        if (reverse != null){
+            results = new ArrayList<>(results);
+           Collections.reverse(results);
+        }
         PrintWriter out = response.getWriter();
 
         String templateString = Files.readString(BASE.resolve("index.html"), StandardCharsets.UTF_8);
@@ -74,6 +89,7 @@ public class SearchServlet extends HttpServlet {
             String resultString = String.format(searchResultTemplate, result.getLocation(), result.getLocation(), result.getScore(), result.getCount());
             searchResults.append(resultString);
         }
+        templateString = templateString.replace("name=\"query\" value=\"\"", "name=\"query\" value=\""+query+"\"");
         templateString = templateString.replace("<!-- search-results -->", searchResults.toString());
         templateString = templateString.replace("<!-- Last Visited -->", lastVisited.toString());
         //<!-- Total Results -->
@@ -90,25 +106,16 @@ public class SearchServlet extends HttpServlet {
         for (String query : searchHistory) {
             response.getWriter().println("<p>" + query + "</p>");
         }
+        response.getWriter().println("<a href=\"/index.html?action=clearHistory\">Clear Search History</a>");
+        response.getWriter().println("<a href=\"/index.html\">Back to Home</a>");
         response.getWriter().println("</body></html>");
+
     }
 
-    private void showVisitedResults(HttpServletResponse response) throws IOException {
-        response.getWriter().println("<html><head><title>Visited Results</title></head><body>");
-        response.getWriter().println("<h2>Visited Results:</h2>");
-        for (String result : visitedResults) {
-            response.getWriter().println("<p>" + result + "</p>");
-        }
-        response.getWriter().println("</body></html>");
+    private void clearSearchHistory(HttpServletResponse response) throws IOException {
+        searchHistory.clear();
+        response.sendRedirect("/index.html?action=viewHistory");
     }
 
-    private void showFavoriteResults(HttpServletResponse response) throws IOException {
-        response.getWriter().println("<html><head><title>Favorite Results</title></head><body>");
-        response.getWriter().println("<h2>Favorite Results:</h2>");
-        for (String result : favoriteResults) {
-            response.getWriter().println("<p>" + result + "</p>");
-        }
-        response.getWriter().println("</body></html>");
-    }
 }
 
