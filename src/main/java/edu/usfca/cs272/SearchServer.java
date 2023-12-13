@@ -15,10 +15,13 @@ public class SearchServer {
     private final SearchProcessorInterface exactSearchProcessor;
     private final SearchProcessorInterface partialSearchProcessor;
 
-    public SearchServer(int port, SearchProcessorInterface searchProcessor, SearchProcessorInterface partySearchProcessor) {
+    private final InvertedIndex invertedIndex;
+
+    public SearchServer(int port, SearchProcessorInterface searchProcessor, SearchProcessorInterface partySearchProcessor, InvertedIndex invertedIndex) {
         this.port = port;
         this.exactSearchProcessor = searchProcessor;
         this.partialSearchProcessor = partySearchProcessor;
+        this.invertedIndex = invertedIndex;
     }
 
     public void startServer() throws Exception {
@@ -37,7 +40,7 @@ public class SearchServer {
 
         // Add the SearchServlet to the context
         ServletHandler servletHandler = new ServletHandler();
-        servletHandler.addServletWithMapping(new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor)), "/index.html");
+        servletHandler.addServletWithMapping(new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor, invertedIndex )), "/index.html");
 
 
         HandlerList handlers = new HandlerList();

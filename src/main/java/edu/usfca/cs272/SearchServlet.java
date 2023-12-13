@@ -1,6 +1,9 @@
 package edu.usfca.cs272;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,9 +24,9 @@ public class SearchServlet extends HttpServlet {
 
     private final SearchProcessorInterface exactSearchProcessor;
     private final SearchProcessorInterface partialSearchProcessor;
+
+    private final InvertedIndex invertedIndex;
     private List<String> searchHistory = new ArrayList<>();
-    private List<String> visitedResults = new ArrayList<>();
-    private List<String> favoriteResults = new ArrayList<>();
 
     private Date lastVisited;
     private String searchResultTemplate = """
@@ -33,9 +36,10 @@ public class SearchServlet extends HttpServlet {
                 </div>
             """;
 
-    public SearchServlet(SearchProcessorInterface searchProcessor, SearchProcessorInterface partialSearchProcessor) {
+    public SearchServlet(SearchProcessorInterface searchProcessor, SearchProcessorInterface partialSearchProcessor, InvertedIndex invertedIndex) {
         this.exactSearchProcessor = searchProcessor;
         this.partialSearchProcessor = partialSearchProcessor;
+        this.invertedIndex = invertedIndex;
         lastVisited = new Date();
     }
     @Override
@@ -49,6 +53,8 @@ public class SearchServlet extends HttpServlet {
             showSearchHistory(response);
         } else if ("clearHistory".equals(action)) {
             clearSearchHistory(response);
+        } else if ("download".equals(action)) {
+            download(response);
         } else {
             serach(request, response);
         }
@@ -64,8 +70,8 @@ public class SearchServlet extends HttpServlet {
         String query = request.getParameter("query");
         String partial = request.getParameter("partial");
         String reverse = request.getParameter("reverse");
-        if (query == null || query.isBlank()) {
-            query = "test";
+        if (query == null) {
+            query = " ";
         }
         searchHistory.add(query);
         System.out.println("Query: " + query + " partial: " + partial + " reverse: " + reverse);
@@ -117,5 +123,23 @@ public class SearchServlet extends HttpServlet {
         response.sendRedirect("/index.html?action=viewHistory");
     }
 
+    private void download(HttpServletResponse response) throws IOException {
+        String filePath = "index.json";
+        invertedIndex.saveIndex(Path.of(filePath));
+        File file = new File(filePath);
+
+        // 设置响应头
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
+        response.setContentLength((int) file.length());
+
+        try (FileInputStream in = new FileInputStream(file); OutputStream out = response.getOutputStream()) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+        }
+    }
 }
 
