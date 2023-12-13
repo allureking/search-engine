@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,22 +48,12 @@ public class SearchServlet extends HttpServlet {
     /**
      * List to store the history of search queries.
      */
-    private List<String> searchHistory = new ArrayList<>();
+    private final List<String> searchHistory = new ArrayList<>();
 
     /**
      * Records the last time the servlet was visited.
      */
     private Date lastVisited;
-
-    /**
-     * HTML template for displaying individual search results.
-     */
-    private String searchResultTemplate = """
-                <div class="search-result">
-                    <h3><a href="%s" target="_blank">%s</a></h3>
-                    <p class="score">Score: %s  and  Count: %s</p>
-                </div>
-            """;
 
     /**
      * Constructs a SearchServlet with specified search processors and an inverted index.
@@ -82,7 +74,9 @@ public class SearchServlet extends HttpServlet {
 
         // Determine the action to take based on the request parameter
         String action = request.getParameter("action");
-        lastVisited = new Date(); // Update the last visited time
+        synchronized (this){
+            lastVisited = new Date(); // Update the last visited time
+        }
         if ("search".equals(action)) {
             serach(request, response); // Perform a search action
         } else if ("viewHistory".equals(action)) {
@@ -117,20 +111,28 @@ public class SearchServlet extends HttpServlet {
         if (query == null) {
             query = " ";
         }
+        // Escape HTML special characters in the query
+        query = StringEscapeUtils.escapeHtml4(query);
 
-        searchHistory.add(query);
+        synchronized (searchHistory) {
+            searchHistory.add(query);
+        }
         System.out.println("Query: " + query + " partial: " + partial + " reverse: " + reverse);
         List<InvertedIndex.QueryResult> results = new ArrayList<>();
         if (partial != null){
-            partialSearchProcessor.search(query);
-            results = partialSearchProcessor.getSearchResult(query);
+            synchronized (partialSearchProcessor) {
+                partialSearchProcessor.search(query);
+                results = partialSearchProcessor.getSearchResult(query);
+            }
         } else{
-            exactSearchProcessor.search(query);
-            results = exactSearchProcessor.getSearchResult(query);
+            synchronized (exactSearchProcessor) {
+                exactSearchProcessor.search(query);
+                results = exactSearchProcessor.getSearchResult(query);
+            }
         }
         if (reverse != null){
             results = new ArrayList<>(results);
-           Collections.reverse(results);
+            Collections.reverse(results);
         }
         PrintWriter out = response.getWriter();
 
@@ -138,8 +140,17 @@ public class SearchServlet extends HttpServlet {
         String templateString = Files.readString(BASE.resolve("index.html"), StandardCharsets.UTF_8);
         StringBuilder searchResults = new StringBuilder();
         for (InvertedIndex.QueryResult result : results) {
-            // Format each result using the search result template
-            String resultString = String.format(searchResultTemplate, result.getLocation(), result.getLocation(), result.getScore(), result.getCount());
+            String score = String.format("%.4f", Math.ceil(result.getScore()));
+            /**
+             * HTML template for displaying individual search results.
+             */
+            String searchResultTemplate = """
+                        <div class="search-result">
+                            <h3><a href="%s" target="_blank">%s</a></h3>
+                            <p class="score">Score: %s  and  Count: %s</p>
+                        </div>
+                    """;
+            String resultString = String.format(searchResultTemplate, result.getLocation(), result.getLocation(), score, result.getCount());
             searchResults.append(resultString);
         }
         // Replace placeholders in the HTML template with actual search data
@@ -180,7 +191,9 @@ public class SearchServlet extends HttpServlet {
      * @throws IOException If an IO error occurs.
      */
     private void clearSearchHistory(HttpServletResponse response) throws IOException {
-        searchHistory.clear();
+        synchronized (searchHistory){
+            searchHistory.clear();
+        }
         response.sendRedirect("/index.html?action=viewHistory");
     }
 
@@ -192,10 +205,11 @@ public class SearchServlet extends HttpServlet {
      */
     private void download(HttpServletResponse response) throws IOException {
         String filePath = "index.json";
-        invertedIndex.saveIndex(Path.of(filePath));
+        synchronized (invertedIndex) {
+            invertedIndex.saveIndex(Path.of(filePath));
+        }
         File file = new File(filePath);
 
-        // 设置响应头
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + file.getName());
         response.setContentLength((int) file.length());
