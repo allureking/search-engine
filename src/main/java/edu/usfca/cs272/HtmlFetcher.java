@@ -147,7 +147,7 @@ public class HtmlFetcher {
 				InputStreamReader input = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
 				BufferedReader response = new BufferedReader(input);
 		) {
-			socket.setSoTimeout(3000);
+			socket.setSoTimeout(30000);
 			HttpsFetcher.printHeadRequest(request, url);
 			Map<String, List<String>> headers = HttpsFetcher.getHeaderFields(response);
 			getHeader = true;

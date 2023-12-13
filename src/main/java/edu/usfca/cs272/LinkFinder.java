@@ -38,14 +38,18 @@ public class LinkFinder {
 	 * @see #isHttp(URL)
 	 */
 	public static void findLinks(URL base, String html, Collection<URL> links) {
-		Pattern pattern = Pattern.compile("href=\"([^\"]*)\">");
+		String regex = "(?i)(<a[^>]+href\\s*=\\s*\")([^\"]+)(\")";
+		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 
 		while (matcher.find()) {
-			String href = matcher.group(1);
-			URL url = convertUrl(base, href);
-			if (isHttp(url)) {
-				links.add(url);
+			try {
+				URL myUrl = new URL(base, matcher.group(2));
+				if (isHttp(myUrl)) {
+					links.add(normalize(myUrl));
+				}
+			} catch (MalformedURLException | URISyntaxException e) {
+				System.err.println("Invalid html");
 			}
 		}
 	}
@@ -178,5 +182,34 @@ public class LinkFinder {
 				return null;
 			}
 		}
+	}
+
+	/**
+	 * Normalizes a URL by cleaning its fragment, encoding its components properly,
+	 * and ensuring that it has a default path if the path is empty.
+	 *
+	 * This method removes any fragment component from the URL, encodes special characters,
+	 * and if the path is empty, it sets it to "/". This is particularly useful for
+	 * ensuring consistency in URLs where the absence or presence of a trailing slash
+	 * should not result in different URLs.
+	 *
+	 * @param url The URL to normalize.
+	 * @return The normalized URL.
+	 * @throws MalformedURLException If an error occurs while creating the normalized URL.
+	 * @throws URISyntaxException If an error occurs while creating the URI for normalization.
+	 */
+	public static URL normalize(URL url) throws MalformedURLException, URISyntaxException {
+		// Create a URI from the URL to normalize it
+		URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(),
+				url.getPath(), url.getQuery(), null).normalize();
+
+		// Check if the path is empty or "/", and set it to "/" if so
+		String path = uri.getPath();
+		if (path == null || path.isEmpty()) {
+			uri = new URI(uri.getScheme(), uri.getAuthority(), "/", uri.getQuery(), null);
+		}
+
+		// Return the URL form of the normalized URI
+		return uri.toURL();
 	}
 }

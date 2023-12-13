@@ -93,8 +93,6 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
                     totalProcessed++;
                 }
 
-                System.out.println(Thread.currentThread().getName() + " crawl " + url + " header: " + htmlFetchResult.isHasHeader()
-                        + " content: " + (htmlContent != null) + " url num : " + urlSet.size() + " " + totalProcessed);
                 if (htmlContent != null) {
                     String nonBlockHtml = HtmlCleaner.stripBlockElements(htmlContent);
                     String clearHtml = HtmlCleaner.stripTags(nonBlockHtml);
