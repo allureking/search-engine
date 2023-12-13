@@ -59,6 +59,26 @@ public class InvertedIndexProcessor {
     }
 
     /**
+     * Processes content of a file and populates the provided inverted index with words
+     * found in the file.
+     *
+     * @param location   the location of the file
+     * @param lines       content of url to process.
+     * @param invertedIndex  The inverted index to populate.
+     */
+    public static void processLines(String location, String[] lines, InvertedIndex invertedIndex) {
+        Stemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
+        int index = 1;
+        for (String line: lines) {
+            String[] words = FileStemmer.parse(line);
+            for (String word : words) {
+                String stemmedWord = stemmer.stem(word).toString();
+                invertedIndex.add(stemmedWord, location, index++);
+            }
+        }
+    }
+
+    /**
      * Processes a directory by traversing it and processing each path individually.
      * Populates the provided inverted index with words found in each file.
      *

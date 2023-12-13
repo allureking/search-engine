@@ -1,6 +1,9 @@
 package edu.usfca.cs272;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,32 +40,74 @@ public class Driver {
             threadNum = threadNum < 1 ? 5 : threadNum;
         }
 
+        int totalCrawl = argumentParser.getInteger("-crawl", 1);
+        if (totalCrawl <= 0) {
+            totalCrawl = 1;
+        }
+
         WorkQueue workQueue = threadNum > 1 ? new WorkQueue(threadNum) : null;
         InvertedIndex invertedIndex = null;
         ThreadSafeInvertedIndex threadSafeInvertedIndex = null;
         SearchProcessorInterface searchProcessor;
+        CrawlerProcessorInterface crawlerProcessor;
 
         if (workQueue == null) {
             invertedIndex = new InvertedIndex();
             searchProcessor = new SearchProcessor(invertedIndex, partial);
+            crawlerProcessor = new CrawlerProcessor(invertedIndex, totalCrawl);
         } else {
             threadSafeInvertedIndex = new ThreadSafeInvertedIndex();
             invertedIndex = threadSafeInvertedIndex;
             searchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, partial, workQueue);
+            crawlerProcessor = new MultiThreadCrawlerProcessor(workQueue, threadSafeInvertedIndex, totalCrawl);
+        }
+
+        boolean processHtml = false;
+        if (argumentParser.hasFlag("-html")) {
+            String seed = argumentParser.getString("-html");
+            if (seed == null) {
+                System.out.println("Empty url parameter");
+            } else {
+                URI uri = LinkFinder.makeUri(seed);
+                if (uri != null) {
+                    try {
+                        URL url = LinkFinder.cleanUri(uri).toURL();
+                        crawlerProcessor.crawl(url);
+                        processHtml = true;
+                        if (workQueue != null) {
+                            workQueue.finish();
+                        }
+                    } catch (MalformedURLException e) {
+                        System.out.println("Invalid URL: " + seed);
+                    }
+                } else {
+                    System.out.println("Invalid url: " + seed);
+                }
+            }
         }
 
         if (argumentParser.hasFlag("-text")) {
-            Path inputPath = Path.of(argumentParser.getString("-text", "./"));
-            try {
-                if (workQueue != null) {
-                    MultiThreadInvertedIndexProcessor.process(inputPath, threadSafeInvertedIndex, workQueue);
-                    workQueue.finish();
-                } else {
-                    InvertedIndexProcessor.process(inputPath, invertedIndex);
-
+            Path inputPath = null;
+            if (processHtml) {
+                String inputPathStr = argumentParser.getString("-text");
+                if (inputPathStr != null) {
+                    inputPath = Path.of(inputPathStr);
                 }
-            } catch (IOException e) {
-                System.out.println("Unable to process: " + e.getMessage());
+            } else {
+                inputPath = Path.of(argumentParser.getString("-text", "./"));
+            }
+
+            if (inputPath != null) {
+                try {
+                    if (workQueue != null) {
+                        MultiThreadInvertedIndexProcessor.process(inputPath, threadSafeInvertedIndex, workQueue);
+                        workQueue.finish();
+                    } else {
+                        InvertedIndexProcessor.process(inputPath, invertedIndex);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Unable to process: " + e.getMessage());
+                }
             }
           }
 

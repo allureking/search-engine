@@ -76,7 +76,7 @@ public class WorkQueue {
                 try {
                     task.run();
                 } finally {
-                   notifyWorkers(true);
+                    notifyWorkers(true);
                 }
             });
 
