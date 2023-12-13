@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Page</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .search-section {
+            width: 48%;
+        }
+
+        .search-result {
+            background-color: #fff;
+            border: 1px solid #dfe1e5;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        h3 {
+            color: #1a0dab;
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .url {
+            color: #4b8efc;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .score {
+            color: #70757a;
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+
+        .image-result {
+            margin-bottom: 20px;
+        }
+
+        .image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .alt {
+            color: #70757a;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="search-section">
+    <form method="get" action="/">
+        <label for="query">Text Search:</label>
+        <input type="text" id="query" name="query" value="{{ .Query }}">
+        <input type="submit" value="Search">
+        <input type="checkbox" id="wildcard" name="wildcard" value="wildcard">
+        <label for="wildcard">Wildcard Search</label><br>
+    </form>
+
+    <div class="search-result">
+        <h3><a href="{{ .URL }}" target="_blank">{{ .Title | safe }}</a></h3>
+        <p class="score">Score: {{ .Score }}</p>
+    </div>
+</div>
+
+</body>
+</html>
