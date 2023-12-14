@@ -1,0 +1,10 @@
+name: Project Stats
+on: 
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: 'Run'
+    uses: usf-cs272-fall2023/cs272-bot/.github/workflows/project-stats.yml@main
+    secrets: inherit
+    permissions: write-all
