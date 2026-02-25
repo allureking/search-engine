@@ -64,6 +64,16 @@ public class SearchServlet extends HttpServlet {
     private Date lastVisited;
 
     /**
+     * The crawler currently in progress, or null if idle.
+     */
+    private volatile CrawlerProcessorInterface activeCrawler;
+
+    /**
+     * The background thread running the current crawl, or null if idle.
+     */
+    private volatile Thread crawlThread;
+
+    /**
      * Constructs a SearchServlet with specified search processors, an inverted index,
      * and an optional work queue for crawling support.
      *
@@ -93,6 +103,8 @@ public class SearchServlet extends HttpServlet {
             search(request, response); // Perform a search action
         } else if ("crawl".equals(action)) {
             crawl(request, response); // Perform a crawl action
+        } else if ("crawlStatus".equals(action)) {
+            crawlStatus(response);
         } else if ("viewHistory".equals(action)) {
             showSearchHistory(response); // Show the search history
         } else if ("clearHistory".equals(action)) {
@@ -180,21 +192,30 @@ public class SearchServlet extends HttpServlet {
         templateString = templateString.replace("<!-- Time Taken -->", String.valueOf(endTime - startTime));
         //<!-- Indexed Pages -->
         templateString = templateString.replace("<!-- Indexed Pages -->", String.valueOf(invertedIndex.viewCount().size()));
+        //<!-- crawl-active -->
+        templateString = templateString.replace("<!-- crawl-active -->", activeCrawler != null ? "true" : "false");
         // Send the response to the client
         out.println(templateString);
     }
 
     /**
-     * Handles a crawl request from the web interface. Accepts a seed URL and optional
-     * page count, creates a crawler, and indexes the crawled content.
+     * Handles a crawl request from the web interface. Accepts a seed URL, optional
+     * page count, and thread count. For multithreaded mode, crawls asynchronously
+     * with progress tracking via a per-crawl WorkQueue.
      *
      * @param request The HttpServletRequest object.
      * @param response The HttpServletResponse object.
      * @throws IOException If an IO error occurs.
      */
     private void crawl(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (activeCrawler != null) {
+            response.sendRedirect("index.html");
+            return;
+        }
+
         String seedUrl = request.getParameter("url");
         String countStr = request.getParameter("crawl");
+        String threadStr = request.getParameter("threads");
 
         if (seedUrl == null || seedUrl.isBlank()) {
             response.sendRedirect("index.html");
@@ -205,33 +226,82 @@ public class SearchServlet extends HttpServlet {
         if (countStr != null && !countStr.isBlank()) {
             try {
                 crawlCount = Integer.parseInt(countStr);
-                if (crawlCount < 1) crawlCount = 1;
-                if (crawlCount > 200) crawlCount = 200;
+                crawlCount = Math.max(1, Math.min(200, crawlCount));
             } catch (NumberFormatException e) {
                 crawlCount = 50;
             }
         }
 
-        URI uri = LinkFinder.makeUri(seedUrl);
-        if (uri != null) {
+        int threadCount = 5;
+        if (threadStr != null && !threadStr.isBlank()) {
             try {
-                URL url = LinkFinder.cleanUri(uri).toURL();
-                CrawlerProcessorInterface crawler;
-                if (workQueue != null && invertedIndex instanceof ThreadSafeInvertedIndex threadSafeIndex) {
-                    crawler = new MultiThreadCrawlerProcessor(workQueue, threadSafeIndex, crawlCount);
-                } else {
-                    crawler = new CrawlerProcessor(invertedIndex, crawlCount);
-                }
-                crawler.crawl(url);
-                if (workQueue != null) {
-                    workQueue.finish();
-                }
-            } catch (MalformedURLException e) {
-                // Invalid URL, just redirect back
+                threadCount = Integer.parseInt(threadStr);
+                threadCount = Math.max(1, Math.min(10, threadCount));
+            } catch (NumberFormatException e) {
+                threadCount = 5;
             }
         }
 
+        URI uri = LinkFinder.makeUri(seedUrl);
+        if (uri == null) {
+            response.sendRedirect("index.html");
+            return;
+        }
+
+        URL url;
+        try {
+            url = LinkFinder.cleanUri(uri).toURL();
+        } catch (MalformedURLException e) {
+            response.sendRedirect("index.html");
+            return;
+        }
+
+        if (invertedIndex instanceof ThreadSafeInvertedIndex threadSafeIndex) {
+            WorkQueue crawlQueue = new WorkQueue(threadCount);
+            MultiThreadCrawlerProcessor crawler = new MultiThreadCrawlerProcessor(
+                    crawlQueue, threadSafeIndex, crawlCount);
+            activeCrawler = crawler;
+
+            final URL seedURL = url;
+            crawlThread = new Thread(() -> {
+                try {
+                    crawler.crawl(seedURL);
+                    crawlQueue.join();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    activeCrawler = null;
+                    crawlThread = null;
+                }
+            }, "CrawlThread");
+            crawlThread.setDaemon(true);
+            crawlThread.start();
+        } else {
+            CrawlerProcessor crawler = new CrawlerProcessor(invertedIndex, crawlCount);
+            crawler.crawl(url);
+        }
+
         response.sendRedirect("index.html");
+    }
+
+    /**
+     * Returns JSON with current crawl progress status.
+     *
+     * @param response The HttpServletResponse object.
+     * @throws IOException If an IO error occurs.
+     */
+    private void crawlStatus(HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter out = response.getWriter();
+
+        CrawlerProcessorInterface crawler = activeCrawler;
+        if (crawler != null) {
+            int processed = crawler.getTotalProcessed();
+            int total = crawler.getTotalCrawl();
+            out.printf("{\"status\":\"crawling\",\"processed\":%d,\"total\":%d}", processed, total);
+        } else {
+            out.print("{\"status\":\"idle\"}");
+        }
     }
 
     /**

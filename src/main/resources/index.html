@@ -354,22 +354,85 @@
 
     .crawl-url-input::placeholder { color: var(--text-muted); }
 
-    .crawl-count-input {
-      width: 80px;
-      padding: 10px 14px;
+    /* Custom number input */
+    .custom-number {
+      display: flex;
+      align-items: center;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      color: var(--white);
-      font-family: var(--mono);
-      font-size: 13px;
-      outline: none;
-      text-align: center;
+      overflow: hidden;
       transition: border-color 0.2s;
     }
+    .custom-number:focus-within { border-color: var(--accent); }
+    .custom-number button {
+      width: 32px;
+      height: 36px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 15px;
+      font-family: var(--mono);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+    }
+    .custom-number button:hover {
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .custom-number .num-display {
+      width: 38px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--white);
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0;
+      -moz-appearance: textfield;
+    }
+    .custom-number .num-display::-webkit-inner-spin-button,
+    .custom-number .num-display::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+    .num-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
 
-    .crawl-count-input:focus {
-      border-color: var(--accent);
+    /* Crawl progress bar */
+    .crawl-progress {
+      display: none;
+      width: 100%;
+      max-width: 600px;
+      margin: 16px auto 0;
+    }
+    .crawl-progress.active { display: block; }
+    .progress-bar-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #a5b4fc);
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .progress-text {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 8px;
     }
 
     .crawl-btn {
@@ -502,7 +565,7 @@
       .search-stats { gap: 12px; flex-wrap: wrap; }
       .search-options { flex-wrap: wrap; justify-content: center; }
       .crawl-row { flex-direction: column; }
-      .crawl-count-input { width: 100%; }
+      .crawl-row[style] { flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -581,10 +644,29 @@
           <input type="hidden" name="action" value="crawl">
           <div class="crawl-row">
             <input type="url" name="url" class="crawl-url-input" placeholder="https://example.com" required>
-            <input type="number" name="crawl" class="crawl-count-input" value="50" min="1" max="200" title="Max pages to crawl">
-            <button type="submit" class="crawl-btn">Crawl</button>
           </div>
-          <p class="crawl-hint">Enter a seed URL and number of pages to crawl (1-200). The crawler will follow links and index page content.</p>
+          <div class="crawl-row" style="justify-content:center;align-items:center;gap:12px">
+            <span class="num-label">Pages</span>
+            <div class="custom-number">
+              <button type="button" onclick="adjustNum('crawlCount',-10)">-</button>
+              <input type="number" id="crawlCount" name="crawl" class="num-display" value="50" min="1" max="200" readonly>
+              <button type="button" onclick="adjustNum('crawlCount',10)">+</button>
+            </div>
+            <span class="num-label">Threads</span>
+            <div class="custom-number">
+              <button type="button" onclick="adjustNum('threadCount',-1)">-</button>
+              <input type="number" id="threadCount" name="threads" class="num-display" value="5" min="1" max="10" readonly>
+              <button type="button" onclick="adjustNum('threadCount',1)">+</button>
+            </div>
+            <button type="submit" class="crawl-btn" id="crawlBtn">Crawl</button>
+          </div>
+          <div class="crawl-progress" id="crawlProgress">
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Crawling...</p>
+          </div>
+          <p class="crawl-hint">Enter a seed URL. Pages: max pages to crawl (1-200). Threads: concurrent crawl threads (1-10).</p>
         </form>
       </div>
     </div>
@@ -604,6 +686,7 @@
     </footer>
   </div>
 
+  <div id="crawlActive" data-active="<!-- crawl-active -->" style="display:none"></div>
   <script>
     // Mouse glow + custom cursor dot (matching portfolio)
     (function() {
@@ -675,6 +758,72 @@
       panel.classList.toggle('open');
       toggle.classList.toggle('open');
     }
+
+    // Custom number input adjustment
+    function adjustNum(id, delta) {
+      var input = document.getElementById(id);
+      var val = parseInt(input.value) + delta;
+      var min = parseInt(input.min);
+      var max = parseInt(input.max);
+      if (val < min) val = min;
+      if (val > max) val = max;
+      input.value = val;
+    }
+
+    // Progress polling
+    var pollTimer = null;
+    function startPolling() {
+      var progress = document.getElementById('crawlProgress');
+      var fill = document.getElementById('progressFill');
+      var text = document.getElementById('progressText');
+      var btn = document.getElementById('crawlBtn');
+      var panel = document.getElementById('crawlPanel');
+      var toggle = document.getElementById('crawlToggle');
+
+      if (panel && !panel.classList.contains('open')) {
+        panel.classList.add('open');
+        if (toggle) toggle.classList.add('open');
+      }
+      progress.classList.add('active');
+      if (btn) btn.disabled = true;
+
+      pollTimer = setInterval(function() {
+        fetch('index.html?action=crawlStatus')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.status === 'crawling') {
+              var pct = data.total > 0 ? Math.round((data.processed / data.total) * 100) : 0;
+              fill.style.width = pct + '%';
+              text.textContent = 'Crawling ' + data.processed + ' / ' + data.total + ' pages  (' + pct + '%)';
+            } else {
+              clearInterval(pollTimer);
+              pollTimer = null;
+              fill.style.width = '100%';
+              text.textContent = 'Crawl complete! Refreshing...';
+              setTimeout(function() { window.location.href = 'index.html'; }, 800);
+            }
+          })
+          .catch(function() {});
+      }, 500);
+    }
+
+    // Check if crawl is active on page load
+    (function() {
+      var el = document.getElementById('crawlActive');
+      if (el && el.dataset.active === 'true') {
+        startPolling();
+      }
+    })();
+
+    // Intercept crawl form to start polling
+    (function() {
+      var form = document.querySelector('.crawl-form');
+      if (form) {
+        form.addEventListener('submit', function() {
+          setTimeout(startPolling, 300);
+        });
+      }
+    })();
   </script>
 </body>
 </html>

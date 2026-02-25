@@ -49,4 +49,22 @@ public interface CrawlerProcessorInterface {
      * @param url The URL to be crawled.
      */
     void crawl(URL url);
+
+    /**
+     * Returns the number of pages that have been processed so far.
+     *
+     * @return the number of processed pages
+     */
+    default int getTotalProcessed() {
+        return 0;
+    }
+
+    /**
+     * Returns the total number of pages targeted for crawling.
+     *
+     * @return the target crawl count
+     */
+    default int getTotalCrawl() {
+        return 0;
+    }
 }

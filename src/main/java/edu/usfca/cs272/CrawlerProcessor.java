@@ -49,6 +49,16 @@ public class CrawlerProcessor implements CrawlerProcessorInterface {
      * @param url The URL to be crawled and processed.
      */
     @Override
+    public int getTotalProcessed() {
+        return urlSet.size();
+    }
+
+    @Override
+    public int getTotalCrawl() {
+        return totalCrawl;
+    }
+
+    @Override
     public void crawl(URL url) {
         if (url == null || urlSet.contains(url) || urlSet.size() >= totalCrawl) {
             return;
