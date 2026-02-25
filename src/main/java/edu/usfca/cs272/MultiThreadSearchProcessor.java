@@ -15,8 +15,9 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * Processor for searching words from a file in a multithreaded manner.
- * This class extends the {@link SearchProcessor} and is designed to handle
- * search queries using multiple threads for improved performance.
+ * Designed to handle search queries using multiple threads for improved performance.
+ *
+ * @author Honghuai Ke
  */
 public class MultiThreadSearchProcessor implements SearchProcessorInterface {
     /**
@@ -85,6 +86,7 @@ public class MultiThreadSearchProcessor implements SearchProcessorInterface {
             if (searchResults.containsKey(queryWords)) {
                 return;
             }
+            searchResults.put(queryWords, null);
         }
 
         var local = searchFunction.apply(queries);

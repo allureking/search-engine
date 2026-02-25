@@ -11,16 +11,7 @@ import org.apache.commons.text.StringEscapeUtils;
  * For example, the {@link #stripEntities(String)} method removes HTML entities
  * but does not check that the removed entity was valid.
  *
- * <p>Look at the "See Also" section for useful classes and methods for
- * implementing this class.
- *
- * @see String#replaceAll(String, String)
- * @see Pattern#DOTALL
- * @see Pattern#CASE_INSENSITIVE
- * @see StringEscapeUtils#unescapeHtml4(String)
- *
- * @author Honghuai(King) Ke
- * @version Spring 2023
+ * @author Honghuai Ke
  */
 public class HtmlCleaner {
 	/**
@@ -31,8 +22,6 @@ public class HtmlCleaner {
 	 *
 	 * @param html text including HTML tags to remove
 	 * @return text without any HTML tags
-	 *
-	 * @see String#replaceAll(String, String)
 	 */
 	public static String stripTags(String html) {
 	    String regex = "<[^<>]+>";
@@ -50,9 +39,6 @@ public class HtmlCleaner {
 	 *
 	 * <p><em>(View this comment as HTML in the "Javadoc" view in Eclipse.)</em>
 	 *
-	 * @see StringEscapeUtils#unescapeHtml4(String)
-	 * @see String#replaceAll(String, String)
-	 *
 	 * @param html text including HTML entities to remove
 	 * @return text with all HTML entities converted or removed
 	 */
@@ -66,9 +52,9 @@ public class HtmlCleaner {
         while (matcher.find()) {
             String entity = matcher.group();
 
-            String unescaptedEntity = StringEscapeUtils.unescapeHtml4(entity);
+            String unescapedEntity = StringEscapeUtils.unescapeHtml4(entity);
 
-            if (entity.equals(unescaptedEntity)) {
+            if (entity.equals(unescapedEntity)) {
                 unescapedHtml = unescapedHtml.replace(entity, "");
             }
         }
@@ -92,8 +78,6 @@ public class HtmlCleaner {
 	 *
 	 * @param html text including HTML comments to remove
 	 * @return text without any HTML comments
-	 *
-	 * @see String#replaceAll(String, String)
 	 */
 	public static String stripComments(String html) {
 		String regex = "(?s)<!--.*?-->";
@@ -115,10 +99,6 @@ public class HtmlCleaner {
 	 * @param html text including HTML elements to remove
 	 * @param name name of the HTML element (like "style" or "script")
 	 * @return text without that HTML element
-	 *
-	 * @see String#formatted(Object...)
-	 * @see String#format(String, Object...)
-	 * @see String#replaceAll(String, String)
 	 */
 	public static String stripElement(String html, String name) {
 	    String regex = String.format("(?is)<%1$s(?:(?!<%1$s>|</%1$s>).)*</%1$s\\s*?>", name);

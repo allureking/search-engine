@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
  * Class responsible for word processing. It processes individual files or
  * directories and populates the provided inverted index with words found.
  *
- * @author Honghuai(King) Ke
+ * @author Honghuai Ke
  */
 public class MultiThreadInvertedIndexProcessor {
     /**
@@ -61,7 +61,7 @@ public class MultiThreadInvertedIndexProcessor {
                     invertedIndex.mergeDistinct(local);
 
                 } catch (IOException e) {
-                    log.error("Unable to process file", e.getMessage());
+                    log.error("Unable to process file: {}", e.getMessage());
                 }
             });
         }

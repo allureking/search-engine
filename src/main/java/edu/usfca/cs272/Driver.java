@@ -13,8 +13,6 @@ import java.time.Instant;
  * arguments. See the README for details.
  *
  * @author Honghuai Ke
- * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2023
  */
 public class Driver {
 
@@ -87,7 +85,7 @@ public class Driver {
         }
 
         if (argumentParser.hasFlag("-server")) {
-            Integer port = argumentParser.getInteger("-server", 8080);
+            int port = argumentParser.getInteger("-server", 8080);
             SearchProcessorInterface exactSearchProcessor;
             SearchProcessorInterface partialSearchProcessor;
             if (workQueue == null) {
@@ -128,7 +126,7 @@ public class Driver {
                     System.out.println("Unable to process: " + e.getMessage());
                 }
             }
-          }
+        }
 
         if (argumentParser.hasFlag("-query")) {
             Path queryPath = Path.of(argumentParser.getString("-query", "queries.txt"));

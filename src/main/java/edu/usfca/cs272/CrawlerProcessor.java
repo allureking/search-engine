@@ -7,6 +7,8 @@ import java.util.Set;
 /**
  * Implements a single-threaded web crawler. This class is responsible for crawling web pages,
  * extracting links, and processing the content to build an InvertedIndex.
+ *
+ * @author Honghuai Ke
  */
 public class CrawlerProcessor implements CrawlerProcessorInterface {
     /**
@@ -53,11 +55,11 @@ public class CrawlerProcessor implements CrawlerProcessorInterface {
         }
 
         HtmlFetcher.HtmlFetchResult htmlFetchResult = fetchUrlContent(url);
-        if (htmlFetchResult.isHasHeader()) {
+        if (htmlFetchResult.hasHeader()) {
             urlSet.add(url);
         }
 
-        String htmlContent = htmlFetchResult.getContent();
+        String htmlContent = htmlFetchResult.content();
         if (htmlContent != null) {
             String clearHtml = HtmlCleaner.stripHtml(htmlContent);
             String[] lines = clearHtml.split("\n");

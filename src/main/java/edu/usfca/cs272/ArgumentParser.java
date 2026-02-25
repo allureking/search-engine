@@ -6,9 +6,7 @@ import java.util.HashMap;
 /**
  * Parses and stores command-line arguments into simple flag/value pairs.
  *
- * @author Honghuai(King) Ke
- * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class ArgumentParser {
 
@@ -44,12 +42,6 @@ public class ArgumentParser {
 	 *
 	 * @param arg the argument to test if its a flag
 	 * @return {@code true} if the argument is a flag
-	 *
-	 * @see String#startsWith(String)
-	 * @see String#length()
-	 * @see String#codePointAt(int)
-	 * @see Character#isDigit(int)
-	 * @see Character#isWhitespace(int)
 	 */
 	public static boolean isFlag(String arg) {
 		if (arg == null || !arg.startsWith("-") || arg.length() <= 1) {
@@ -155,8 +147,6 @@ public class ArgumentParser {
 	 * @param backup the backup value to return if there is no valid mapping
 	 * @return the value the specified flag is mapped as a {@link Path}, or the
 	 *   backup value if there is no valid mapping
-	 *
-	 * @see Path#of(String, String...)
 	 */
 	public Path getPath(String flag, Path backup) {
 		if (hasFlag(flag) && hasValue(flag)) {
@@ -175,8 +165,6 @@ public class ArgumentParser {
 	 * @param flag the flag whose associated value is to be returned
 	 * @return the value to which the specified flag is mapped, or {@code null} if
 	 *   unable to retrieve this mapping
-	 *
-	 * @see #getPath(String, Path)
 	 */
 	public Path getPath(String flag) {
 		return getPath(flag, null);
@@ -191,8 +179,6 @@ public class ArgumentParser {
 	 * @param backup the backup value to return if there is no valid mapping
 	 * @return the value the specified flag is mapped as an int, or the backup value
 	 *   if there is no valid mapping
-	 *
-	 * @see Integer#parseInt(String)
 	 */
 	public int getInteger(String flag, int backup) {
 		String value = getString(flag, null);
@@ -214,8 +200,6 @@ public class ArgumentParser {
 	 * @param flag the flag whose associated value will be returned
 	 * @return the value the specified flag is mapped as an int, or 0 if there is no
 	 *   valid mapping
-	 *
-	 * @see #getInteger(String, int)
 	 */
 	public int getInteger(String flag) {
 		return getInteger(flag, 0);

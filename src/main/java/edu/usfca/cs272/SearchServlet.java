@@ -21,10 +21,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Servlets class that handles all the necessary servlets
- * for the different search features of the search engine
- * Note: Assume that the inverted index is stored in some data structure
- * and the Driver.main method has populated it.
+ * Servlet that handles search requests, search history, and index downloads
+ * for the search engine web interface.
+ *
+ * @author Honghuai Ke
  */
 public class SearchServlet extends HttpServlet {
     /** Class version for serialization, in [YEAR][TERM] format (unused). */
@@ -78,7 +78,7 @@ public class SearchServlet extends HttpServlet {
             lastVisited = new Date(); // Update the last visited time
         }
         if ("search".equals(action)) {
-            serach(request, response); // Perform a search action
+            search(request, response); // Perform a search action
         } else if ("viewHistory".equals(action)) {
             showSearchHistory(response); // Show the search history
         } else if ("clearHistory".equals(action)) {
@@ -86,7 +86,7 @@ public class SearchServlet extends HttpServlet {
         } else if ("download".equals(action)) {
             download(response); // Download the inverted index
         } else {
-            serach(request, response); // Default to search action
+            search(request, response); // Default to search action
         }
 
     }
@@ -98,10 +98,10 @@ public class SearchServlet extends HttpServlet {
      * @param response The HttpServletResponse object.
      * @throws IOException If an IO error occurs.
      */
-    private void serach(HttpServletRequest request, HttpServletResponse response) throws IOException{
+    private void search(HttpServletRequest request, HttpServletResponse response) throws IOException{
         long startTime = System.currentTimeMillis(); // Start timing the search operation
         response.setContentType("text/html;charset=utf-8"); // Set response content type
-        Path BASE = Path.of("src", "main", "resources");
+        Path base = Path.of("src", "main", "resources");
 
         // Retrieve the search query from the HTML form
         String query = request.getParameter("query");
@@ -109,7 +109,7 @@ public class SearchServlet extends HttpServlet {
         String reverse = request.getParameter("reverse");
 
         if (query == null) {
-            query = " ";
+            query = "";
         }
         // Escape HTML special characters in the query
         query = StringEscapeUtils.escapeHtml4(query);
@@ -117,7 +117,6 @@ public class SearchServlet extends HttpServlet {
         synchronized (searchHistory) {
             searchHistory.add(query);
         }
-        System.out.println("Query: " + query + " partial: " + partial + " reverse: " + reverse);
         List<InvertedIndex.QueryResult> results = new ArrayList<>();
         if (partial != null){
             synchronized (partialSearchProcessor) {
@@ -137,13 +136,10 @@ public class SearchServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         // Build the search results HTML using the template
-        String templateString = Files.readString(BASE.resolve("index.html"), StandardCharsets.UTF_8);
+        String templateString = Files.readString(base.resolve("index.html"), StandardCharsets.UTF_8);
         StringBuilder searchResults = new StringBuilder();
         for (InvertedIndex.QueryResult result : results) {
 
-            /**
-             * HTML template for displaying individual search results.
-             */
             String searchResultTemplate = """
                         <div class="search-result">
                             <h3><a href="%s" target="_blank">%s</a></h3>

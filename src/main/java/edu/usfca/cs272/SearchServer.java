@@ -10,8 +10,10 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
- * The {@code SearchServer} class configures and starts a web server to handle search functionality.
- * It sets up handlers for serving static resources and handling search requests.
+ * Configures and starts a web server to handle search functionality.
+ * Sets up handlers for serving static resources and handling search requests.
+ *
+ * @author Honghuai Ke
  */
 public class SearchServer {
 
@@ -41,14 +43,14 @@ public class SearchServer {
      *
      * @param port The port number where the server will run.
      * @param searchProcessor The search processor for exact search queries.
-     * @param partySearchProcessor The search processor for partial search queries.
+     * @param partialSearchProcessor The search processor for partial search queries.
      * @param invertedIndex The inverted index used for searching.
      */
-    public SearchServer(int port, SearchProcessorInterface searchProcessor,
-                        SearchProcessorInterface partySearchProcessor, InvertedIndex invertedIndex) {
+    public SearchServer(int port, SearchProcessorInterface exactSearchProcessor,
+                        SearchProcessorInterface partialSearchProcessor, InvertedIndex invertedIndex) {
         this.port = port;
-        this.exactSearchProcessor = searchProcessor;
-        this.partialSearchProcessor = partySearchProcessor;
+        this.exactSearchProcessor = exactSearchProcessor;
+        this.partialSearchProcessor = partialSearchProcessor;
         this.invertedIndex = invertedIndex;
     }
 
@@ -59,7 +61,7 @@ public class SearchServer {
      */
     public void startServer() throws Exception {
         // Base path for resources
-        Path BASE = Path.of("src", "main", "resources");
+        Path base = Path.of("src", "main", "resources");
 
         // Set up Jetty server on the specified port
         Server server = new Server(port);
@@ -71,8 +73,8 @@ public class SearchServer {
 
         // Handler for serving static resources
         ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed(true);
-        resourceHandler.setResourceBase(BASE.resolve("./images").toString());
+        resourceHandler.setDirectoriesListed(false);
+        resourceHandler.setResourceBase(base.resolve("./images").toString());
 
         // Setting up servlet handler for handling search requests
         ServletHandler servletHandler = new ServletHandler();

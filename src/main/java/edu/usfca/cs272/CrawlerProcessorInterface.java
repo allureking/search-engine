@@ -5,6 +5,8 @@ import java.net.URL;
 /**
  * Defines the interface for a web crawler. This interface specifies methods for
  * fetching and cleaning URLs, and for performing the crawl operation.
+ *
+ * @author Honghuai Ke
  */
 public interface CrawlerProcessorInterface {
     /**

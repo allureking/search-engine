@@ -14,9 +14,7 @@ import org.apache.logging.log4j.Logger;
  *   "https://web.archive.org/web/20210126172022/https://www.ibm.com/developerworks/library/j-jtp0730/index.html">
  *   Java Theory and Practice: Thread Pools and Work Queues</a>
  *
- * @author Honghuai(King) Ke
- * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class WorkQueue {
     /** Workers that wait until work (or tasks) are available. */
@@ -52,7 +50,7 @@ public class WorkQueue {
      * @param threads number of worker threads; should be greater than 1
      */
     public WorkQueue(int threads) {
-        this.tasks = new LinkedList<Runnable>();
+        this.tasks = new LinkedList<>();
         this.workers = new Worker[threads];
         this.shutdown = false;
         this.pending = 0;
@@ -137,8 +135,7 @@ public class WorkQueue {
             }
         }
         catch (InterruptedException e) {
-            System.err.println("Warning: Work queue interrupted while joining.");
-//          log.catching(Level.WARN, e);
+            log.warn("Work queue interrupted while joining.", e);
             Thread.currentThread().interrupt();
         }
     }

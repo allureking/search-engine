@@ -11,7 +11,9 @@ import java.util.TreeSet;
 import opennlp.tools.stemmer.Stemmer;
 
 /**
- * an interface of SearchProcessor
+ * Interface defining the contract for search processors.
+ *
+ * @author Honghuai Ke
  */
 public interface SearchProcessorInterface {
 

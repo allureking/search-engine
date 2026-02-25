@@ -11,16 +11,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * A specialized version of {@link HttpsFetcher} that follows redirects and
  * returns HTML content if possible.
  *
  * @see HttpsFetcher
  *
- * @author Honghuai(King) Ke
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class HtmlFetcher {
 	/**
@@ -102,18 +99,9 @@ public class HtmlFetcher {
 	 * @param redirects the number of times to follow redirects
 	 * @return the html or {@code null} if unable to fetch the resource or the
 	 *   resource is not html
-	 *
-	 * @see HttpsFetcher#openConnection(URL)
-	 * @see HttpsFetcher#printGetRequest(PrintWriter, URL)
-	 * @see HttpsFetcher#getHeaderFields(BufferedReader)
-	 *
-	 * @see String#join(CharSequence, CharSequence...)
-	 *
-	 * @see #isHtml(Map)
-	 * @see #getRedirect(Map)
 	 */
 	public static String fetch(URL url, int redirects) {
-		return fetchHtml(url, redirects).getContent();
+		return fetchHtml(url, redirects).content();
 	}
 
 	/**
@@ -126,15 +114,6 @@ public class HtmlFetcher {
 	 * @param redirects the number of times to follow redirects
 	 * @return the html or {@code null} if unable to fetch the resource or the
 	 *   resource is not html
-	 *
-	 * @see HttpsFetcher#openConnection(URL)
-	 * @see HttpsFetcher#printGetRequest(PrintWriter, URL)
-	 * @see HttpsFetcher#getHeaderFields(BufferedReader)
-	 *
-	 * @see String#join(CharSequence, CharSequence...)
-	 *
-	 * @see #isHtml(Map)
-	 * @see #getRedirect(Map)
 	 */
 	public static HtmlFetchResult fetchHtml(URL url, int redirects) {
 		String content = null;
@@ -154,7 +133,7 @@ public class HtmlFetcher {
 			int statusCode = getStatusCode(headers);
 			if (statusCode == 200 && isHtml(headers)) {
 				List<String> contentList = HttpsFetcher.fetchUrl(url).get("Content");
-				content = contentList == null ? null : StringUtils.join("\n", contentList);
+				content = contentList == null ? null : String.join("\n", contentList);
 			} else if (statusCode >= 300 && statusCode <= 399 && redirects > 0) {
 				String redirectUrl = getRedirect(headers);
 				if (redirectUrl != null) {
@@ -163,6 +142,7 @@ public class HtmlFetcher {
 			}
 		}
 		catch (IOException e) {
+			System.err.println("Unable to fetch URL: " + url);
 		}
 
 		return new HtmlFetchResult(getHeader, content);
@@ -176,8 +156,6 @@ public class HtmlFetcher {
 	 * @param redirects the number of times to follow redirects
 	 * @return the html or {@code null} if unable to fetch the resource or the
 	 *   resource is not html
-	 *
-	 * @see #fetch(URL, int)
 	 */
 	public static String fetch(String url, int redirects) {
 		try {
@@ -195,8 +173,6 @@ public class HtmlFetcher {
 	 * @param url the url to fetch
 	 * @return the html or {@code null} if unable to fetch the resource or the
 	 *   resource is not html
-	 *
-	 * @see #fetch(URL, int)
 	 */
 	public static String fetch(String url) {
 		return fetch(url, 0);
@@ -214,42 +190,10 @@ public class HtmlFetcher {
 	}
 
 	/**
-	 * Represents the html fetch result
+	 * Represents the result of an HTML fetch operation.
+	 *
+	 * @param hasHeader whether the HTTP header was successfully retrieved
+	 * @param content the HTML content, or null if unavailable
 	 */
-	public static class HtmlFetchResult {
-		/**
-		 * if the html fetch request fetch header succeeds
-		 */
-		private boolean hasHeader;
-		/**
-		 * the content of html
-		 */
-		private String content;
-
-		/**
-		 * create a new html fetch result
-		 * @param hasHeader if header get succeeds
-		 * @param content the content of html
-		 */
-		public HtmlFetchResult(boolean hasHeader, String content) {
-			this.hasHeader = hasHeader;
-			this.content = content;
-		}
-
-		/**
-		 * get if header get succeeds
-		 * @return true if header get succeeds
-		 */
-		public boolean isHasHeader() {
-			return hasHeader;
-		}
-
-		/**
-		 * get content of html
-		 * @return content
-		 */
-		public String getContent() {
-			return content;
-		}
-	}
+	public record HtmlFetchResult(boolean hasHeader, String content) {}
 }

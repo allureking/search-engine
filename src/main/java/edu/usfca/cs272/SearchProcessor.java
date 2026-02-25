@@ -14,6 +14,8 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * Processor for searching words from a file.
+ *
+ * @author Honghuai Ke
  */
 public class SearchProcessor implements SearchProcessorInterface {
     /**

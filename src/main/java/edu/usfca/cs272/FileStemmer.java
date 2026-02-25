@@ -19,8 +19,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
  * Utility class for parsing, cleaning, and stemming text and text files into
  * collections of processed words.
  *
- * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class FileStemmer {
 
@@ -63,8 +62,6 @@ public class FileStemmer {
      *
      * @param text the text to clean and split
      * @return an array of {@link String} objects
-     * @see #clean(String)
-     * @see #parse(String)
      */
     public static String[] parse(String text) {
         return split(clean(text));
@@ -77,9 +74,6 @@ public class FileStemmer {
      * @param line    the line of words to clean, split, and stem
      * @param stemmer the stemmer to use
      * @param stems   the collection to add stems
-     * @see #parse(String)
-     * @see Stemmer#stem(CharSequence)
-     * @see Collection#add(Object)
      */
     public static void addStems(String line, Stemmer stemmer, Collection<String> stems) {
         for (String word : parse(line)) {
@@ -93,9 +87,6 @@ public class FileStemmer {
      * @param line    the line of words to clean, split, and stem
      * @param stemmer the stemmer to use
      * @return a list of cleaned and stemmed words in parsed order
-     * @see #parse(String)
-     * @see Stemmer#stem(CharSequence)
-     * @see #addStems(String, Stemmer, Collection)
      */
     public static ArrayList<String> listStems(String line, Stemmer stemmer) {
         ArrayList<String> stems = new ArrayList<>();
@@ -109,9 +100,6 @@ public class FileStemmer {
      *
      * @param line the line of words to parse and stem
      * @return a list of cleaned and stemmed words in parsed order
-     * @see SnowballStemmer#SnowballStemmer(ALGORITHM)
-     * @see ALGORITHM#ENGLISH
-     * @see #listStems(String, Stemmer)
      */
     public static ArrayList<String> listStems(String line) {
         return listStems(line, new SnowballStemmer(ALGORITHM.ENGLISH));
@@ -124,10 +112,6 @@ public class FileStemmer {
      * @param input the input file to parse and stem
      * @return a list of stems from file in parsed order
      * @throws IOException if unable to read or parse file
-     * @see SnowballStemmer
-     * @see ALGORITHM#ENGLISH
-     * @see StandardCharsets#UTF_8
-     * @see #listStems(String, Stemmer)
      */
     public static ArrayList<String> listStems(Path input) throws IOException {
         ArrayList<String> stems = new ArrayList<>();
@@ -147,9 +131,6 @@ public class FileStemmer {
      * @param line    the line of words to parse and stem
      * @param stemmer the stemmer to use
      * @return a sorted set of unique cleaned and stemmed words
-     * @see #parse(String)
-     * @see Stemmer#stem(CharSequence)
-     * @see #addStems(String, Stemmer, Collection)
      */
     public static TreeSet<String> uniqueStems(String line, Stemmer stemmer) {
         TreeSet<String> stems = new TreeSet<>();
@@ -163,9 +144,6 @@ public class FileStemmer {
      *
      * @param line the line of words to parse and stem
      * @return a sorted set of unique cleaned and stemmed words
-     * @see SnowballStemmer#SnowballStemmer(ALGORITHM)
-     * @see ALGORITHM#ENGLISH
-     * @see #uniqueStems(String, Stemmer)
      */
     public static TreeSet<String> uniqueStems(String line) {
         return uniqueStems(line, new SnowballStemmer(ALGORITHM.ENGLISH));
@@ -178,10 +156,6 @@ public class FileStemmer {
      * @param input the input file to parse and stem
      * @return a sorted set of unique cleaned and stemmed words from file
      * @throws IOException if unable to read or parse file
-     * @see SnowballStemmer
-     * @see ALGORITHM#ENGLISH
-     * @see StandardCharsets#UTF_8
-     * @see #uniqueStems(String, Stemmer)
      */
     public static TreeSet<String> uniqueStems(Path input) throws IOException {
         TreeSet<String> stems = new TreeSet<>();
@@ -204,10 +178,6 @@ public class FileStemmer {
      * @return a list where each item is the sets of unique sorted stems parsed from
      * a single line of the input file
      * @throws IOException if unable to read or parse file
-     * @see SnowballStemmer
-     * @see ALGORITHM#ENGLISH
-     * @see StandardCharsets#UTF_8
-     * @see #uniqueStems(String, Stemmer)
      */
     public static ArrayList<TreeSet<String>> listUniqueStems(Path input) throws IOException {
         ArrayList<TreeSet<String>> listOfStemSets = new ArrayList<>();

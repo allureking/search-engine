@@ -24,20 +24,15 @@
 		<versions.junit.launcher>[1.10,1.999999)</versions.junit.launcher>
 
 		<versions.apache.opennlp>[2.3,2.999999)</versions.apache.opennlp>
-		<!-- <versions.apache.log4j2>[2.20,2.999999)</versions.apache.log4j2> -->
 		<versions.apache.log4j2>2.21.1</versions.apache.log4j2>
-		<versions.commons.lang3>[3.13,3.999999)</versions.commons.lang3>
 		<versions.commons.text>[1.10,1.999999)</versions.commons.text>
 
 		<versions.jakarta.servlet>[5.0,5.999999)</versions.jakarta.servlet>
 		<versions.eclipse.jetty>[11.0.15,11.999999)</versions.eclipse.jetty>
-		<versions.mariadb.jdbc>[3.1.4,3.999999)</versions.mariadb.jdbc>
 	</properties>
 
 	<build>
-		<!-- assumes SearchEngine and SearchEngineTest are in the same directory -->
 		<sourceDirectory>src/main/java</sourceDirectory>
-		<testSourceDirectory>../project-tests/src/test/java</testSourceDirectory>
 
 		<plugins>
 			<plugin>
@@ -115,13 +110,7 @@
 			<version>${versions.apache.log4j2}</version>
 		</dependency>
 
-		<!-- for apache commons -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>${versions.commons.lang3}</version>
-		</dependency>
-
+		<!-- for HTML escaping -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-text</artifactId>
@@ -147,11 +136,5 @@
 			<version>${versions.eclipse.jetty}</version>
 		</dependency>
 
-		<!-- for mariadb jdbc connection -->
-		<dependency>
-			<groupId>org.mariadb.jdbc</groupId>
-			<artifactId>mariadb-java-client</artifactId>
-			<version>${versions.mariadb.jdbc}</version>
-		</dependency>
 	</dependencies>
 </project>

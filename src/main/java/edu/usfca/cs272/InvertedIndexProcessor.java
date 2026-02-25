@@ -14,7 +14,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
  * Class responsible for word processing. It processes individual files or
  * directories and populates the provided inverted index with words found.
  *
- * @author Honghuai(King) Ke
+ * @author Honghuai Ke
  */
 public class InvertedIndexProcessor {
 

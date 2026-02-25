@@ -20,8 +20,7 @@ import java.util.Map;
  * concurrently, access must be synchronized externally.
  * </p>
  *
- * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class JsonWriter {
     /**
@@ -111,9 +110,6 @@ public class JsonWriter {
      *                 inner elements are indented by one, and the last bracket is indented at the
      *                 initial indentation level
      * @throws IOException if an IO error occurs
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
      */
     public static void writeArray(Collection<? extends Number> elements, Writer writer, int indent) throws IOException {
 
@@ -142,9 +138,6 @@ public class JsonWriter {
      * @param elements the elements to write
      * @param path     the file path to use
      * @throws IOException if an IO error occurs
-     * @see Files#newBufferedReader(Path, java.nio.charset.Charset)
-     * @see StandardCharsets#UTF_8
-     * @see #writeArray(Collection, Writer, int)
      */
     public static void writeArray(Collection<? extends Number> elements, Path path) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
@@ -157,8 +150,6 @@ public class JsonWriter {
      *
      * @param elements the elements to use
      * @return a {@link String} containing the elements in pretty JSON format
-     * @see StringWriter
-     * @see #writeArray(Collection, Writer, int)
      */
     public static String writeArray(Collection<? extends Number> elements) {
         try {
@@ -179,9 +170,6 @@ public class JsonWriter {
      *                 inner elements are indented by one, and the last bracket is indented at the
      *                 initial indentation level
      * @throws IOException if an IO error occurs
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
      */
     public static void writeObject(Map<String, ? extends Number> elements, Writer writer, int indent) throws IOException {
         writer.write('{');
@@ -214,9 +202,6 @@ public class JsonWriter {
      * @param elements the elements to write
      * @param path     the file path to use
      * @throws IOException if an IO error occurs
-     * @see Files#newBufferedReader(Path, java.nio.charset.Charset)
-     * @see StandardCharsets#UTF_8
-     * @see #writeObject(Map, Writer, int)
      */
     public static void writeObject(Map<String, ? extends Number> elements, Path path) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
@@ -229,8 +214,6 @@ public class JsonWriter {
      *
      * @param elements the elements to use
      * @return a {@link String} containing the elements in pretty JSON format
-     * @see StringWriter
-     * @see #writeObject(Map, Writer, int)
      */
     public static String writeObject(Map<String, ? extends Number> elements) {
         try {
@@ -253,10 +236,6 @@ public class JsonWriter {
      *                 inner elements are indented by one, and the last bracket is indented at the
      *                 initial indentation level
      * @throws IOException if an IO error occurs
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
-     * @see #writeArray(Collection)
      */
     public static void writeObjectArrays(Map<String, ? extends Collection<? extends Number>> elements, Writer writer, int indent) throws IOException {
         writer.write('{');
@@ -285,10 +264,6 @@ public class JsonWriter {
      *                 initial indentation level.
      * @return A string containing the JSON object representation.
      * @throws IOException if an IO error occurs while writing the JSON object.
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
-     * @see #writeArray(Collection)
      */
     public static String writeObjectObjects(Map<String, ? extends Map<String, ? extends Collection<? extends Number>>> elements) throws IOException {
         StringWriter writer = new StringWriter();
@@ -304,10 +279,6 @@ public class JsonWriter {
      * @param elements the elements to write
      * @param path     the path to write
      * @throws IOException if an IO error occurs
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
-     * @see #writeArray(Collection)
      */
     public static void writeObjectObjects(Map<String, ? extends Map<String, ? extends Collection<? extends Number>>> elements, Path path) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
@@ -326,10 +297,6 @@ public class JsonWriter {
      *                 inner elements are indented by one, and the last bracket is indented at the
      *                 initial indentation level
      * @throws IOException if an IO error occurs
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
-     * @see #writeArray(Collection)
      */
     public static void writeObjectObjects(Map<String, ? extends Map<String, ? extends Collection<? extends Number>>> elements, Writer writer, int indent) throws IOException {
         writer.write('{');
@@ -354,9 +321,6 @@ public class JsonWriter {
      * @param elements the elements to write
      * @param path     the file path to use
      * @throws IOException if an IO error occurs
-     * @see Files#newBufferedReader(Path, java.nio.charset.Charset)
-     * @see StandardCharsets#UTF_8
-     * @see #writeObjectArrays(Map, Writer, int)
      */
     public static void writeObjectArrays(Map<String, ? extends Collection<? extends Number>> elements, Path path) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
@@ -369,8 +333,6 @@ public class JsonWriter {
      *
      * @param elements the elements to use
      * @return a {@link String} containing the elements in pretty JSON format
-     * @see StringWriter
-     * @see #writeObjectArrays(Map, Writer, int)
      */
     public static String writeObjectArrays(Map<String, ? extends Collection<? extends Number>> elements) {
         try {
@@ -393,10 +355,6 @@ public class JsonWriter {
      *                 inner elements are indented by one, and the last bracket is indented at the
      *                 initial indentation level
      * @throws IOException if an IO error occurs
-     * @see Writer#write(String)
-     * @see #writeIndent(Writer, int)
-     * @see #writeIndent(String, Writer, int)
-     * @see #writeObject(Map)
      */
     public static void writeArrayObjects(Collection<? extends Map<String, ? extends Number>> elements, Writer writer, int indent) throws IOException {
         writer.write('[');
@@ -424,9 +382,6 @@ public class JsonWriter {
      * @param elements the elements to write
      * @param path     the file path to use
      * @throws IOException if an IO error occurs
-     * @see Files#newBufferedReader(Path, java.nio.charset.Charset)
-     * @see StandardCharsets#UTF_8
-     * @see #writeArrayObjects(Collection)
      */
     public static void writeArrayObjects(Collection<? extends Map<String, ? extends Number>> elements, Path path) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(path, UTF_8)) {
@@ -439,8 +394,6 @@ public class JsonWriter {
      *
      * @param elements the elements to use
      * @return a {@link String} containing the elements in pretty JSON format
-     * @see StringWriter
-     * @see #writeArrayObjects(Collection)
      */
     public static String writeArrayObjects(Collection<? extends Map<String, ? extends Number>> elements) {
         try {
@@ -630,7 +583,7 @@ public class JsonWriter {
      * An interface representing a JSON object capable of converting itself into a map
      * and writing its JSON representation to a writer.
      */
-    public static interface JsonObject {
+    public interface JsonObject {
         /**
          * Converts this object into a map representation.
          *

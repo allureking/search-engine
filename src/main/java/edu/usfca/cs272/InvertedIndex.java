@@ -16,7 +16,7 @@ import java.util.TreeSet;
  * Class responsible for maintaining an inverted index. This class will store word
  * positions across multiple files and can also track the total word counts for each file.
  *
- * @author Honghuai(King) Ke
+ * @author Honghuai Ke
  */
 public class InvertedIndex {
 
@@ -28,8 +28,8 @@ public class InvertedIndex {
     private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> wordIndex;
 
     /**
-     * A TreeMap structure to store the total count of each word across all files.
-     * The key is the word and the value is the count of that word.
+     * A TreeMap structure to store the total word count for each location (file or URL).
+     * The key is the location and the value is the total number of words at that location.
      */
     private final TreeMap<String, Integer> wordCount;
 
@@ -209,10 +209,10 @@ public class InvertedIndex {
     }
 
     /**
-     * Returns the total count of a specific word across all files.
+     * Returns the total word count at the specified location.
      *
-     * @param location The location (typically a file) to check.
-     * @return Total count of the word.
+     * @param location The location (file path or URL) to check.
+     * @return Total number of words at the location, or 0 if not found.
      */
     public int totalCount(String location) {
         return wordCount.getOrDefault(location, 0);
@@ -362,7 +362,6 @@ public class InvertedIndex {
          * This could represent a URL, a file path, or any other location identifier.
          */
         private final String location;
-
 
         /**
          * Constructs a QueryResult with the specified location.

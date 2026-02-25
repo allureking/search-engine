@@ -1,10 +1,6 @@
 package edu.usfca.cs272;
 
 import java.util.ConcurrentModificationException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,18 +11,7 @@ import org.apache.logging.log4j.Logger;
  * threads, so long as there are no writers. The write lock is exclusive. The
  * active writer is able to acquire read or write locks as long as it is active.
  *
- * <!-- simplified lock used for this class -->
- * @see SimpleLock
- *
- * <!-- built-in Java locks that are similar (but more complex) -->
- * @see Lock
- * @see ReentrantLock
- * @see ReadWriteLock
- * @see ReentrantReadWriteLock
- *
- * @author Honghuai(King) Ke
- * @author CS 272 Software Development (University of San Francisco)
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class MultiReaderLock {
     /** The conditional lock used for reading. */
@@ -119,7 +104,6 @@ public class MultiReaderLock {
      * @return true if the thread running this code and the writer thread are not
      *   null and are the same thread
      *
-     * @see Thread#currentThread()
      */
     public boolean isActiveWriter() {
         synchronized (lock) {
@@ -133,21 +117,20 @@ public class MultiReaderLock {
      *
      * Similar but simpler than {@link Lock}.
      *
-     * @author CS 272 Software Development (University of San Francisco)
-     * @version Fall 2023
+     * @author Honghuai Ke
      */
-    public static interface SimpleLock {
+    public interface SimpleLock {
         /**
          * Acquires the lock. If the lock is not available then the current thread
          * becomes disabled for thread scheduling purposes and lies dormant until the
          * lock has been acquired.
          */
-        public void lock();
+        void lock();
 
         /**
          * Releases the lock.
          */
-        public void unlock();
+        void unlock();
     }
 
     /**
@@ -191,18 +174,16 @@ public class MultiReaderLock {
          */
         @Override
         public void unlock() throws IllegalStateException {
-            if (readers > 0) {
-                log.debug("Unlocking Read");
-                synchronized (lock) {
-                    if (readers > 0) {
-                        readers--;
-                        if (readers == 0) {
-                            lock.notifyAll();
-                        }
+            synchronized (lock) {
+                if (readers > 0) {
+                    readers--;
+                    log.debug("Unlocking Read");
+                    if (readers == 0) {
+                        lock.notifyAll();
                     }
+                } else {
+                    throw new IllegalStateException();
                 }
-            } else {
-                throw new IllegalStateException();
             }
         }
     }

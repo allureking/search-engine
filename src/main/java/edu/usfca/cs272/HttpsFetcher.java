@@ -23,8 +23,7 @@ import javax.net.ssl.SSLSocketFactory;
  * An alternative to using {@link Socket} connections instead of a
  * {@link URLConnection} to fetch the headers and content from a URL on the web.
  *
- * @author Honghuai(King) Ke
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class HttpsFetcher {
 	/**
@@ -63,8 +62,6 @@ public class HttpsFetcher {
 	 * @return a map with the headers and content
 	 * @throws MalformedURLException if unable to convert String to URL
 	 * @throws IOException if unable to fetch headers and content
-	 *
-	 * @see #fetchUrl(URL)
 	 */
 	public static Map<String, List<String>> fetchUrl(String url) throws MalformedURLException, IOException {
 		return fetchUrl(new URL(url));
@@ -78,8 +75,6 @@ public class HttpsFetcher {
 	 * @return a socket connection for that url
 	 * @throws UnknownHostException if the host is not known
 	 * @throws IOException if an I/O error occurs when creating the socket
-	 *
-	 * @see URL#openConnection()
 	 */
 	public static Socket openConnection(URL url) throws UnknownHostException, IOException {
 		String protocol = url.getProtocol();
@@ -137,8 +132,6 @@ public class HttpsFetcher {
 	 * @param response a reader created from a socket connection
 	 * @return a map of header fields to a list of header values
 	 * @throws IOException if unable to read from socket
-	 *
-	 * @see URLConnection#getHeaderFields()
 	 */
 	public static Map<String, List<String>> getHeaderFields(BufferedReader response) throws IOException {
 		Map<String, List<String>> results = new HashMap<>();

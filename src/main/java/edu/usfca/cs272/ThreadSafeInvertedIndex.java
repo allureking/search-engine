@@ -10,7 +10,7 @@ import java.util.Set;
  * This class is a thread-safe version of InvertedIndex.
  * It uses a MultiReaderLock to manage concurrent access to the underlying InvertedIndex data structures.
  *
- * @author Honghuai(King) Ke
+ * @author Honghuai Ke
  */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
 

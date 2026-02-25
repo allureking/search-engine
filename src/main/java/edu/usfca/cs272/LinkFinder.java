@@ -13,8 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Finds HTTP(S) URLs from the anchor tags within HTML code.
  *
- * @author Honghuai(King) Ke
- * @version Fall 2023
+ * @author Honghuai Ke
  */
 public class LinkFinder {
 	/**
@@ -29,13 +28,6 @@ public class LinkFinder {
 	 * @param base the base URL used to convert relative links to absolute URLs
 	 * @param html the raw HTML associated with the base URL
 	 * @param links the data structure to store found HTTP(S) links
-	 *
-	 * @see Pattern#compile(String)
-	 * @see Matcher#find()
-	 * @see Matcher#group(int)
-	 *
-	 * @see #convertUrl(URL, String)
-	 * @see #isHttp(URL)
 	 */
 	public static void findLinks(URL base, String html, Collection<URL> links) {
 		String regex = "(?i)(<a[^>]+href\\s*=\\s*\")([^\"]+)(\")";
@@ -61,11 +53,9 @@ public class LinkFinder {
 	 * @param base the base URL used to convert relative links to absolute URLs
 	 * @param html the raw HTML associated with the base URL
 	 * @return list of all valid HTTP(S) links in the order they were found
-	 *
-	 * @see #findLinks(URL, String, Collection)
 	 */
 	public static ArrayList<URL> listUrls(URL base, String html) {
-		ArrayList<URL> urls = new ArrayList<URL>();
+		ArrayList<URL> urls = new ArrayList<>();
 		findLinks(base, html, urls);
 		return urls;
 	}
@@ -77,11 +67,9 @@ public class LinkFinder {
 	 * @param base the base URL used to convert relative URLs to absolute3
 	 * @param html the raw HTML associated with the base URL
 	 * @return set of all valid and unique HTTP(S) links found
-	 *
-	 * @see #findLinks(URL, String, Collection)
 	 */
 	public static HashSet<URL> uniqueUrls(URL base, String html) {
-		HashSet<URL> urls = new HashSet<URL>();
+		HashSet<URL> urls = new HashSet<>();
 		findLinks(base, html, urls);
 		return urls;
 	}
@@ -132,8 +120,6 @@ public class LinkFinder {
 	 *
 	 * @param uri the URI to clean and normalize
 	 * @return cleaned (if possible) and normalized URI
-	 *
-	 * @see URI#normalize()
 	 */
 	public static URI cleanUri(URI uri) {
 		URI normal = uri.normalize();
@@ -164,8 +150,6 @@ public class LinkFinder {
 	 *
 	 * @param link the text value to convert to URI
 	 * @return the URI or {@code null} if unable to create
-	 *
-	 * @see URI#create(String)
 	 */
 	public static URI makeUri(String link) {
 		try {

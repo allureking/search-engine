@@ -10,6 +10,8 @@ import java.util.Set;
 /**
  * Implements a multi-threaded web crawler. This class extends the crawling
  * capabilities to handle multiple URLs concurrently using a WorkQueue.
+ *
+ * @author Honghuai Ke
  */
 public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
     /**
@@ -43,6 +45,11 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
     private final Queue<URL> pendingQueue;
 
     /**
+     * Lock object for synchronizing access to shared crawl state.
+     */
+    private final Object crawlLock;
+
+    /**
      * Constructs a multi-threaded crawler with a specified work queue, inverted index, and a limit on the number of pages to crawl.
      *
      * @param workQueue     The work queue used for managing concurrent tasks.
@@ -56,6 +63,7 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
 
         urlSet = new HashSet<>();
         pendingQueue = new LinkedList<>();
+        crawlLock = new Object();
     }
 
     /**
@@ -66,23 +74,27 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
      */
     @Override
     public void crawl(URL url) {
-        pendingQueue.add(url);
+        synchronized (crawlLock) {
+            pendingQueue.add(url);
+        }
 
         while (true) {
-            if (totalProcessed >= totalCrawl || pendingQueue.isEmpty()) {
-                break;
-            }
-
-            int restNum = totalCrawl - totalProcessed;
-            while (!pendingQueue.isEmpty() && restNum > 0) {
-                URL pendingUrl = pendingQueue.poll();
-                if (urlSet.contains(pendingUrl)) {
-                    continue;
+            synchronized (crawlLock) {
+                if (totalProcessed >= totalCrawl || pendingQueue.isEmpty()) {
+                    break;
                 }
 
-                urlSet.add(pendingUrl);
-                crawlOneUrl(pendingUrl);
-                restNum--;
+                int restNum = totalCrawl - totalProcessed;
+                while (!pendingQueue.isEmpty() && restNum > 0) {
+                    URL pendingUrl = pendingQueue.poll();
+                    if (urlSet.contains(pendingUrl)) {
+                        continue;
+                    }
+
+                    urlSet.add(pendingUrl);
+                    crawlOneUrl(pendingUrl);
+                    restNum--;
+                }
             }
 
             workQueue.finish();
@@ -98,10 +110,10 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
     private void crawlOneUrl(URL url) {
         workQueue.execute(() -> {
             HtmlFetcher.HtmlFetchResult htmlFetchResult = fetchUrlContent(url);
-            String htmlContent = htmlFetchResult.getContent();
+            String htmlContent = htmlFetchResult.content();
 
-            if (htmlFetchResult.isHasHeader()) {
-                synchronized (urlSet) {
+            if (htmlFetchResult.hasHeader()) {
+                synchronized (crawlLock) {
                     totalProcessed++;
                 }
 
@@ -116,7 +128,7 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
                     InvertedIndexProcessor.processLines(url.toString(), lines, local);
                     invertedIndex.mergeDistinct(local);
 
-                    synchronized (urlSet) {
+                    synchronized (crawlLock) {
                         if (totalProcessed >= totalCrawl) {
                             return;
                         }
@@ -124,7 +136,7 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
 
                     List<URL> links = LinkFinder.listUrls(url, nonBlockHtml);
                     if (!links.isEmpty()) {
-                        synchronized (pendingQueue) {
+                        synchronized (crawlLock) {
                             pendingQueue.addAll(links);
                         }
                     }
