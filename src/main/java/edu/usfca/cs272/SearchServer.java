@@ -83,9 +83,10 @@ public class SearchServer {
         servletHandler.addServletWithMapping(searchHolder, "/");
 
         // Combining handlers into a handler list
+        // Servlet handler first so / and /index.html are handled before resource handler
         HandlerList handlers = new HandlerList();
-        handlers.addHandler(resourceHandler);
         handlers.addHandler(servletHandler);
+        handlers.addHandler(resourceHandler);
 
         // Assign handlers to the server and start it
         server.setHandler(handlers);
