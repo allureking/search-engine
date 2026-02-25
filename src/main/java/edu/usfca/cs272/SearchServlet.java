@@ -5,6 +5,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,7 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Servlet that handles search requests, search history, and index downloads
+ * Servlet that handles search requests, search history, crawling, and index downloads
  * for the search engine web interface.
  *
  * @author Honghuai Ke
@@ -46,6 +49,11 @@ public class SearchServlet extends HttpServlet {
     private final InvertedIndex invertedIndex;
 
     /**
+     * Work queue for multithreaded crawling, or null for single-threaded mode.
+     */
+    private final WorkQueue workQueue;
+
+    /**
      * List to store the history of search queries.
      */
     private final List<String> searchHistory = new ArrayList<>();
@@ -56,16 +64,20 @@ public class SearchServlet extends HttpServlet {
     private Date lastVisited;
 
     /**
-     * Constructs a SearchServlet with specified search processors and an inverted index.
+     * Constructs a SearchServlet with specified search processors, an inverted index,
+     * and an optional work queue for crawling support.
      *
      * @param searchProcessor The search processor for exact searches.
      * @param partialSearchProcessor The search processor for partial searches.
      * @param invertedIndex The inverted index used for searching.
+     * @param workQueue The work queue for multithreaded crawling, or null.
      */
-    public SearchServlet(SearchProcessorInterface searchProcessor, SearchProcessorInterface partialSearchProcessor, InvertedIndex invertedIndex) {
+    public SearchServlet(SearchProcessorInterface searchProcessor, SearchProcessorInterface partialSearchProcessor,
+                         InvertedIndex invertedIndex, WorkQueue workQueue) {
         this.exactSearchProcessor = searchProcessor;
         this.partialSearchProcessor = partialSearchProcessor;
         this.invertedIndex = invertedIndex;
+        this.workQueue = workQueue;
         lastVisited = new Date();
     }
 
@@ -79,6 +91,8 @@ public class SearchServlet extends HttpServlet {
         }
         if ("search".equals(action)) {
             search(request, response); // Perform a search action
+        } else if ("crawl".equals(action)) {
+            crawl(request, response); // Perform a crawl action
         } else if ("viewHistory".equals(action)) {
             showSearchHistory(response); // Show the search history
         } else if ("clearHistory".equals(action)) {
@@ -164,26 +178,126 @@ public class SearchServlet extends HttpServlet {
         //<!-- Time Taken -->
         long endTime = System.currentTimeMillis();
         templateString = templateString.replace("<!-- Time Taken -->", String.valueOf(endTime - startTime));
+        //<!-- Indexed Pages -->
+        templateString = templateString.replace("<!-- Indexed Pages -->", String.valueOf(invertedIndex.viewCount().size()));
         // Send the response to the client
         out.println(templateString);
     }
 
     /**
-     * Displays the search history on the web page.
+     * Handles a crawl request from the web interface. Accepts a seed URL and optional
+     * page count, creates a crawler, and indexes the crawled content.
+     *
+     * @param request The HttpServletRequest object.
+     * @param response The HttpServletResponse object.
+     * @throws IOException If an IO error occurs.
+     */
+    private void crawl(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String seedUrl = request.getParameter("url");
+        String countStr = request.getParameter("crawl");
+
+        if (seedUrl == null || seedUrl.isBlank()) {
+            response.sendRedirect("index.html");
+            return;
+        }
+
+        int crawlCount = 50;
+        if (countStr != null && !countStr.isBlank()) {
+            try {
+                crawlCount = Integer.parseInt(countStr);
+                if (crawlCount < 1) crawlCount = 1;
+                if (crawlCount > 200) crawlCount = 200;
+            } catch (NumberFormatException e) {
+                crawlCount = 50;
+            }
+        }
+
+        URI uri = LinkFinder.makeUri(seedUrl);
+        if (uri != null) {
+            try {
+                URL url = LinkFinder.cleanUri(uri).toURL();
+                CrawlerProcessorInterface crawler;
+                if (workQueue != null && invertedIndex instanceof ThreadSafeInvertedIndex threadSafeIndex) {
+                    crawler = new MultiThreadCrawlerProcessor(workQueue, threadSafeIndex, crawlCount);
+                } else {
+                    crawler = new CrawlerProcessor(invertedIndex, crawlCount);
+                }
+                crawler.crawl(url);
+                if (workQueue != null) {
+                    workQueue.finish();
+                }
+            } catch (MalformedURLException e) {
+                // Invalid URL, just redirect back
+            }
+        }
+
+        response.sendRedirect("index.html");
+    }
+
+    /**
+     * Displays the search history on the web page with styled dark theme.
      *
      * @param response The HttpServletResponse object.
      * @throws IOException If an IO error occurs.
      */
     private void showSearchHistory(HttpServletResponse response) throws IOException {
-        response.getWriter().println("<html><head><title>Search History</title></head><body>");
-        response.getWriter().println("<h2>Search History:</h2>");
-        for (String query : searchHistory) {
-            response.getWriter().println("<p>" + query + "</p>");
-        }
-        response.getWriter().println("<a href=\"index.html?action=clearHistory\">Clear Search History</a>");
-        response.getWriter().println("<a href=\"index.html\">Back to Home</a>");
-        response.getWriter().println("</body></html>");
+        response.setContentType("text/html;charset=utf-8");
+        PrintWriter out = response.getWriter();
+        out.println("""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Search History | WebDepth</title>
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+              <style>
+                *{margin:0;padding:0;box-sizing:border-box}
+                :root{--bg:#09090b;--surface:#131316;--border:#1e1e24;--text:#e4e4e7;--text-dim:#9295a0;--text-muted:#55576a;--accent:#818cf8;--accent-dim:rgba(129,140,248,0.08);--white:#f4f4f5;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+                body{font-family:var(--font);background:var(--bg);color:var(--text-dim);min-height:100vh;-webkit-font-smoothing:antialiased}
+                body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:32px 32px;opacity:0.35;pointer-events:none;z-index:0}
+                .page{max-width:600px;margin:0 auto;padding:80px 24px;position:relative;z-index:1}
+                h1{font-size:24px;font-weight:700;color:var(--white);margin-bottom:24px;letter-spacing:-0.02em}
+                .entry{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:14px;color:var(--text);transition:border-color 0.2s}
+                .entry:hover{border-color:var(--accent)}
+                .entry.empty{color:var(--text-muted);font-style:italic}
+                .actions{display:flex;gap:16px;margin-top:24px}
+                .actions a{font-family:var(--mono);font-size:13px;color:var(--accent);padding:8px 16px;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.2s}
+                .actions a:hover{border-color:var(--accent);background:var(--accent-dim)}
+                .empty-msg{text-align:center;padding:48px 0;color:var(--text-muted);font-size:14px}
+              </style>
+            </head>
+            <body>
+              <div class="page">
+                <h1>Search History</h1>
+            """);
 
+        synchronized (searchHistory) {
+            if (searchHistory.isEmpty()) {
+                out.println("<div class=\"empty-msg\">No searches yet.</div>");
+            } else {
+                for (int i = searchHistory.size() - 1; i >= 0; i--) {
+                    String query = searchHistory.get(i);
+                    if (query.isBlank()) {
+                        out.println("<div class=\"entry empty\">(empty query)</div>");
+                    } else {
+                        out.println("<div class=\"entry\">" + query + "</div>");
+                    }
+                }
+            }
+        }
+
+        out.println("""
+                <div class="actions">
+                  <a href="index.html?action=clearHistory">Clear History</a>
+                  <a href="index.html">Back to Search</a>
+                </div>
+              </div>
+            </body>
+            </html>
+            """);
     }
 
     /**

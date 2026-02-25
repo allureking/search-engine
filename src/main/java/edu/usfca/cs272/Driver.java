@@ -95,7 +95,7 @@ public class Driver {
                 exactSearchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, false, workQueue);
                 partialSearchProcessor = new MultiThreadSearchProcessor(threadSafeInvertedIndex, true, workQueue);
             }
-            SearchServer server = new SearchServer(port, exactSearchProcessor, partialSearchProcessor, invertedIndex);
+            SearchServer server = new SearchServer(port, exactSearchProcessor, partialSearchProcessor, invertedIndex, workQueue);
             try {
                 server.startServer();
             } catch (Exception e) {

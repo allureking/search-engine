@@ -37,6 +37,10 @@ public class SearchServer {
      */
     private final InvertedIndex invertedIndex;
 
+    /**
+     * Work queue for multithreaded operations, or null for single-threaded mode
+     */
+    private final WorkQueue workQueue;
 
     /**
      * Initializes a new SearchServer.
@@ -45,13 +49,16 @@ public class SearchServer {
      * @param exactSearchProcessor The search processor for exact search queries.
      * @param partialSearchProcessor The search processor for partial search queries.
      * @param invertedIndex The inverted index used for searching.
+     * @param workQueue The work queue for multithreaded operations, or null.
      */
     public SearchServer(int port, SearchProcessorInterface exactSearchProcessor,
-                        SearchProcessorInterface partialSearchProcessor, InvertedIndex invertedIndex) {
+                        SearchProcessorInterface partialSearchProcessor, InvertedIndex invertedIndex,
+                        WorkQueue workQueue) {
         this.port = port;
         this.exactSearchProcessor = exactSearchProcessor;
         this.partialSearchProcessor = partialSearchProcessor;
         this.invertedIndex = invertedIndex;
+        this.workQueue = workQueue;
     }
 
     /**
@@ -78,7 +85,7 @@ public class SearchServer {
 
         // Setting up servlet handler for handling search requests
         ServletHandler servletHandler = new ServletHandler();
-        ServletHolder searchHolder = new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor, invertedIndex));
+        ServletHolder searchHolder = new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor, invertedIndex, workQueue));
         servletHandler.addServletWithMapping(searchHolder, "/index.html");
         servletHandler.addServletWithMapping(searchHolder, "/");
 
