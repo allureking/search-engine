@@ -40,14 +40,6 @@ public class CrawlerProcessor implements CrawlerProcessorInterface {
         urlSet = new HashSet<>();
     }
 
-    /**
-     * Crawls a single URL and processes it to update the InvertedIndex. It fetches the content
-     * of the URL, extracts and processes the textual content, and then finds and crawls
-     * additional links from this content. The process stops when either the URL has been crawled
-     * before, the total number of pages to crawl has been reached, or the URL is null.
-     *
-     * @param url The URL to be crawled and processed.
-     */
     @Override
     public int getTotalProcessed() {
         return urlSet.size();
@@ -58,6 +50,14 @@ public class CrawlerProcessor implements CrawlerProcessorInterface {
         return totalCrawl;
     }
 
+    /**
+     * Crawls a single URL and processes it to update the InvertedIndex. It fetches the content
+     * of the URL, extracts and processes the textual content, and then finds and crawls
+     * additional links from this content. The process stops when either the URL has been crawled
+     * before, the total number of pages to crawl has been reached, or the URL is null.
+     *
+     * @param url The URL to be crawled and processed.
+     */
     @Override
     public void crawl(URL url) {
         if (url == null || urlSet.contains(url) || urlSet.size() >= totalCrawl) {

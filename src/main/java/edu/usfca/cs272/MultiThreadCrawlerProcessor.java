@@ -101,12 +101,6 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
         }
     }
 
-    /**
-     * Submits a single URL crawl task to the work queue. The task fetches HTML content,
-     * processes it, and extracts new links to be crawled.
-     *
-     * @param url The URL to be processed in this task.
-     */
     @Override
     public int getTotalProcessed() {
         synchronized (crawlLock) {
@@ -119,6 +113,12 @@ public class MultiThreadCrawlerProcessor implements CrawlerProcessorInterface {
         return totalCrawl;
     }
 
+    /**
+     * Submits a single URL crawl task to the work queue. The task fetches HTML content,
+     * processes it, and extracts new links to be crawled.
+     *
+     * @param url The URL to be processed in this task.
+     */
     private void crawlOneUrl(URL url) {
         workQueue.execute(() -> {
             HtmlFetcher.HtmlFetchResult htmlFetchResult = fetchUrlContent(url);
