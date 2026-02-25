@@ -78,7 +78,9 @@ public class SearchServer {
 
         // Setting up servlet handler for handling search requests
         ServletHandler servletHandler = new ServletHandler();
-        servletHandler.addServletWithMapping(new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor, invertedIndex)), "/index.html");
+        ServletHolder searchHolder = new ServletHolder(new SearchServlet(exactSearchProcessor, partialSearchProcessor, invertedIndex));
+        servletHandler.addServletWithMapping(searchHolder, "/index.html");
+        servletHandler.addServletWithMapping(searchHolder, "/");
 
         // Combining handlers into a handler list
         HandlerList handlers = new HandlerList();

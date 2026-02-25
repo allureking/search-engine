@@ -180,8 +180,8 @@ public class SearchServlet extends HttpServlet {
         for (String query : searchHistory) {
             response.getWriter().println("<p>" + query + "</p>");
         }
-        response.getWriter().println("<a href=\"/index.html?action=clearHistory\">Clear Search History</a>");
-        response.getWriter().println("<a href=\"/index.html\">Back to Home</a>");
+        response.getWriter().println("<a href=\"index.html?action=clearHistory\">Clear Search History</a>");
+        response.getWriter().println("<a href=\"index.html\">Back to Home</a>");
         response.getWriter().println("</body></html>");
 
     }
@@ -196,7 +196,7 @@ public class SearchServlet extends HttpServlet {
         synchronized (searchHistory){
             searchHistory.clear();
         }
-        response.sendRedirect("/index.html?action=viewHistory");
+        response.sendRedirect("index.html?action=viewHistory");
     }
 
     /**
