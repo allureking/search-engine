@@ -115,7 +115,7 @@ public class MultiReaderLock {
      * A simple lock used for conditional synchronization as an alternative to using
      * a {@code synchronized} block.
      *
-     * Similar but simpler than {@link Lock}.
+     * Similar but simpler than {@link java.util.concurrent.locks.Lock}.
      *
      * @author Honghuai Ke
      */

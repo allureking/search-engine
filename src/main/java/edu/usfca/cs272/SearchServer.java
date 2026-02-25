@@ -42,7 +42,7 @@ public class SearchServer {
      * Initializes a new SearchServer.
      *
      * @param port The port number where the server will run.
-     * @param searchProcessor The search processor for exact search queries.
+     * @param exactSearchProcessor The search processor for exact search queries.
      * @param partialSearchProcessor The search processor for partial search queries.
      * @param invertedIndex The inverted index used for searching.
      */
