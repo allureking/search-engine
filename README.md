@@ -2,7 +2,7 @@
 
 A full-stack search engine built in Java featuring an in-memory inverted index, multithreaded web crawler, and an embedded web server with a custom search UI.
 
-**23 Java source files | 1,854 lines of Javadoc | 2,132 source lines of code (SLOC)**
+**23 Java source files | 1,653 lines of Javadoc | 2,119 source lines of code (SLOC)**
 
 ## Architecture Overview
 
@@ -44,8 +44,8 @@ A full-stack search engine built in Java featuring an in-memory inverted index, 
 | Logging | Apache Log4j2 2.21.1 |
 | Web Server | Eclipse Jetty 11 + Jakarta Servlets |
 | Frontend | HTML, CSS, vanilla JavaScript |
-| Testing | JUnit 5 (external test suite) |
-| Utilities | Apache Commons Lang3, Commons Text |
+| Testing | JUnit 5 |
+| Utilities | Apache Commons Text |
 
 ## Project Structure
 
