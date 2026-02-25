@@ -162,7 +162,7 @@ Ties are broken by match count (descending), then by location (alphabetical). Pa
 
 ## Live Demo
 
-Try the search engine live at **[kingke.dev/demo](https://kingke.dev/demo/)** — crawling Wikipedia pages with multithreaded indexing and real-time search.
+Try the search engine live at **[kingke.dev/projects/search-engine/demo](https://kingke.dev/projects/search-engine/demo)** — crawling Wikipedia pages with multithreaded indexing and real-time search.
 
 <p align="center">
   <img src="src/main/resources/images/logo_transparent.png" alt="WebDepth Search Logo" width="150">
