@@ -173,10 +173,6 @@ public class SearchServlet extends HttpServlet {
                 results = partialSearchProcessor.getSearchResult(query);
             }
         }
-        if (reverse != null){
-            results = new ArrayList<>(results);
-            Collections.reverse(results);
-        }
         PrintWriter out = response.getWriter();
 
         // Build the search results HTML using the template
