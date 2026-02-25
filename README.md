@@ -160,9 +160,9 @@ Ties are broken by match count (descending), then by location (alphabetical). Pa
 - **WorkQueue**: Fixed-size thread pool where worker threads pull `Runnable` tasks from a shared queue. Supports graceful shutdown and a `finish()` barrier that blocks until all pending work completes.
 - **MultiReaderLock**: Allows multiple concurrent readers or a single exclusive writer. Active writers can re-enter both read and write locks.
 
-## Screenshots
+## Live Demo
 
-The web UI at `localhost:8080` provides a search interface with dark mode toggle, partial search option, search history, and index download:
+Try the search engine live at **[kingke.dev/demo](https://kingke.dev/demo/)** — crawling Wikipedia pages with multithreaded indexing and real-time search.
 
 <p align="center">
   <img src="src/main/resources/images/logo_transparent.png" alt="WebDepth Search Logo" width="150">
