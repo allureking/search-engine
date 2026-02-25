@@ -11,10 +11,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -74,6 +76,16 @@ public class SearchServlet extends HttpServlet {
     private volatile Thread crawlThread;
 
     /**
+     * The time the server started, used for uptime calculation.
+     */
+    private final Instant startTime;
+
+    /**
+     * Counter for total search queries served.
+     */
+    private final AtomicInteger totalQueries;
+
+    /**
      * Constructs a SearchServlet with specified search processors, an inverted index,
      * and an optional work queue for crawling support.
      *
@@ -89,6 +101,8 @@ public class SearchServlet extends HttpServlet {
         this.invertedIndex = invertedIndex;
         this.workQueue = workQueue;
         lastVisited = new Date();
+        startTime = Instant.now();
+        totalQueries = new AtomicInteger(0);
     }
 
     @Override
@@ -100,11 +114,15 @@ public class SearchServlet extends HttpServlet {
             lastVisited = new Date(); // Update the last visited time
         }
         if ("search".equals(action)) {
-            search(request, response); // Perform a search action
+            search(request, response);
+        } else if ("lucky".equals(action)) {
+            lucky(request, response);
         } else if ("crawl".equals(action)) {
-            crawl(request, response); // Perform a crawl action
+            crawl(request, response);
         } else if ("crawlStatus".equals(action)) {
             crawlStatus(response);
+        } else if ("stats".equals(action)) {
+            serverStats(response);
         } else if ("viewHistory".equals(action)) {
             showSearchHistory(response); // Show the search history
         } else if ("clearHistory".equals(action)) {
@@ -125,6 +143,7 @@ public class SearchServlet extends HttpServlet {
      * @throws IOException If an IO error occurs.
      */
     private void search(HttpServletRequest request, HttpServletResponse response) throws IOException{
+        totalQueries.incrementAndGet();
         long startTime = System.currentTimeMillis(); // Start timing the search operation
         response.setContentType("text/html;charset=utf-8"); // Set response content type
         Path base = Path.of("src", "main", "resources");
@@ -305,6 +324,119 @@ public class SearchServlet extends HttpServlet {
         } else {
             out.print("{\"status\":\"idle\"}");
         }
+    }
+
+    /**
+     * Performs a "I'm Feeling Lucky" search — redirects directly to the top result.
+     * Falls back to the normal search page if no results are found.
+     *
+     * @param request The HttpServletRequest object.
+     * @param response The HttpServletResponse object.
+     * @throws IOException If an IO error occurs.
+     */
+    private void lucky(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String query = request.getParameter("query");
+        if (query == null || query.isBlank()) {
+            search(request, response);
+            return;
+        }
+
+        query = StringEscapeUtils.escapeHtml4(query);
+        String partial = request.getParameter("partial");
+        List<InvertedIndex.QueryResult> results;
+
+        if (partial != null) {
+            synchronized (partialSearchProcessor) {
+                partialSearchProcessor.search(query);
+                results = partialSearchProcessor.getSearchResult(query);
+            }
+        } else {
+            synchronized (exactSearchProcessor) {
+                exactSearchProcessor.search(query);
+                results = exactSearchProcessor.getSearchResult(query);
+            }
+        }
+
+        if (!results.isEmpty()) {
+            response.setContentType("text/html;charset=utf-8");
+            PrintWriter out = response.getWriter();
+            String url = StringEscapeUtils.escapeHtml4(results.get(0).getLocation());
+            out.println("<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"0;url="
+                    + url + "\"></head><body></body></html>");
+        } else {
+            search(request, response);
+        }
+    }
+
+    /**
+     * Returns a server statistics page showing uptime, index size, and query count.
+     *
+     * @param response The HttpServletResponse object.
+     * @throws IOException If an IO error occurs.
+     */
+    private void serverStats(HttpServletResponse response) throws IOException {
+        response.setContentType("text/html;charset=utf-8");
+        PrintWriter out = response.getWriter();
+
+        long uptimeSeconds = java.time.Duration.between(startTime, Instant.now()).getSeconds();
+        long hours = uptimeSeconds / 3600;
+        long minutes = (uptimeSeconds % 3600) / 60;
+        long seconds = uptimeSeconds % 60;
+        String uptime = String.format("%dh %dm %ds", hours, minutes, seconds);
+
+        int indexedPages = invertedIndex.viewCount().size();
+        int totalWords = invertedIndex.viewWords().size();
+        int queries = totalQueries.get();
+
+        out.println("""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Server Stats | WebDepth</title>
+              <link rel="preconnect" href="https://fonts.googleapis.com">
+              <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+              <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+              <style>
+                *{margin:0;padding:0;box-sizing:border-box}
+                :root{--bg:#09090b;--surface:#131316;--border:#1e1e24;--text:#e4e4e7;--text-dim:#9295a0;--text-muted:#55576a;--accent:#818cf8;--accent-dim:rgba(129,140,248,0.08);--white:#f4f4f5;--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+                body{font-family:var(--font);background:var(--bg);color:var(--text-dim);min-height:100vh;-webkit-font-smoothing:antialiased}
+                body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,var(--border) 1px,transparent 1px);background-size:32px 32px;opacity:0.35;pointer-events:none;z-index:0}
+                .page{max-width:600px;margin:0 auto;padding:80px 24px;position:relative;z-index:1}
+                h1{font-size:24px;font-weight:700;color:var(--white);margin-bottom:32px;letter-spacing:-0.02em}
+                .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:32px}
+                .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;transition:border-color 0.2s}
+                .card:hover{border-color:var(--accent)}
+                .card-label{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px}
+                .card-value{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--accent)}
+                .actions{display:flex;gap:16px;margin-top:24px}
+                .actions a{font-family:var(--mono);font-size:13px;color:var(--accent);padding:8px 16px;border:1px solid var(--border);border-radius:6px;text-decoration:none;transition:all 0.2s}
+                .actions a:hover{border-color:var(--accent);background:var(--accent-dim)}
+              </style>
+            </head>
+            <body>
+              <div class="page">
+                <h1>Server Statistics</h1>
+                <div class="grid">
+            """);
+
+        out.printf("""
+                  <div class="card"><div class="card-label">Uptime</div><div class="card-value">%s</div></div>
+                  <div class="card"><div class="card-label">Queries Served</div><div class="card-value">%d</div></div>
+                  <div class="card"><div class="card-label">Indexed Pages</div><div class="card-value">%d</div></div>
+                  <div class="card"><div class="card-label">Indexed Words</div><div class="card-value">%d</div></div>
+            """, uptime, queries, indexedPages, totalWords);
+
+        out.println("""
+                </div>
+                <div class="actions">
+                  <a href="index.html">Back to Search</a>
+                </div>
+              </div>
+            </body>
+            </html>
+            """);
     }
 
     /**

@@ -280,6 +280,51 @@
       transform: rotate(45deg);
     }
 
+    .option-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* Reverse toggle (between stats and results) */
+    .results-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 0 12px;
+    }
+    .reverse-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .reverse-btn:hover, .reverse-btn.active {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+    .reverse-btn svg { transition: transform 0.3s; }
+    .reverse-btn.active svg { transform: rotate(180deg); }
+
     /* Crawl Section */
     .crawl-section {
       padding: 0 0 24px;
@@ -591,7 +636,8 @@
       </div>
       <div class="header-links">
         <a href="index.html?action=viewHistory" class="header-link">History</a>
-        <a href="index.html?action=download" class="header-link">Export Index</a>
+        <a href="index.html?action=stats" class="header-link">Stats</a>
+        <a href="index.html?action=download" class="header-link">Export</a>
         <a href="https://kingke.dev/projects/search-engine" class="header-link" target="_blank">About</a>
       </div>
     </header>
@@ -622,14 +668,11 @@
           <button type="submit" class="search-btn">Search</button>
         </div>
         <div class="search-options">
-          <label class="option-label">
+          <label class="option-label" title="Match word prefixes instead of exact words (e.g. 'sear' matches 'search', 'searching')">
             <input type="checkbox" id="partial" name="partial" value="partial">
             Partial match
           </label>
-          <label class="option-label">
-            <input type="checkbox" id="reverse" name="reverse" value="reverse">
-            Reverse order
-          </label>
+          <button type="button" class="option-btn" id="luckyBtn" onclick="luckySearch()" title="Go directly to the top result">I'm Feeling Lucky</button>
         </div>
       </form>
     </div>
@@ -649,13 +692,13 @@
             <span class="num-label">Pages</span>
             <div class="custom-number">
               <button type="button" onclick="adjustNum('crawlCount',-10)">-</button>
-              <input type="number" id="crawlCount" name="crawl" class="num-display" value="50" min="1" max="200" readonly>
+              <input type="number" id="crawlCount" name="crawl" class="num-display" value="50" min="1" max="200">
               <button type="button" onclick="adjustNum('crawlCount',10)">+</button>
             </div>
             <span class="num-label">Threads</span>
             <div class="custom-number">
               <button type="button" onclick="adjustNum('threadCount',-1)">-</button>
-              <input type="number" id="threadCount" name="threads" class="num-display" value="5" min="1" max="10" readonly>
+              <input type="number" id="threadCount" name="threads" class="num-display" value="5" min="1" max="10">
               <button type="button" onclick="adjustNum('threadCount',1)">+</button>
             </div>
             <button type="submit" class="crawl-btn" id="crawlBtn">Crawl</button>
@@ -677,7 +720,13 @@
       <div class="stat-item">Indexed: <span class="stat-value"><!-- Indexed Pages --> pages</span></div>
     </div>
 
-    <div class="results-container">
+    <div class="results-toolbar" id="resultsToolbar" style="display:none">
+      <button type="button" class="reverse-btn" id="reverseBtn" onclick="toggleReverse()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        Reverse order
+      </button>
+    </div>
+    <div class="results-container" id="resultsContainer">
       <!-- search-results -->
     </div>
 
@@ -748,8 +797,34 @@
     (function() {
       var params = new URLSearchParams(window.location.search);
       if (params.has('partial')) document.getElementById('partial').checked = true;
-      if (params.has('reverse')) document.getElementById('reverse').checked = true;
     })();
+
+    // Show reverse button only if there are results
+    (function() {
+      var container = document.getElementById('resultsContainer');
+      var toolbar = document.getElementById('resultsToolbar');
+      if (container && container.querySelector('.search-result')) {
+        toolbar.style.display = '';
+      }
+    })();
+
+    // Client-side reverse toggle — instantly reorders results without re-searching
+    function toggleReverse() {
+      var btn = document.getElementById('reverseBtn');
+      var container = document.getElementById('resultsContainer');
+      btn.classList.toggle('active');
+      var items = Array.from(container.querySelectorAll('.search-result'));
+      items.reverse();
+      items.forEach(function(item) { container.appendChild(item); });
+    }
+
+    // Lucky search — go directly to the top result
+    function luckySearch() {
+      var query = document.getElementById('query').value;
+      if (!query.trim()) return;
+      var partial = document.getElementById('partial').checked ? '&partial=partial' : '';
+      window.location.href = 'index.html?action=lucky&query=' + encodeURIComponent(query) + partial;
+    }
 
     // Crawl panel toggle
     function toggleCrawl() {
@@ -769,6 +844,18 @@
       if (val > max) val = max;
       input.value = val;
     }
+
+    // Validate number inputs on blur (manual typing)
+    document.querySelectorAll('.num-display').forEach(function(input) {
+      input.addEventListener('blur', function() {
+        var val = parseInt(this.value);
+        var min = parseInt(this.min);
+        var max = parseInt(this.max);
+        if (isNaN(val) || val < min) this.value = min;
+        else if (val > max) this.value = max;
+        else this.value = val;
+      });
+    });
 
     // Progress polling
     var pollTimer = null;
