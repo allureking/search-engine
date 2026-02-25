@@ -815,14 +815,26 @@
       }
     })();
 
-    // Intercept crawl form to start polling
+    // Intercept crawl form — send via fetch, no page navigation
     (function() {
       var form = document.querySelector('.crawl-form');
-      if (form) {
-        form.addEventListener('submit', function() {
-          setTimeout(startPolling, 300);
-        });
-      }
+      if (!form) return;
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var params = new URLSearchParams(new FormData(form));
+        fetch('index.html?' + params.toString())
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.status === 'started') {
+              startPolling();
+            } else if (data.status === 'busy') {
+              startPolling();
+            } else if (data.status === 'done') {
+              window.location.reload();
+            }
+          })
+          .catch(function() {});
+      });
     })();
   </script>
 </body>

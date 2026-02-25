@@ -208,8 +208,11 @@ public class SearchServlet extends HttpServlet {
      * @throws IOException If an IO error occurs.
      */
     private void crawl(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=utf-8");
+        PrintWriter out = response.getWriter();
+
         if (activeCrawler != null) {
-            response.sendRedirect("index.html");
+            out.print("{\"status\":\"busy\"}");
             return;
         }
 
@@ -218,7 +221,7 @@ public class SearchServlet extends HttpServlet {
         String threadStr = request.getParameter("threads");
 
         if (seedUrl == null || seedUrl.isBlank()) {
-            response.sendRedirect("index.html");
+            out.print("{\"status\":\"error\",\"message\":\"No URL provided\"}");
             return;
         }
 
@@ -244,7 +247,7 @@ public class SearchServlet extends HttpServlet {
 
         URI uri = LinkFinder.makeUri(seedUrl);
         if (uri == null) {
-            response.sendRedirect("index.html");
+            out.print("{\"status\":\"error\",\"message\":\"Invalid URL\"}");
             return;
         }
 
@@ -252,7 +255,7 @@ public class SearchServlet extends HttpServlet {
         try {
             url = LinkFinder.cleanUri(uri).toURL();
         } catch (MalformedURLException e) {
-            response.sendRedirect("index.html");
+            out.print("{\"status\":\"error\",\"message\":\"Invalid URL\"}");
             return;
         }
 
@@ -276,12 +279,12 @@ public class SearchServlet extends HttpServlet {
             }, "CrawlThread");
             crawlThread.setDaemon(true);
             crawlThread.start();
+            out.print("{\"status\":\"started\"}");
         } else {
             CrawlerProcessor crawler = new CrawlerProcessor(invertedIndex, crawlCount);
             crawler.crawl(url);
+            out.print("{\"status\":\"done\"}");
         }
-
-        response.sendRedirect("index.html");
     }
 
     /**
@@ -380,7 +383,7 @@ public class SearchServlet extends HttpServlet {
         synchronized (searchHistory){
             searchHistory.clear();
         }
-        response.sendRedirect("index.html?action=viewHistory");
+        showSearchHistory(response);
     }
 
     /**
