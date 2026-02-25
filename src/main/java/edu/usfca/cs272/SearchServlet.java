@@ -143,7 +143,7 @@ public class SearchServlet extends HttpServlet {
             String searchResultTemplate = """
                         <div class="search-result">
                             <h3><a href="%s" target="_blank">%s</a></h3>
-                            <p class="score">Score: %s  and  Count: %s</p>
+                            <p class="score"><span class="pill">Score: %s</span><span class="pill">Count: %s</span></p>
                         </div>
                     """;
             // Escape HTML special characters in the search result data

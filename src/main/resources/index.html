@@ -1,194 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Engine</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-            transition: background-color 0.3s, color 0.3s;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebDepth Search</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .search-section {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 40px;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .search-section img {
-            width: 120px;
-            display: block;
-            margin: 0 auto 30px;
-        }
-
-        .tagline {
-            font-size: 28px;
-            color: #008080; /* Teal color for the tagline */
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .search-section button, .search-section input[type="submit"] {
-            padding: 12px 20px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .search-section button:hover, .search-section input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-
-        .search-section form {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-        .search-section input[type="text"] {
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            width: 300px; /* Set a fixed width for the input */
-        }
-
-        .search-section input[type="checkbox"] {
-            margin-left: 10px;
-        }
-
-        .search-section a {
-            display: inline-block;
-            margin-top: 10px;
-            color: #007BFF;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .search-section a:hover {
-            color: #0056b3;
-        }
-
-        .search-results {
-            margin-top: 20px;
-        }
-        
-        .search-result {
-            border: 1px solid #dfe1e5;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f8f8f8; /* Slightly different background for results */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adding subtle shadow */
-        }
-        
-        .search-results p {
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-
-        .dark-mode {
-            background-color: #333;
-            color: #fff;
-        }
-
-        .dark-mode .search-section {
-            background-color: #444;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-
-        .dark-mode .search-section button,
-        .dark-mode .search-section input[type="submit"] {
-            background-color: #1E88E5;
-        }
-
-        .dark-mode .search-section button:hover,
-        .dark-mode .search-section input[type="submit"]:hover {
-            background-color: #1565C0;
-        }
-
-        .dark-mode .search-section a {
-            color: #80D8FF;
-        }
-
-        .dark-mode .search-section a:hover {
-            color: #64B5F6;
-        }
-
-        .dark-mode .search-result {
-            background-color: #555;
-            border-color: #666;
-            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
-        }
-        
-        .search-stats {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 14px;
-            color: #777;
-        }
-    </style>
-</head>
-<body>
-<div class="search-section">
-    <div class="tagline">WebDepth Search</div>
-
-    <img src="logo.png" alt="Logo">
-    <button onclick="toggleMode()">Change Mode</button>
-
-    <form method="get" action="/index.html">
-        <label for="query">Search:</label>
-        <input type="text" id="query" name="query" value="">
-        <input type="submit" value="Search">
-        <input type="checkbox" id="reverse" name="reverse" value="reverse">
-        <label for="reverse">reverse sort order</label>
-        <input type="checkbox" id="partial" name="partial" value="partial">
-        <label for="partial">partial search</label><br>
-    </form>
-
-    <div>
-        <a href="/index.html?action=viewHistory">View Search History</a><br>
-        <a href="/index.html?action=download">Download Index</a><br>
-    </div>
-
-    <div class="search-stats" id="searchStats">
-        Total Results: <span id="totalResults"><!-- Total Results --></span> |
-        Time Taken: <span id="timeTaken"><!-- Time Taken -->ms</span>
-    </div>
-
-    <!-- search-results -->
-
-    <div class="search-results">
-        <p>Last Visited: <!-- Last Visited --></p>
-    </div>
-</div>
-
-<script>
-    function toggleMode() {
-        document.body.classList.toggle('dark-mode');
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', isDarkMode);
+    :root {
+      --bg: #09090b;
+      --surface: #131316;
+      --border: #1e1e24;
+      --border-hover: #2a2a35;
+      --text: #e4e4e7;
+      --text-dim: #9295a0;
+      --text-muted: #55576a;
+      --accent: #818cf8;
+      --accent-dim: rgba(129, 140, 248, 0.08);
+      --accent-glow: rgba(129, 140, 248, 0.15);
+      --white: #f4f4f5;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        if (isDarkMode) {
-            document.body.classList.add('dark-mode');
-        }
-    });
-</script>
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-dim);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    ::selection { background: var(--accent); color: var(--bg); }
+    a { color: inherit; text-decoration: none; }
+
+    /* Mouse glow */
+    .mouse-glow {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .mouse-glow.active { opacity: 1; }
+
+    /* Layout */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    .brand-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text span {
+      color: var(--accent);
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .header-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* Search Section */
+    .search-section {
+      padding: 60px 0 40px;
+      text-align: center;
+    }
+
+    .search-title {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .search-subtitle {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    /* Search Form */
+    .search-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-bar {
+      display: flex;
+      width: 100%;
+      max-width: 600px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .search-icon {
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      color: var(--text-muted);
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 14px 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 15px;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-btn {
+      padding: 14px 24px;
+      background: var(--accent);
+      border: none;
+      color: var(--bg);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .search-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Options */
+    .search-options {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .option-label:hover {
+      color: var(--text);
+    }
+
+    .option-label input[type="checkbox"] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--border-hover);
+      border-radius: 4px;
+      background: var(--surface);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .option-label input[type="checkbox"]:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .option-label input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4.5px;
+      top: 1.5px;
+      width: 5px;
+      height: 9px;
+      border: solid var(--bg);
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* Stats */
+    .search-stats {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      padding: 16px 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-value {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Results */
+    .results-container {
+      flex: 1;
+      padding-bottom: 40px;
+    }
+
+    .search-result {
+      display: block;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-result:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-dim);
+    }
+
+    .search-result h3 {
+      margin: 0 0 6px 0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .search-result h3 a {
+      color: var(--white);
+      transition: color 0.2s;
+      word-break: break-all;
+    }
+
+    .search-result:hover h3 a {
+      color: var(--accent);
+    }
+
+    .search-result .url {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .search-result .score {
+      display: flex;
+      gap: 12px;
+      margin: 0;
+    }
+
+    .search-result .score .pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 3px 10px;
+      border-radius: 9999px;
+    }
+
+    /* Action links */
+    .action-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      padding: 16px 0;
+      margin-top: 8px;
+    }
+
+    .action-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+
+    .action-link:hover {
+      color: var(--accent);
+    }
+
+    /* Footer */
+    .footer {
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer a {
+      color: var(--accent);
+      transition: opacity 0.2s;
+    }
+
+    .footer a:hover {
+      opacity: 0.8;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .empty-state svg {
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .search-title { font-size: 28px; }
+      .search-bar { border-radius: 10px; }
+      .search-btn { padding: 14px 16px; font-size: 13px; }
+      .header-links { gap: 8px; }
+      .header-link { padding: 4px 8px; font-size: 11px; }
+      .search-stats { gap: 12px; flex-wrap: wrap; }
+      .search-options { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="mouse-glow"></div>
+
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <img src="logo_transparent.png" alt="WebDepth">
+        <div class="brand-text">Web<span>Depth</span></div>
+      </div>
+      <div class="header-links">
+        <a href="/index.html?action=viewHistory" class="header-link">History</a>
+        <a href="/index.html?action=download" class="header-link">Export Index</a>
+        <a href="https://kingke.dev/projects/search-engine.html" class="header-link" target="_blank">About</a>
+      </div>
+    </header>
+
+    <div class="search-section">
+      <h1 class="search-title">WebDepth Search</h1>
+      <p class="search-subtitle">Full-stack search engine with multithreaded crawling &amp; inverted indexing</p>
+
+      <form method="get" action="/index.html" class="search-form">
+        <div class="search-bar">
+          <div class="search-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input type="text" id="query" name="query" value="" class="search-input" placeholder="Search the indexed web..." autocomplete="off" autofocus>
+          <button type="submit" class="search-btn">Search</button>
+        </div>
+        <div class="search-options">
+          <label class="option-label">
+            <input type="checkbox" id="partial" name="partial" value="partial">
+            Partial match
+          </label>
+          <label class="option-label">
+            <input type="checkbox" id="reverse" name="reverse" value="reverse">
+            Reverse order
+          </label>
+        </div>
+      </form>
+    </div>
+
+    <div class="search-stats">
+      <div class="stat-item">Results: <span class="stat-value"><!-- Total Results --></span></div>
+      <div class="stat-item">Time: <span class="stat-value"><!-- Time Taken -->ms</span></div>
+      <div class="stat-item">Last crawl: <span class="stat-value"><!-- Last Visited --></span></div>
+    </div>
+
+    <div class="results-container">
+      <!-- search-results -->
+    </div>
+
+    <footer class="footer">
+      <p>Built by <a href="https://kingke.dev" target="_blank">Honghuai Ke</a> &mdash; Java 17, Jetty, Inverted Index &mdash; <a href="https://github.com/allureking/search-engine" target="_blank">Source on GitHub</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // Mouse glow effect
+    (function() {
+      const glow = document.querySelector('.mouse-glow');
+      let mouseX = 0, mouseY = 0, glowX = 0, glowY = 0, animating = false;
+
+      document.addEventListener('mousemove', e => {
+        mouseX = e.clientX; mouseY = e.clientY;
+        if (!glow.classList.contains('active')) glow.classList.add('active');
+        if (!animating) { animating = true; tick(); }
+      });
+
+      document.addEventListener('mouseleave', () => {
+        glow.classList.remove('active'); animating = false;
+      });
+
+      function tick() {
+        glowX += (mouseX - glowX) * 0.15;
+        glowY += (mouseY - glowY) * 0.15;
+        glow.style.background = `radial-gradient(680px 480px at ${glowX}px ${glowY}px, rgba(129,140,248,0.06), rgba(129,140,248,0.02) 40%, transparent 70%)`;
+        if (Math.abs(mouseX - glowX) > 0.1 || Math.abs(mouseY - glowY) > 0.1) {
+          requestAnimationFrame(tick);
+        } else { animating = false; }
+      }
+
+      if ('ontouchstart' in window) glow.style.display = 'none';
+    })();
+
+    // Preserve checkbox state from URL params
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('partial')) document.getElementById('partial').checked = true;
+      if (params.has('reverse')) document.getElementById('reverse').checked = true;
+    })();
+  </script>
 </body>
 </html>
