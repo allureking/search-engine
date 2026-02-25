@@ -668,9 +668,9 @@
           <button type="submit" class="search-btn">Search</button>
         </div>
         <div class="search-options">
-          <label class="option-label" title="Match word prefixes instead of exact words (e.g. 'sear' matches 'search', 'searching')">
-            <input type="checkbox" id="partial" name="partial" value="partial">
-            Partial match
+          <label class="option-label" title="Only match exact stems — disable prefix matching (e.g. 'arr' won't match 'array')">
+            <input type="checkbox" id="exact" name="exact" value="exact">
+            Exact match only
           </label>
           <button type="button" class="option-btn" id="luckyBtn" onclick="luckySearch()" title="Go directly to the top result">I'm Feeling Lucky</button>
         </div>
@@ -796,7 +796,7 @@
     // Preserve checkbox state from URL params
     (function() {
       var params = new URLSearchParams(window.location.search);
-      if (params.has('partial')) document.getElementById('partial').checked = true;
+      if (params.has('exact')) document.getElementById('exact').checked = true;
     })();
 
     // Show reverse button only if there are results
@@ -822,8 +822,8 @@
     function luckySearch() {
       var query = document.getElementById('query').value;
       if (!query.trim()) return;
-      var partial = document.getElementById('partial').checked ? '&partial=partial' : '';
-      window.location.href = 'index.html?action=lucky&query=' + encodeURIComponent(query) + partial;
+      var exact = document.getElementById('exact').checked ? '&exact=exact' : '';
+      window.location.href = 'index.html?action=lucky&query=' + encodeURIComponent(query) + exact;
     }
 
     // Crawl panel toggle

@@ -150,8 +150,7 @@ public class SearchServlet extends HttpServlet {
 
         // Retrieve the search query from the HTML form
         String query = request.getParameter("query");
-        String partial = request.getParameter("partial");
-        String reverse = request.getParameter("reverse");
+        String exact = request.getParameter("exact");
 
         if (query == null) {
             query = "";
@@ -163,15 +162,15 @@ public class SearchServlet extends HttpServlet {
             searchHistory.add(query);
         }
         List<InvertedIndex.QueryResult> results = new ArrayList<>();
-        if (partial != null){
-            synchronized (partialSearchProcessor) {
-                partialSearchProcessor.search(query);
-                results = partialSearchProcessor.getSearchResult(query);
-            }
-        } else{
+        if (exact != null) {
             synchronized (exactSearchProcessor) {
                 exactSearchProcessor.search(query);
                 results = exactSearchProcessor.getSearchResult(query);
+            }
+        } else {
+            synchronized (partialSearchProcessor) {
+                partialSearchProcessor.search(query);
+                results = partialSearchProcessor.getSearchResult(query);
             }
         }
         if (reverse != null){
@@ -342,18 +341,18 @@ public class SearchServlet extends HttpServlet {
         }
 
         query = StringEscapeUtils.escapeHtml4(query);
-        String partial = request.getParameter("partial");
+        String exact = request.getParameter("exact");
         List<InvertedIndex.QueryResult> results;
 
-        if (partial != null) {
-            synchronized (partialSearchProcessor) {
-                partialSearchProcessor.search(query);
-                results = partialSearchProcessor.getSearchResult(query);
-            }
-        } else {
+        if (exact != null) {
             synchronized (exactSearchProcessor) {
                 exactSearchProcessor.search(query);
                 results = exactSearchProcessor.getSearchResult(query);
+            }
+        } else {
+            synchronized (partialSearchProcessor) {
+                partialSearchProcessor.search(query);
+                results = partialSearchProcessor.getSearchResult(query);
             }
         }
 
