@@ -101,6 +101,9 @@ public class HttpsFetcher {
 
 		writer.printf("GET %s HTTP/1.1\r\n", resource);
 		writer.printf("Host: %s\r\n", host);
+		// Wikimedia (and others) reject requests without a descriptive
+		// User-Agent with HTTP 403 (see https://w.wiki/4wJS), so identify the bot.
+		writer.printf("User-Agent: WebDepthBot/1.0 (+https://search.kingke.dev)\r\n");
 		writer.printf("Connection: close\r\n");
 		writer.printf("\r\n");
 		writer.flush();
@@ -119,6 +122,9 @@ public class HttpsFetcher {
 
 		writer.printf("HEAD %s HTTP/1.1\r\n", resource);
 		writer.printf("Host: %s\r\n", host);
+		// Match printGetRequest: a descriptive User-Agent is required or the
+		// server may reject the request with HTTP 403 (see https://w.wiki/4wJS).
+		writer.printf("User-Agent: WebDepthBot/1.0 (+https://search.kingke.dev)\r\n");
 		writer.printf("Connection: close\r\n");
 		writer.printf("\r\n");
 		writer.flush();
