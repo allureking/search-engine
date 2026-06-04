@@ -1,5 +1,6 @@
 package edu.usfca.cs272;
 
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 
 import org.eclipse.jetty.server.Server;
@@ -70,8 +71,11 @@ public class SearchServer {
         // Base path for resources
         Path base = Path.of("src", "main", "resources");
 
-        // Set up Jetty server on the specified port
-        Server server = new Server(port);
+        // Set up Jetty server on the specified port, bound to loopback only.
+        // Public access is provided via the nginx reverse proxy in front of this
+        // service; binding to 127.0.0.1 keeps the plaintext HTTP port off the
+        // public internet.
+        Server server = new Server(new InetSocketAddress("127.0.0.1", port));
 
         // Context handler for server sessions
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
